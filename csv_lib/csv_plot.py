@@ -10,8 +10,12 @@ modified: 2014/02/07
         load_file_to_plot       -- loads a file to plot
         set_up_plot             -- sets up a plots labels
         line_to_plot            -- makes a line to plot
+        make_legend_plot        -- makes a legend below the plot
         show_plot               -- shows a plot
         save_plot               -- saves a plot
+
+    version 2014.2.7.2
+        added function make_legend_plot
 
     version 2014.2.7.1
         Updated the set up plot function to work with other modes. Added
@@ -108,6 +112,16 @@ def line_to_plot(interval, dates, vals):
             o_val.append(vals[index])
         index += 1
     return plt.plot(o_date, o_val)    
+
+
+def make_legend_plot(plots, names):
+    """
+    makes a legend for the plot
+    plots = the lines being plotted
+    names = their names
+    """
+    plt.legend(plots, names, bbox_to_anchor=(0.5, -0.35), loc='lower center',
+                fancybox=True, shadow=True, ncol=2)
 
 
 def show_plot():

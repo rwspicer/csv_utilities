@@ -9,6 +9,9 @@ modifyed: 2014/02/07
         This utility is designed to plot csv files. It can plot up to 10 
     files at a time. 
 
+    version 2014.2.7.2
+        added the legend
+
     version 2014.2.7.1 (working version 1)
         this is the working version. added a fuction process interval to further
     subdevide the work of csv_plotter function. fixed all documentation
@@ -23,11 +26,10 @@ modifyed: 2014/02/07
         plots a csv file
 
 """
-
 from csv_lib.csv_utilities import read_args, print_center, check_file, \
                           get_command_value, exit_on_failure, exit_on_success
 from csv_lib.csv_plot import line_to_plot, show_plot, set_up_plot, \
-                             load_file_to_plot, save_plot
+                             load_file_to_plot, save_plot, make_legend_plot
 from csv_lib.csv_date import make_interval, get_last_date
 import datetime as dtime 
 
@@ -162,6 +164,17 @@ def process_interval(commands):
     return interval, mode
 
 
+def plot_lines(files_to_plot, interval):
+    """
+    plots lines
+    """
+    plot_list = []
+    for item in files_to_plot:
+        dates, values = load_file_to_plot(item)
+        temp = line_to_plot(interval, dates, values)
+        plot_list.append(temp[0]) 
+    return plot_list
+
 def csv_plotter():
     """
     this is the csv plotter utility this functon acts like main
@@ -195,14 +208,12 @@ def csv_plotter():
     interval, mode = process_interval(commands)    
     
     set_up_plot(title, x_label, y_label, mode)
+    
+    files_to_plot = check_files(commands, data_files)    
+    plots = plot_lines(files_to_plot, interval)
+    make_legend_plot(plots, files_to_plot)
+    
 
-    files_to_plot = check_files(commands, data_files)
-
-   
-    for item in files_to_plot:
-        dates, values = load_file_to_plot(item)
-        line_to_plot(interval, dates, values)
- 
     if (get_command_value(commands, "--show", get_bool)):
         show_plot()
     else:    
