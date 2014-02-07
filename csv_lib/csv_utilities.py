@@ -1,40 +1,64 @@
 """
-CSV Utilities
+CSV Utilities 
 csv_utilities.py
 Rawser Spicer
 created: 2014/01/31
-modified: 2014/02/06
+modified: 2014/02/07
 
-TODO:
-    --UPDATE EXECPTION TYPES
+    TODO:
+        --update execption types
+        --update to datetime
 
-version 2014.2.6.1:
-    changed some of the basic execptions
-    added exit on failure
+        This module contains the basic utilities for csv_lib library. It
+    contains the following functions:
+        read_args                   -- reads command line arguments
+        get_command_value           -- gets the value form a command line 
+                                       argument
+        date_to_num                 -- converts a date string to a number
+        num_to_date                 -- converts a number to a date string
+        get_last_date_in_file       -- gets the last date in a file as a number
+        check_file                  -- checks if a file exists
+        load_file                   -- load a file
+        write_to_csv                -- writes to a csv file
+        write_rep                   -- writs a charicter n times
+        print_center                -- prints a string in the center of a 
+                                       console
+        exit_on_failure             -- exit function for failure
+        exit_on_success             -- exit function for success
 
-version 2014.2.3.1:
-    reorginized file and finished all commnets
+                
 
-version 2014.1.31 :
-    This is the initial version of this csv file utility package. It was 
-    desgined to work with csv files that have a singal date column and a 
-    singial value column. It includes :
-        -- date_to_num & num_to_date: 
+
+    version 2014.2.7.1:
+        added exit_on_success, updated documentation 
+
+    version 2014.2.6.1:
+        changed some of the basic execptions
+        added exit on failure
+
+    version 2014.2.3.1:
+        reorginized file and finished all commnets
+
+    version 2014.1.31 :
+        This is the initial version of this csv file utility package. It was 
+        desgined to work with csv files that have a singal date column and a 
+        singial value column. It includes :
+            -- date_to_num & num_to_date: 
                 functions for converting between between '"YYYY-MM-DD hh:mm:ss"'
                 date strings and YYYYMMDDhhmmss date numbers
-        -- load_file: 
+            -- load_file: 
                 a function for loading csv files
-        -- get_last_date_in_file:
+            -- get_last_date_in_file:
                 gets the last date in a file
-        -- write_to_csv:
-                writes to a csv file
-        -- check_file:
+            -- write_to_csv:
+                 writes to a csv file
+           -- check_file:
                 checks if a file exists
-        -- write_rep & print center:
+           -- write_rep & print center:
                 functions to help visulaize the progress of a utility
-        -- read_args:
+           -- read_args:
                 reads argumnts from the command line
-        -- get_command_value:
+           -- get_command_value:
                 gets the value from an given command
  
                                       
@@ -292,5 +316,11 @@ def exit_on_failure(msg = " the utility was not successfull "):
     sys.exit(1)
     
     
-
+def exit_on_success(msg = "the utility has run successfully"):
+    """
+    prints the exit on sucess message
+    msg = the message to be displayed
+    """
+    print_center(msg,'-')
+ 
     

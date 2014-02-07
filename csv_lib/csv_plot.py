@@ -2,15 +2,26 @@
 CSV Utilitys Plot Module
 csv_plot.py
 Rawser Spicer
-2014/02/06
+created: 2014/02/05
+modified: 2014/02/07
 
-    this module contains the ploting functions for csv_utilites 
+        This module contains the ploting functions for csv_lib library. It
+     contains the following functions:
+        load_file_to_plot       -- loads a file to plot
+        set_up_plot             -- sets up a plots labels
+        line_to_plot            -- makes a line to plot
+        show_plot               -- shows a plot
+        save_plot               -- saves a plot
 
-version 2014.2.6.2
+    version 2014.2.7.1
+        Updated the set up plot function to work with other modes. Added
+    save_plot. Fixed up documentation
+
+    version 2014.2.6.2
         updated all current function help string and moved datetime 
     related functions to csv_date
 
-version 2014.2.6.1
+    version 2014.2.6.1
         this version of the plotting module supports graphing intervals
 
 """
@@ -18,6 +29,7 @@ import numpy
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from csv_lib.csv_date import string_to_datetime, is_in_interval
+from csv_lib.csv_utilities import print_center
 import datetime
 
 def load_file_to_plot(f_name, skip = 4):
@@ -47,32 +59,35 @@ def set_up_plot(title = "plot", x_axis = "x-axis", y_axis = "y-axis",
     y_axis = name of the y-axis
     mode = a flag to indicate how to labe the axies
     """
+
+
     fig, axis = plt.subplots()
     plt.title(title)
     plt.xlabel(x_axis)
     plt.ylabel(y_axis)
-
-    #TODO add other modes    
+    fig.canvas.set_window_title(title)
+  
     if ("year" == mode):
         major   = mdates.MonthLocator()  
         major_fmt = mdates.DateFormatter('%b')
         minor = mdates.DayLocator(interval = 5)
+    elif ("month" == mode):
+        major   = mdates.MonthLocator()  
+        major_fmt = mdates.DateFormatter('%b')
+        minor = mdates.DayLocator(interval = 1)
+    elif ("day" == mode):
+        major   = mdates.DayLocator(interval = 5)  
+        major_fmt = mdates.DateFormatter('%b %d')
+        minor = mdates.HourLocator(interval = 12)
     else: 
         major   = mdates.MonthLocator()  
         major_fmt = mdates.DateFormatter('%b')
         minor = mdates.DayLocator()
-   
+
+    fig.autofmt_xdate()
     axis.xaxis.set_major_locator(major)
     axis.xaxis.set_major_formatter(major_fmt)
     axis.xaxis.set_minor_locator(minor)
-    fig.autofmt_xdate()
-
-
-def show_plot():
-    """
-    prints the plot to a window
-    """
-    plt.show()  
 
 
 def line_to_plot(interval, dates, vals):
@@ -92,4 +107,23 @@ def line_to_plot(interval, dates, vals):
             o_date.append(temp)
             o_val.append(vals[index])
         index += 1
-    return plt.plot(o_date, o_val)
+    return plt.plot(o_date, o_val)    
+
+
+def show_plot():
+    """
+    prints the plot to a window
+    """
+    plt.show()  
+
+
+def save_plot(f_name):
+    """
+    save plot to file of f_name
+    f_name = name of the file
+    """
+    print_center("+++ saving polt to " + f_name + " +++")
+    plt.savefig(f_name, bbox_inches='tight')
+
+
+
