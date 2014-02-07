@@ -19,6 +19,7 @@ version 2014.2.3.1
 from csv_lib.csv_utilities import read_args, print_center, check_file, \
                           get_command_value, exit_on_failure
 from csv_lib.csv_plot import *
+from csv_lib.csv_date import make_interval
 
 def get_year(value):
     if (value == ""):

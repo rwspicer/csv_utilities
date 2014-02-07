@@ -1,20 +1,32 @@
 """
+CSV Utilitys Plot Module
+csv_plot.py
+Rawser Spicer
+2014/02/06
+
+    this module contains the ploting functions for csv_utilites 
+
+version 2014.2.6.2
+        updated all current function help string and moved datetime 
+    related functions to csv_date
+
 version 2014.2.6.1
-    this version of the plotting module supports graphing intervals
+        this version of the plotting module supports graphing intervals
 
 """
 import numpy
-import sys
-import re
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-import matplotlib.cbook as cbook 
+from csv_lib.csv_date import string_to_datetime, is_in_interval
 import datetime
 
-
-def load_file_to_plot(f_name,skip = 4):
+def load_file_to_plot(f_name, skip = 4):
     """
-    loads a array of a date time opject and an array of coorisponding values
+        loads a array of a datetime.datetime object and an array of 
+    coorisponding values
+    
+    f_name = the file name
+    skip = number of rows to skip (defaluts to 4 the data logger header length)
     """    
     date_string , value = numpy.loadtxt(f_name, 
                     dtype = {'names':('date' , 'val'),'formats':('S100','f4')},
@@ -28,12 +40,19 @@ def load_file_to_plot(f_name,skip = 4):
 
 def set_up_plot(title = "plot", x_axis = "x-axis", y_axis = "y-axis",
                                                     mode = "year"):
-
-    fig, ax = plt.subplots()
+    """
+    sets up the plot labels
+    title = the plots title
+    x_axis = name of the x-axis
+    y_axis = name of the y-axis
+    mode = a flag to indicate how to labe the axies
+    """
+    fig, axis = plt.subplots()
     plt.title(title)
     plt.xlabel(x_axis)
     plt.ylabel(y_axis)
 
+    #TODO add other modes    
     if ("year" == mode):
         major   = mdates.MonthLocator()  
         major_fmt = mdates.DateFormatter('%b')
@@ -43,53 +62,34 @@ def set_up_plot(title = "plot", x_axis = "x-axis", y_axis = "y-axis",
         major_fmt = mdates.DateFormatter('%b')
         minor = mdates.DayLocator()
    
-    ax.xaxis.set_major_locator(major)
-    ax.xaxis.set_major_formatter(major_fmt)
-    ax.xaxis.set_minor_locator(minor)
+    axis.xaxis.set_major_locator(major)
+    axis.xaxis.set_major_formatter(major_fmt)
+    axis.xaxis.set_minor_locator(minor)
     fig.autofmt_xdate()
 
 
 def show_plot():
+    """
+    prints the plot to a window
+    """
     plt.show()  
 
-def string_to_datetime(string):
-    reg_exp = r'^"*(\d+)-(\d+)-(\d+) *(\d+)*:*(\d+)*:*(\d+)*"*$'
-    try:
-       
-        ts_numbers = [t(s) for t , s in zip((int, int, int, int, int, int),
-                                        re.search(reg_exp,string).groups())]
-        temp = datetime.datetime(ts_numbers[0], ts_numbers[1], 
-                                     ts_numbers[2], ts_numbers[3], 
-                                     ts_numbers[4], ts_numbers[5])
-    except TypeError:
-        ts_numbers = [t(s) for t , s in zip((int, int, int), 
-                                        re.search(reg_exp,string).groups())]
-        temp = datetime.datetime(ts_numbers[0],ts_numbers[1],ts_numbers[2])
 
-    return temp
-
-def make_interval(start, end):
-    interval = (string_to_datetime(start), string_to_datetime(end))
-    return interval
-
-
-def is_in_interval(date, interval):
-    return (interval[0] <= date and date <= interval[1])
-        
-  
-
-
-def line_to_plot(interval,dates,vals):
+def line_to_plot(interval, dates, vals):
     """
-    gennerates a line to plot
+    generates a line to plot
+    interval = the interval to graph
+    dates = dates to plot
+    vals = values to plot
+    returns a modifiable plot
     """
-    b = []
-    b_v = []
+    o_date = []
+    o_val = []
     index = 0 
     while (index < len(dates)):
-        if ( is_in_interval(dates[index], interval)):
-            temp = datetime.date(1000,dates[index].month,dates[index].day)
-            b.append(temp)
-            b_v.append(vals[index])
+        if (is_in_interval(dates[index], interval)):
+            temp = datetime.date(1000, dates[index].month, dates[index].day)
+            o_date.append(temp)
+            o_val.append(vals[index])
         index += 1
-    return plt.plot(b,b_v)
+    return plt.plot(o_date, o_val)

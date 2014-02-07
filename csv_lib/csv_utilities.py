@@ -2,13 +2,15 @@
 CSV Utilities
 csv_utilities.py
 Rawser Spicer
-2014/02/03
+created: 2014/01/31
+modified: 2014/02/06
 
 TODO:
     --UPDATE EXECPTION TYPES
 
 version 2014.2.6.1:
     changed some of the basic execptions
+    added exit on failure
 
 version 2014.2.3.1:
     reorginized file and finished all commnets
@@ -282,8 +284,12 @@ def print_center(string, fill=' ', size=80):
 
 
 def exit_on_failure(msg = " the utility was not successfull "):
-   print_center(msg,'-') 
-   sys.exit(1)
+    """
+    displays an message and then termiates a utility
+    msg = the message displayed
+    """
+    print_center(msg,'-') 
+    sys.exit(1)
     
     
 
