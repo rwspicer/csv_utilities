@@ -4,10 +4,13 @@ csv plotter
 csv_plot.py
 Rawser Spicer
 created: 2014/02/03
-modifyed: 2014/02/07
+modifyed: 2014/02/10
 
         This utility is designed to plot csv files. It can plot up to 10 
     files at a time. 
+
+    version 2014.2.10.1
+        the legend will now show the data titile instead of the file name
 
     version 2014.2.7.2
         added the legend
@@ -27,7 +30,8 @@ modifyed: 2014/02/07
 
 """
 from csv_lib.csv_utilities import read_args, print_center, check_file, \
-                          get_command_value, exit_on_failure, exit_on_success
+                          get_command_value, exit_on_failure, exit_on_success, \
+                           get_title
 from csv_lib.csv_plot import line_to_plot, show_plot, set_up_plot, \
                              load_file_to_plot, save_plot, make_legend_plot
 from csv_lib.csv_date import make_interval, get_last_date
@@ -111,10 +115,11 @@ def check_files(cmds, file_keys):
     creates a list of files to plot
     cmds = the list of command imputs
     file_keys = the keys that might contain files
-    retuns a list of valid files    
+    retuns a list of valid files, and the titles of their data  
     """
     count = 0  
     files = []
+    titles = []
     for key in file_keys:
         try:
             if not (check_file(cmds[key])):
@@ -123,6 +128,7 @@ def check_files(cmds, file_keys):
             else:
                 count += 1
                 files.append(cmds[key])
+                titles.append(get_title(cmds[key]))
         except KeyError:
             if (count == 0) :
                 print_center("ERROR: no files indicated", '*')
@@ -132,7 +138,7 @@ def check_files(cmds, file_keys):
                 print_center("+++ file " + key +
                          " not indicated, IGNORING +++") 
 
-    return files
+    return files, titles
 
 
 def process_interval(commands):
@@ -175,6 +181,7 @@ def plot_lines(files_to_plot, interval):
         plot_list.append(temp[0]) 
     return plot_list
 
+
 def csv_plotter():
     """
     this is the csv plotter utility this functon acts like main
@@ -209,9 +216,9 @@ def csv_plotter():
     
     set_up_plot(title, x_label, y_label, mode)
     
-    files_to_plot = check_files(commands, data_files)    
+    files_to_plot, titles = check_files(commands, data_files)    
     plots = plot_lines(files_to_plot, interval)
-    make_legend_plot(plots, files_to_plot)
+    make_legend_plot(plots, titles)
     
 
     if (get_command_value(commands, "--show", get_bool)):
@@ -224,3 +231,6 @@ def csv_plotter():
 
 #---run utility----
 csv_plotter()
+
+
+

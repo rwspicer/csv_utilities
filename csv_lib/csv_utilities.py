@@ -3,7 +3,7 @@ CSV Utilities
 csv_utilities.py
 Rawser Spicer
 created: 2014/01/31
-modified: 2014/02/07
+modified: 2014/02/10
 
     TODO:
         --update execption types
@@ -18,6 +18,9 @@ modified: 2014/02/07
         num_to_date                 -- converts a number to a date string
         get_last_date_in_file       -- gets the last date in a file as a number
         check_file                  -- checks if a file exists
+        get_header                  -- makes a list of the cells in the header 
+                                       of the file
+        get_title                   -- gets the title of a files data        
         load_file                   -- load a file
         write_to_csv                -- writes to a csv file
         write_rep                   -- writs a charicter n times
@@ -27,7 +30,8 @@ modified: 2014/02/07
         exit_on_success             -- exit function for success
 
                 
-
+    version 2014.2.10.1:
+        added get_header, and get_title functions
 
     version 2014.2.7.1:
         added exit_on_success, updated documentation 
@@ -194,6 +198,36 @@ def get_last_date_in_file(f_name):
         #sys.exit(1)   
     return dates[-1]  
     
+
+def get_header(f_name, h_len):
+    """
+    gets the header from the file as a list
+    f_name = the filename
+    h_len = the length of the header
+    """
+    h_list = []
+    try:
+        f_stream = open(f_name, 'r')
+    except IOError:
+        print_center("ERROR: Reading Header", '*')
+        exit_on_failure()
+    
+    index = 0 
+    while (index < h_len):
+        h_list += f_stream.readline().replace('\n','').split(',')  
+        index += 1  
+            
+    return h_list
+
+
+def get_title(f_name, h_len = 4, title_cell = 3):
+    """
+    get the files title
+    f_name = the filename
+    h_len = the length of the header
+    title_cell = the cell containg the title
+    """
+    return get_header(f_name, h_len)[title_cell]
 
 
 def load_file(f_name, rows_to_skip):
