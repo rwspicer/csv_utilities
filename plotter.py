@@ -4,10 +4,14 @@ csv plotter
 csv_plot.py
 Rawser Spicer
 created: 2014/02/03
-modifyed: 2014/02/10
+modifyed: 2014/02/12
 
         This utility is designed to plot csv files. It can plot up to 10 
     files at a time. 
+
+    version 2012.2.12.1
+        added --plot_avg flag, which will plot the a data set over the average 
+    of all other data sets
 
     version 2014.2.10.1
         the legend will now show the data titile instead of the file name
@@ -182,6 +186,38 @@ def plot_lines(files_to_plot, interval):
     return plot_list
 
 
+def plot_lines_as_avg(files_to_plot, interval):
+    """
+    plots lines
+    """
+    plot_list = []
+    for index_o, item_o in enumerate(files_to_plot):
+        dates, values = load_file_to_plot(item_o)
+        num = 0
+        avg_total = values - values
+        for index_i, item_i in enumerate(files_to_plot):
+            if not(index_i == index_o):
+                try:
+                    avg_total += load_file_to_plot(item_i)[1]
+                    num += 1
+                except ValueError:
+                    print_center(" ERROR: in plot_lines_as_avg      ", "*")
+                    print_center(" ERROR: data sets not same length ", "*")
+                    exit_on_failure()
+        if (num):        
+            avg = avg_total / num
+        else:
+            print_center(">>> WARNING: in plot_lines_as_avg         <<<")
+            print_center(">>>          no data for average ploting  <<<")
+            print_center(">>>          plottting values over 1      <<<")
+            avg = 1        
+        plot_val = values / avg    
+        
+        temp = line_to_plot(interval, dates, plot_val)
+        plot_list.append(temp[0]) 
+    return plot_list
+
+
 def csv_plotter():
     """
     this is the csv plotter utility this functon acts like main
@@ -190,7 +226,8 @@ def csv_plotter():
     data_files = ("--data_0", "--data_1", "--data_2", "--data_3", "--data_4", 
               "--data_5", "--data_6", "--data_7", "--data_8", "--data_9")
     flag_types = ("--time_interval", "--output_png", "--title", "--y_label",
-               "--x_label", "--year", "--days", "--show") + data_files
+               "--x_label", "--year", "--days", "--show", "--plot_avg") + \
+                                                                data_files
     help_string = """
     --data_0: the csv file to plot
     --data_[1-9]: other csv fils to plot (optional)
@@ -201,7 +238,11 @@ def csv_plotter():
     --title: plot title
     --y_label: y-axis label  
     --x_label: x-axis label
-    --show: set to true to show the plot instead of saving it     
+    --show: set to true to show the plot instead of saving it   
+            WARNING >>> plot will not be witten to screen if unless <<<  
+                    >>> back end is changed in csv_plot.py          <<<
+    --plot_avg: set to true to plot all data sets over an averge of 
+                the other data sets
               """
 
     print_center(utility_title, '-')
@@ -217,9 +258,13 @@ def csv_plotter():
     set_up_plot(title, x_label, y_label, mode)
     
     files_to_plot, titles = check_files(commands, data_files)    
-    plots = plot_lines(files_to_plot, interval)
+    if (get_command_value(commands, "--plot_avg", get_bool)):
+        plots = plot_lines_as_avg(files_to_plot, interval)
+    else:
+        plots = plot_lines(files_to_plot, interval)
+
     make_legend_plot(plots, titles)
-    
+
 
     if (get_command_value(commands, "--show", get_bool)):
         show_plot()

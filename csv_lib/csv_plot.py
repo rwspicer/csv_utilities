@@ -3,7 +3,7 @@ CSV Utilitys Plot Module
 csv_plot.py
 Rawser Spicer
 created: 2014/02/05
-modified: 2014/02/07
+modified: 2014/02/12
 
         This module contains the ploting functions for csv_lib library. It
      contains the following functions:
@@ -13,6 +13,9 @@ modified: 2014/02/07
         make_legend_plot        -- makes a legend below the plot
         show_plot               -- shows a plot
         save_plot               -- saves a plot
+
+    version 2014.2.12.1
+        fixed bug where all data for a day was ploted at midnight
 
     version 2014.2.7.2
         added function make_legend_plot
@@ -30,11 +33,14 @@ modified: 2014/02/07
 
 """
 import numpy
+from matplotlib import use
+use('Agg') 
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from csv_lib.csv_date import string_to_datetime, is_in_interval
 from csv_lib.csv_utilities import print_center
 import datetime
+
 
 def load_file_to_plot(f_name, skip = 4):
     """
@@ -70,7 +76,8 @@ def set_up_plot(title = "plot", x_axis = "x-axis", y_axis = "y-axis",
     plt.xlabel(x_axis)
     plt.ylabel(y_axis)
     fig.canvas.set_window_title(title)
-  
+    
+   
     if ("year" == mode):
         major   = mdates.MonthLocator()  
         major_fmt = mdates.DateFormatter('%b')
@@ -87,7 +94,7 @@ def set_up_plot(title = "plot", x_axis = "x-axis", y_axis = "y-axis",
         major   = mdates.MonthLocator()  
         major_fmt = mdates.DateFormatter('%b')
         minor = mdates.DayLocator()
-
+     
     fig.autofmt_xdate()
     axis.xaxis.set_major_locator(major)
     axis.xaxis.set_major_formatter(major_fmt)
@@ -107,10 +114,11 @@ def line_to_plot(interval, dates, vals):
     index = 0 
     while (index < len(dates)):
         if (is_in_interval(dates[index], interval)):
-            temp = datetime.date(1000, dates[index].month, dates[index].day)
+            temp = dates[index].replace(1000)
             o_date.append(temp)
             o_val.append(vals[index])
         index += 1
+
     return plt.plot(o_date, o_val)    
 
 
@@ -120,7 +128,7 @@ def make_legend_plot(plots, names):
     plots = the lines being plotted
     names = their names
     """
-    plt.legend(plots, names, bbox_to_anchor=(0.5, -0.35), loc='lower center',
+    plt.legend(plots, names, bbox_to_anchor=(0.5, -0.15), loc='upper center',
                 fancybox=True, shadow=True, ncol=2)
 
 
@@ -136,7 +144,7 @@ def save_plot(f_name):
     save plot to file of f_name
     f_name = name of the file
     """
-    print_center("+++ saving polt to " + f_name + " +++")
+    print_center("+++ saving plot to " + f_name + " +++")
     plt.savefig(f_name, bbox_inches='tight')
 
 

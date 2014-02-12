@@ -42,7 +42,7 @@ def string_to_datetime(string):
     except TypeError:
         ts_numbers = [t(s) for t , s in zip((int, int, int), 
                                         re.search(reg_exp,string).groups())]
-        temp = datetime.datetime(ts_numbers[0], ts_numbers[1], ts_numbers[2])
+        temp = datetime.datetime(ts_numbers[0], ts_numbers[1], ts_numbers[2])   
     return temp
 
 
