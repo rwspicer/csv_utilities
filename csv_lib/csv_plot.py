@@ -14,6 +14,9 @@ modified: 2014/02/12
         show_plot               -- shows a plot
         save_plot               -- saves a plot
 
+    version 2014.2.12.2
+        fixed the axies lables 
+
     version 2014.2.12.1
         fixed bug where all data for a day was ploted at midnight
 
@@ -87,7 +90,7 @@ def set_up_plot(title = "plot", x_axis = "x-axis", y_axis = "y-axis",
         major_fmt = mdates.DateFormatter('%b')
         minor = mdates.DayLocator(interval = 1)
     elif ("day" == mode):
-        major   = mdates.DayLocator(interval = 5)  
+        major   = mdates.DayLocator()  
         major_fmt = mdates.DateFormatter('%b %d')
         minor = mdates.HourLocator(interval = 12)
     else: 

@@ -9,7 +9,10 @@ modifyed: 2014/02/12
         This utility is designed to plot csv files. It can plot up to 10 
     files at a time. 
 
-    version 2012.2.12.1
+    version 2014.2.12.2
+        fixed up documentation and help
+
+    version 2014.2.12.1
         added --plot_avg flag, which will plot the a data set over the average 
     of all other data sets
 
@@ -177,6 +180,8 @@ def process_interval(commands):
 def plot_lines(files_to_plot, interval):
     """
     plots lines
+    files_to_plot: the data files to plot
+    interval: the inteval over which to plot them
     """
     plot_list = []
     for item in files_to_plot:
@@ -188,7 +193,9 @@ def plot_lines(files_to_plot, interval):
 
 def plot_lines_as_avg(files_to_plot, interval):
     """
-    plots lines
+    plots each lines over the average of the other lines
+    files_to_plot: the data files to plot
+    interval: the inteval over which to plot them
     """
     plot_list = []
     for index_o, item_o in enumerate(files_to_plot):
@@ -235,14 +242,18 @@ def csv_plotter():
     --time_interval: the time interval to plot <2000-01-01,2000-12-31>(optional)
     --year: the year to plot (optional)
     --days: days from the last date in the file to plot (optional)
-    --title: plot title
-    --y_label: y-axis label  
-    --x_label: x-axis label
-    --show: set to true to show the plot instead of saving it   
+                    +++ NOTICE: if one of the above time interval  +++ 
+                    +++ options in not  selected the entire data   +++
+                    +++ sets will be plotted                       +++
+    --title: plot title (optional: "" by default)
+    --y_label: y-axis label (optional: "" by default)
+    --x_label: x-axis label (optional: "" by default)
+    --show: set to true to show the plot instead of saving it 
+            (optional: false by default) 
             WARNING >>> plot will not be witten to screen if unless <<<  
                     >>> back end is changed in csv_plot.py          <<<
     --plot_avg: set to true to plot all data sets over an averge of 
-                the other data sets
+                the other data sets (optional: false by default)
               """
 
     print_center(utility_title, '-')

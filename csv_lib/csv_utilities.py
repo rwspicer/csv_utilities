@@ -74,6 +74,7 @@ import numpy
 import re
 
 
+
 def read_args(valid_flags, string):
     """
     reads argumens from the command line based on provided flags
@@ -229,6 +230,9 @@ def get_title(f_name, h_len = 4, title_cell = 3):
     """
     return get_header(f_name, h_len)[title_cell]
 
+"""
+def get_column(f_name, h_len, col, d_type):
+"""
 
 def load_file(f_name, rows_to_skip):
     """
