@@ -38,7 +38,7 @@ modifyed: 2014/02/12
 """
 from csv_lib.csv_utilities import read_args, print_center, check_file, \
                           get_command_value, exit_on_failure, exit_on_success, \
-                           get_title
+                           get_title, bv_to_nan
 from csv_lib.csv_plot import line_to_plot, show_plot, set_up_plot, \
                              load_file_to_plot, save_plot, make_legend_plot
 from csv_lib.csv_date import make_interval, get_last_date
@@ -186,6 +186,7 @@ def plot_lines(files_to_plot, interval):
     plot_list = []
     for item in files_to_plot:
         dates, values = load_file_to_plot(item)
+        values = bv_to_nan(values)
         temp = line_to_plot(interval, dates, values)
         plot_list.append(temp[0]) 
     return plot_list
@@ -200,12 +201,13 @@ def plot_lines_as_avg(files_to_plot, interval):
     plot_list = []
     for index_o, item_o in enumerate(files_to_plot):
         dates, values = load_file_to_plot(item_o)
+        values = bv_to_nan(values)
         num = 0
         avg_total = values - values
         for index_i, item_i in enumerate(files_to_plot):
             if not(index_i == index_o):
                 try:
-                    avg_total += load_file_to_plot(item_i)[1]
+                    avg_total += bv_to_nan(load_file_to_plot(item_i)[1])
                     num += 1
                 except ValueError:
                     print_center(" ERROR: in plot_lines_as_avg      ", "*")
@@ -229,7 +231,7 @@ def csv_plotter():
     """
     this is the csv plotter utility this functon acts like main
     """
-    utility_title = " csv plotter "
+    utility_title = " plotting utility "
     data_files = ("--data_0", "--data_1", "--data_2", "--data_3", "--data_4", 
               "--data_5", "--data_6", "--data_7", "--data_8", "--data_9")
     flag_types = ("--time_interval", "--output_png", "--title", "--y_label",

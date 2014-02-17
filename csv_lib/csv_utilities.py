@@ -3,7 +3,7 @@ CSV Utilities
 csv_utilities.py
 Rawser Spicer
 created: 2014/01/31
-modified: 2014/02/10
+modified: 2014/02/17
 
     TODO:
         --update execption types
@@ -28,9 +28,14 @@ modified: 2014/02/10
                                        console
         exit_on_failure             -- exit function for failure
         exit_on_success             -- exit function for success
+        bv_to_nan                   -- function to relpace bad values in an 
+                                       array with nan
 
                 
-    version 2014.2.10.1:
+   version 2014.2.17.1:
+        added bv_to_nan 
+
+   version 2014.2.10.1:
         added get_header, and get_title functions
 
     version 2014.2.7.1:
@@ -360,5 +365,24 @@ def exit_on_success(msg = "the utility has run successfully"):
     msg = the message to be displayed
     """
     print_center(msg,'-')
+
+
+def bv_to_nan(array):
+    """
+    replaces the bad values, 6999, 7777, 9999 with nan values
+    array = the array to find bad values in
+    array is returned
+    """
+    index = 0
+    while (index < len(array)):
+        if (6999 == array[index] or 7777 == array[index] 
+                                 or 9999 == array[index]):
+            print array[index]
+            array[index] = numpy.nan
+        index += 1
+    return array
+
+
+
  
     
