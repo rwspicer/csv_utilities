@@ -3,11 +3,12 @@ CSV Utilities
 csv_utilities.py
 Rawser Spicer
 created: 2014/01/31
-modified: 2014/02/17
+modified: 2014/02/19
 
     TODO:
         --update execption types
         --update to datetime
+        --update load_file to load_file_new
 
         This module contains the basic utilities for csv_lib library. It
     contains the following functions:
@@ -20,7 +21,9 @@ modified: 2014/02/17
         check_file                  -- checks if a file exists
         get_header                  -- makes a list of the cells in the header 
                                        of the file
-        get_title                   -- gets the title of a files data        
+        get_title                   -- gets the title of a files data 
+        get_column                  -- loads a colund
+        load_file_new               -- eventual replacment for load file       
         load_file                   -- load a file
         write_to_csv                -- writes to a csv file
         write_rep                   -- writs a charicter n times
@@ -32,7 +35,10 @@ modified: 2014/02/17
                                        array with nan
 
                 
-   version 2014.2.17.1:
+    version 2401.1.19.1:
+        added get_column and load_file_new
+   
+    version 2014.2.17.1:
         added bv_to_nan 
 
    version 2014.2.10.1:
@@ -77,7 +83,7 @@ import os
 import sys
 import numpy
 import re
-
+import csv_date as csvd
 
 
 def read_args(valid_flags, string):
@@ -222,7 +228,6 @@ def get_header(f_name, h_len):
     while (index < h_len):
         h_list += f_stream.readline().replace('\n','').split(',')  
         index += 1  
-            
     return h_list
 
 
@@ -235,11 +240,57 @@ def get_title(f_name, h_len = 4, title_cell = 3):
     """
     return get_header(f_name, h_len)[title_cell]
 
-"""
-def get_column(f_name, h_len, col, d_type):
-"""
 
-def load_file(f_name, rows_to_skip):
+def get_column(f_name, h_len, col, d_type):
+    """
+    gets a column of data from a file
+    f_name = the file
+    h_len = header length
+    col = column to read
+    d_type= datatype
+    """
+    f_value = numpy.loadtxt(f_name, delimiter=',', usecols=(col ,),
+            skiprows=h_len, 
+            dtype = '|S100')
+    r_value = []
+
+    for items in f_value:
+        if d_type == 'float':
+            temp = float(items)
+        elif d_type == 'datetime':
+            temp = csvd.string_to_datetime(items)
+        else:
+            temp = items
+        r_value.append(temp)
+
+    r_value = numpy.array(r_value)        
+    return r_value
+
+
+def load_file_new(f_name, h_len, cols):
+    """
+    new load file finction, allows arbitrary number of columns to be loaded from'
+    a csv file. if the colum 0 is given as on of the columns it will evalute to 
+    datetime.dattime objects; otherwise it will evaulate as a float.
+    f_name = the file name
+    h_len = length of the header
+    cols = tuple of columns to use 
+    """
+    r_list = {}
+
+    for items in cols:
+        if items == 0:
+            d_type = "datetime"
+        else:
+            d_type = "float"
+        r_list[items] = get_column(f_name, h_len, items, d_type)
+    if len(cols) >1:
+        return [r_list[field] for field in cols ]
+    else:
+        return r_list[cols[0]]
+
+
+def load_file(f_name, rows_to_skip, cols = (0,1 )):
     """
     loads a csv file to two arrays and the lines indicated as a header
     into a list
@@ -257,14 +308,14 @@ def load_file(f_name, rows_to_skip):
             index += 1
         f_stream.close()
     except (BaseException): 
-        print_center('error loading file, ' + f_name, '*') 
+        print_center('error loading file header stage, ' + f_name, '*') 
         #sys.exit(1)    
             
     try:
         date , value = numpy.loadtxt(f_name, delimiter=',', usecols=(0 , 1),
            converters={0: date_to_num}, skiprows=rows_to_skip, unpack=True)
     except (BaseException):
-        print_center('error loading file, ' + f_name, '*') 
+        print_center('error loading file data stage, ' + f_name, '*') 
         sys.exit(1)
         
     return date , value, header

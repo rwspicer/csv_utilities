@@ -3,7 +3,7 @@ CSV Utilitys Plot Module
 csv_plot.py
 Rawser Spicer
 created: 2014/02/05
-modified: 2014/02/12
+modified: 2014/02/19
 
         This module contains the ploting functions for csv_lib library. It
      contains the following functions:
@@ -13,6 +13,9 @@ modified: 2014/02/12
         make_legend_plot        -- makes a legend below the plot
         show_plot               -- shows a plot
         save_plot               -- saves a plot
+
+    version 2014.2.19.1
+        fixed imports
 
     version 2014.2.12.2
         fixed the axies lables 
@@ -40,8 +43,10 @@ from matplotlib import use
 use('Agg') 
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-from csv_lib.csv_date import string_to_datetime, is_in_interval
-from csv_lib.csv_utilities import print_center
+#from csv_lib.csv_date import string_to_datetime, is_in_interval
+import csv_date as csvd
+#from csv_lib.csv_utilities import print_center
+import csv_utilities as csvu
 import datetime
 
 
@@ -58,8 +63,9 @@ def load_file_to_plot(f_name, skip = 4):
                     delimiter=',', usecols=(0 , 1), skiprows=skip, unpack=True)
     date = []
     for items in date_string:
-        date.append(string_to_datetime(items))
+        date.append(csvd.string_to_datetime(items))
 
+    date = numpy.array(date)
     return date, value
 
 
@@ -116,7 +122,7 @@ def line_to_plot(interval, dates, vals):
     o_val = []
     index = 0 
     while (index < len(dates)):
-        if (is_in_interval(dates[index], interval)):
+        if (csvd.is_in_interval(dates[index], interval)):
             temp = dates[index].replace(1000)
             o_date.append(temp)
             o_val.append(vals[index])
@@ -147,7 +153,7 @@ def save_plot(f_name):
     save plot to file of f_name
     f_name = name of the file
     """
-    print_center("+++ saving plot to " + f_name + " +++")
+    csvu.print_center("+++ saving plot to " + f_name + " +++")
     plt.savefig(f_name, bbox_inches='tight')
 
 

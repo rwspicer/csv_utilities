@@ -3,7 +3,7 @@ CSV Utilities Date Module
 csv_date.py
 Rawser Spicer
 created: 2014/02/06
-modified: 2014/02/07
+modified: 2014/02/19
 
         This module handles datetime objects for the csv_lib library. It       
     includes the following functions:
@@ -12,6 +12,9 @@ modified: 2014/02/07
         get_last_date           -- get the last date in a file  
         make_interval           -- makes a date time interval tuple
         is_in_interval          -- checks if a date is in an interval
+
+    version 2014.2.19.1
+        fixed imports   
 
     version 2014.2.7.1
         added get_last_date function. updated make_interval to accept datetime
@@ -22,8 +25,8 @@ modified: 2014/02/07
 """
 import datetime
 import re
-from csv_lib.csv_utilities import print_center, exit_on_failure
-
+#from csv_lib.csv_utilities import print_center, exit_on_failure
+import csv_utilities as csvu
 
 def string_to_datetime(string):
     """
@@ -57,8 +60,8 @@ def get_last_date(f_name):
         f_stream = open(f_name, 'r')
     except IOError:
         string = "ERROR: could not read file " + f_name
-        print_center(string,'*')
-        exit_on_failure()
+        csvu.print_center(string,'*')
+        csvu.exit_on_failure()
     
     f_stream.readline()             # Read the first line.
     f_stream.seek(-2, 2)            # Jump to the second last byte.
