@@ -4,10 +4,13 @@ csv plotter
 csv_plot.py
 Rawser Spicer
 created: 2014/02/03
-modifyed: 2014/02/12
+modifyed: 2014/02/28
 
         This utility is designed to plot csv files. It can plot up to 10 
-    files at a time. 
+    files at a time, or 1 file with an arbitary number of columns of data
+
+    version 2014.2.28.1
+        added support for multiple columns of data
 
     version 2014.2.12.2
         fixed up documentation and help
@@ -38,7 +41,7 @@ modifyed: 2014/02/12
 """
 from csv_lib.csv_utilities import read_args, print_center, check_file, \
                           get_command_value, exit_on_failure, exit_on_success, \
-                           get_title, bv_to_nan
+                           get_title, bv_to_nan, load_file_new, get_header
 from csv_lib.csv_plot import line_to_plot, show_plot, set_up_plot, \
                              load_file_to_plot, save_plot, make_legend_plot
 from csv_lib.csv_date import make_interval, get_last_date
@@ -192,6 +195,26 @@ def plot_lines(files_to_plot, interval):
     return plot_list
 
 
+def plot_lines_mcm(data_to_plot, interval, num_cols):
+    """
+    plots lines
+    **** this version works for files with mulitple columns
+    data_to_plot: the data files to plot
+    interval: the inteval over which to plot them
+    num_cols: the number of columns
+    """
+    plot_list = []
+    dates = data_to_plot[0]
+    index = 1 # start at 1 b/c dates are at 0
+    while (index < num_cols):
+        values = data_to_plot[index]
+        values = bv_to_nan(values)
+        temp = line_to_plot(interval, dates, values)
+        plot_list.append(temp[0]) 
+        index += 1
+    return plot_list
+
+
 def plot_lines_as_avg(files_to_plot, interval):
     """
     plots each lines over the average of the other lines
@@ -227,6 +250,47 @@ def plot_lines_as_avg(files_to_plot, interval):
     return plot_list
 
 
+def plot_lines_as_avg_mcm(data_to_plot, interval):
+    """
+    plots each lines over the average of the other lines
+    **** this version works for files with mulitple columns
+    data_to_plot: the data files to plot
+    interval: the inteval over which to plot them
+    """
+    plot_list = []
+    for index_o, item_o in enumerate(data_to_plot):
+        if (index_o==0):        
+            dates = item_o
+            continue
+         
+        values = bv_to_nan(item_o)
+        num = 0
+        avg_total = values - values
+        for index_i, item_i in enumerate(data_to_plot):
+            if index_i == 0:
+                continue
+            if not(index_i == index_o):
+                try:
+                    avg_total += bv_to_nan(item_i)
+                    num += 1
+                except ValueError:
+                    print_center(" ERROR: in plot_lines_as_avg      ", "*")
+                    print_center(" ERROR: data sets not same length ", "*")
+                    exit_on_failure()
+        if (num):        
+            avg = avg_total / num
+        else:
+            print_center(">>> WARNING: in plot_lines_as_avg         <<<")
+            print_center(">>>          no data for average ploting  <<<")
+            print_center(">>>          plottting values over 1      <<<")
+            avg = 1        
+        plot_val = values / avg    
+        
+        temp = line_to_plot(interval, dates, plot_val)
+        plot_list.append(temp[0]) 
+    return plot_list
+
+
 def csv_plotter():
     """
     this is the csv plotter utility this functon acts like main
@@ -235,8 +299,9 @@ def csv_plotter():
     data_files = ("--data_0", "--data_1", "--data_2", "--data_3", "--data_4", 
               "--data_5", "--data_6", "--data_7", "--data_8", "--data_9")
     flag_types = ("--time_interval", "--output_png", "--title", "--y_label",
-               "--x_label", "--year", "--days", "--show", "--plot_avg") + \
-                                                                data_files
+               "--x_label", "--year", "--days", "--show", "--plot_avg",
+                "--multi_col_mode", "--num_cols") + data_files
+    
     help_string = """
     --data_0: the csv file to plot
     --data_[1-9]: other csv fils to plot (optional)
@@ -256,6 +321,10 @@ def csv_plotter():
                     >>> back end is changed in csv_plot.py          <<<
     --plot_avg: set to true to plot all data sets over an averge of 
                 the other data sets (optional: false by default)
+    --multi_col_mode: the first file has multiple columns of data 
+                      (optional: false by default)
+    --num_cols: the number columns that have data, the date column should 
+                alaways be column 0 and should NOT! be included in this number 
               """
 
     print_center(utility_title, '-')
@@ -270,11 +339,28 @@ def csv_plotter():
     
     set_up_plot(title, x_label, y_label, mode)
     
-    files_to_plot, titles = check_files(commands, data_files)    
-    if (get_command_value(commands, "--plot_avg", get_bool)):
-        plots = plot_lines_as_avg(files_to_plot, interval)
+    data_to_plot, titles = check_files(commands, data_files) 
+    
+    if (get_command_value(commands, "--multi_col_mode", get_bool)):
+
+        num_cols = get_command_value(commands, "--num_cols", get_year) 
+        num_cols += 1  
+        
+        titles = get_header(data_to_plot[0], 4)[3:(3+num_cols)]    
+        data_to_plot = load_file_new(data_to_plot[0], 4, num_cols)     
+        
+    
+        if (get_command_value(commands, "--plot_avg", get_bool)):
+            plots = plot_lines_as_avg_mcm(data_to_plot, interval)
+        else:
+            plots = plot_lines_mcm(data_to_plot, interval, num_cols)        
+
     else:
-        plots = plot_lines(files_to_plot, interval)
+      
+        if (get_command_value(commands, "--plot_avg", get_bool)):
+            plots = plot_lines_as_avg(data_to_plot, interval)
+        else:
+            plots = plot_lines(data_to_plot, interval)
 
     make_legend_plot(plots, titles)
 

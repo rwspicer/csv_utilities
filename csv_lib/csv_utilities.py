@@ -8,6 +8,7 @@ modified: 2014/02/19
     TODO:
         --update execption types
         --update to datetime
+        --load_file_new need work
         --update load_file to load_file_new
 
         This module contains the basic utilities for csv_lib library. It
@@ -34,8 +35,12 @@ modified: 2014/02/19
         bv_to_nan                   -- function to relpace bad values in an 
                                        array with nan
 
-                
-    version 2401.1.19.1:
+    
+    version 2014.2.28.1:
+        load_file_new no longer has unpack feature and it loads a file starting 
+        at column 0 to the size provided
+          
+    version 2014.2.19.1:
         added get_column and load_file_new
    
     version 2014.2.17.1:
@@ -267,30 +272,39 @@ def get_column(f_name, h_len, col, d_type):
     return r_value
 
 
-def load_file_new(f_name, h_len, cols):
+def load_file_new(f_name, h_len, cols):#, unpack = True):
     """
     new load file finction, allows arbitrary number of columns to be loaded from'
     a csv file. if the colum 0 is given as on of the columns it will evalute to 
     datetime.dattime objects; otherwise it will evaulate as a float.
     f_name = the file name
     h_len = length of the header
-    cols = tuple of columns to use 
+    cols = # of columns in file
     """
-    r_list = {}
-
-    for items in cols:
+    r_list = []
+    items = 0
+    while (items < cols):
         if items == 0:
             d_type = "datetime"
         else:
             d_type = "float"
-        r_list[items] = get_column(f_name, h_len, items, d_type)
-    if len(cols) >1:
-        return [r_list[field] for field in cols ]
-    else:
-        return r_list[cols[0]]
+        r_list.append(get_column(f_name, h_len, items, d_type))
+        items += 1    
+    return numpy.array(r_list)
+    # --------- unpack feature ------- perhapse work out later
+    #if unpack:
+    #    if len(cols) >1:
+    #        return [r_list[field] for field in cols ]
+    #    else:
+    #        return r_list[cols[0]]
+    # else:
+    #    #temp = []
+    #    #for items in r_list.keys():
+    #    #    temp.append
+    #    #r_list = temp 
+    #    return r_list
 
-
-def load_file(f_name, rows_to_skip, cols = (0,1 )):
+def load_file(f_name, rows_to_skip):
     """
     loads a csv file to two arrays and the lines indicated as a header
     into a list
@@ -416,6 +430,7 @@ def exit_on_success(msg = "the utility has run successfully"):
     msg = the message to be displayed
     """
     print_center(msg,'-')
+    sys.exit(0)
 
 
 def bv_to_nan(array):
