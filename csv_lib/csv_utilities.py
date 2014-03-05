@@ -231,7 +231,8 @@ def get_header(f_name, h_len):
     
     index = 0 
     while (index < h_len):
-        h_list += f_stream.readline().replace('\n','').split(',')  
+        #h_list += f_stream.readline().replace('\n','').split(',') 
+        h_list += f_stream.readline().split(',') 
         index += 1  
     return h_list
 
