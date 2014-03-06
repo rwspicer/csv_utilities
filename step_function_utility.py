@@ -69,8 +69,6 @@ def step_function(d_date, d_val, s_date, s_val):
     
     
 
-
-
 UTILITY_TITLE = "Step Function Utility"
 FLAGS = ("--infile", "--outfile", "--stepfile")
 HELP = """

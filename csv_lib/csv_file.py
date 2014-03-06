@@ -1,11 +1,27 @@
 """
+CSV Utilities file Module
 csv_file.py
+Rawser Spicer
+created 2014/03/05
+modifyed 2014/03/06
+
+    implemtes a class to handel the file io of csv files
+
+    update 2014.3.6.1
+        added all basic features and doucumentation
+
 """
+import copy
+import os
 import csv_lib.csv_utilities as csvu
 import csv_lib.csv_date as csvd
+import numpy as np
+#import datetime
 
 def load_info( f_name):
-    """"""
+    """
+    loads the header, header_length and number of data columns in a file 
+    """
     f_stream = open(f_name, "r")
     h_len = 0
     n_cols = 0
@@ -24,58 +40,234 @@ def load_info( f_name):
     f_stream.close()
     return n_cols, h_len, header 
 
-       
+      
 
 class CsvFile:
-     
+    """
+    CsvFile -- a class to represent csv files in memory
+    can be used to open,create,modify,and save csv files   
+    """
+    def __init__(self, f_name):
+        """
+        constructor
+        if a file name is provided it will be loaded into the object if it
+        exists. if it does not exist it will be created
+        f_name - the file name
+        """
+        self.m_name = ""
+        self.m_numcols = 0
+        self.m_headlen = 0
+        self.m_header = []
+        self.m_datacols = []
+        
+        if os.path.isfile(f_name):
+            self.open_csv(f_name)  
+        else:
+            self.create(f_name)
 
-    def __init__(self, f_name): 
-        self.m_name = f_name     
-        self.m_numcols,  self.m_headlen, self.m_header = load_info(self.m_name)
-        self.m_datecol = csvu.get_column(self.m_name, self.m_headlen, 0, "datetime")
-        self.m_datacols = csvu.load_file_new(self.m_name, self.m_headlen, self.m_numcols)[1:]
+    def open_csv(self, f_name):
+        """
+        opens a csv file if it exists
+        f_name - the name
+        """
+        if os.path.isfile(f_name):
+            self.m_name = f_name 
+            self.m_numcols,  self.m_headlen, self.m_header = \
+                                                        load_info(self.m_name)
+            self.m_datacols = csvu.load_file_new(self.m_name, self.m_headlen, 
+                                                                self.m_numcols) 
+        else:
+            raise IOError, "file, " + f_name + " was not found"
+            
+    def create(self, f_name, header = "def,\n"):  
+        """
+        creates the representation of a csv file with out any major attributes 
+        set beyond their default value. 
+        a header of "def,\n" will be used if a header is not provided
+        f_name - the file name
+        header - the header 
+        """          
+        self.m_name = f_name
+        try:
+            self.string_to_header(header)
+        except TypeError:
+            self.m_header = header          
+        self.m_headlen = len(self.m_header)           
+        self.m_numcols = 0           
+        self.m_datacols = []            
+        self.update_num_cols()
+            
     
-    def print_file_info(self):
-        print self.m_numcols
-        print self.m_header
-        print self.m_header
+    def update_num_cols(self):
+        """
+        update the number of columns the file has
+        """
+        self.m_numcols = 0           
+        for items in self.m_header:
+            if len(items) > self.m_numcols:
+                self.m_numcols = len(items) 
+        index = len(self.m_datacols) 
+        while index < self.m_numcols:
+            self.m_datacols.append([])
+            index += 1
+
+
+    def create_data(self, s_date, e_date, t_step, def_val = 0.0):
+        """
+        with a start and end date as well as a time step create the 
+        data section of a csv file with all of the non date values set to 
+        def_val. the dates (col 0) will be all timesteps between the start 
+        and end 
+        s_date - the start date
+        e_date - the end date
+        t_step - the time step
+        def_val - a default value
+        """
+        dates = []
+        temp_arr = []
+        dates.append(s_date)
+        t_delta = t_step
+        while (s_date + t_delta) < e_date:
+            dates.append(s_date + t_delta)
+            temp_arr.append(def_val)
+            t_delta += t_step
+
+        temp_arr.append(def_val)
+        self.m_datacols[0] = np.array(dates)
+                
+        index = 1
+        while index < self.m_numcols:
+            self.m_datacols[index] = (np.array(temp_arr))            
+            index += 1 
+
+    def __getitem__(self, key):
+        """        
+        overloaded [] operator
+        """
+        return copy.deepcopy(self.m_datacols[key])
+
+    def __setitem__(self, key, value):
+        """        
+        overloaded [] operator
+        """
+        self.m_datacols[key] = value
     
-    def print_dates(self):
-        print self.m_datecol
-        print self.m_datacols
+    def __len__(self):
+        """
+        returns the len of the header and the number of columns
+        """
+        return (self.m_headlen, self.m_numcols)
+
+    def __delitem__(self, key):
+        """
+        mabey i should delete somthing
+        """
+        pass      
+
+    def header_to_string(self):
+        """
+        converts the internal list form header to a string
+        """
+        h_string = ""
+        for row in self.m_header:
+            for item in row:
+                if item[-1:] != '\n':
+                    h_string += str(item) + ','
+                else:
+                    h_string += str(item)
+        return h_string
+
+    def string_to_header(self, h_str):
+        """
+        converts a string to the list form header
+        h_str - the string header
+        """
+        if not isinstance(h_str, str):
+            raise TypeError, "in string_to_header, h_str must be a string "
+        header = []
+        while True:
+            line = ""
+            while line[-1:] != '\n':
+                try:
+                    line += h_str[0]               
+                    h_str = h_str[1:]
+                except IndexError:
+                    return header
+            segs = line.split(',')
+            header.append(segs)
+        self.m_header = header
+
+    def data_to_string(self):
+        """
+        converts the internal data to a string
+        """
+        data_str = ""
+        for index, date in enumerate(self.m_datacols[0]):
+            data_str += str(date)
+            for values in self.m_datacols[1:]:
+                try:
+                    data_str += (',' + str(values[index]))
+                except IndexError:
+                    break          
+            data_str += '\n'     
+        return data_str
+
+    def print_file(self):
+        """
+        prints the contents of the file to the terminal
+        """
+        print self.header_to_string()
+        print self.data_to_string()    
 
     def get_dates(self):
-        return self.m_datecol
+        """
+        gets the dates column
+        """
+        return self[0]
 
     def set_dates(self, new_date_col):
-        self.m_datecol = new_date_col
+        """
+        sets the dates column
+        new_date_col = the new dates
+        """
+        self[0] = new_date_col
 
     def get_header(self):
-        return self.m_header        
+        """
+        returns the list form of the header
+        """
+        return copy.deepcopy(self.m_header)        
 
-    def set_header(self,new_header):
-        self.m_header= new_header
-        self.m_headlen = len(new_header)
+    def set_header(self, new_header):
+        """
+        sets the header
+        new header the new header 
+        """        
+        self.m_header = new_header
+        self.m_headlen = len(self.m_header)
+        self.update_num_cols()
 
-    
     def save(self, name = ""):
+        """
+        saves the file 
+        name - a new name if you wish to write to a different file
+        """
         if name == "" :
             name = self.m_name
+        else:
+            self.m_name = name
         f_stream = open (name, 'w')
             
-        for rows in self.m_header:
-            for cells in rows:
-                if cells[-1:] != '\n':
-                    f_stream.write(cells + ',')
-                else:
-                    f_stream.write(cells)
-
-        for index, date in enumerate(self.m_datecol):
-            f_stream.write(str(date))
-            for values in self.m_datacols:
-                f_stream.write(',' + str(values[index]))
-            f_stream.write('\n')
+        f_stream.write(self.header_to_string())
+        f_stream.write(self.data_to_string())
+       
         f_stream.close()
+
+    def append(self, data):
+        """
+        will append to the end of the data 
+        """
+        pass
 
 
 
