@@ -7,6 +7,9 @@ modifyed 2014/03/06
 
     implemtes a class to handel the file io of csv files
 
+    update 2014.3.6.2
+         the number of colums in now detrimined by the last row of the header
+
     update 2014.3.6.1
         added all basic features and doucumentation
 
@@ -35,19 +38,17 @@ def load_info( f_name):
         except AttributeError:
             header.append(segs)               
         h_len += 1
-        if n_cols < len(segs):
-            n_cols = len(segs)
+    n_cols = len(header[-1])
     f_stream.close()
     return n_cols, h_len, header 
 
-      
 
 class CsvFile:
     """
     CsvFile -- a class to represent csv files in memory
     can be used to open,create,modify,and save csv files   
     """
-    def __init__(self, f_name):
+    def __init__(self, f_name, must_exist = False):
         """
         constructor
         if a file name is provided it will be loaded into the object if it
@@ -62,8 +63,10 @@ class CsvFile:
         
         if os.path.isfile(f_name):
             self.open_csv(f_name)  
-        else:
+        elif not must_exist:
             self.create(f_name)
+        else:
+            raise IOError, "file, " + f_name + " was not found"
 
     def open_csv(self, f_name):
         """
@@ -102,10 +105,10 @@ class CsvFile:
         """
         update the number of columns the file has
         """
-        self.m_numcols = 0           
-        for items in self.m_header:
-            if len(items) > self.m_numcols:
-                self.m_numcols = len(items) 
+        self.m_numcols = len(self.m_header[-1])        
+        #for index, items in enumerate(self.m_header):
+        #    if len(items) > self.m_numcols:
+        #        self.m_numcols = len(items) 
         index = len(self.m_datacols) 
         while index < self.m_numcols:
             self.m_datacols.append([])

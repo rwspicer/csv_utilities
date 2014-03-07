@@ -1,9 +1,15 @@
+#!/usr/bin/env python
 """
 Step Function Utility
 stepFuncUtil.py
 Rawser Spicer
 created: 2014/01/??
-modified: 2014/02/10
+modified: 2014/03/06
+    
+    version 2013.3.6.1
+        updated to work with the CsvFile class
+        the old version apperes to not have been working at all but this one 
+        should. it now also has a main finction, and is executible
 
     version 2014.2.10.1
         updated to use new csv_lib name
@@ -21,12 +27,19 @@ modified: 2014/02/10
    This utility applys a step function to processed data
 to allow for corrections to be applyed to said data
 """
+from csv_lib.csv_utilities import read_args, print_center, exit_on_failure, \
+                                exit_on_success
+import csv_lib.csv_file as csvf
 
-from csv_lib.csv_utilities import read_args, load_file, write_to_csv, \
-                                  print_center
 
 
-
+UTILITY_TITLE = "Step Function Utility"
+FLAGS = ("--infile", "--outfile", "--stepfile")
+HELP_STRING = """
+    To correctly use this python utility:
+        $ python track_delay.py --infile=<path>/filename.csv
+        --stepfile=<path>/filename.csv --outfile=<path>/filename.csv
+                  """
 
 def linear_step_function(d_val, l_func):
     """linear step function"""
@@ -66,28 +79,27 @@ def step_function(d_date, d_val, s_date, s_val):
         d_index = d_index - 1
         
     return o_val
+
+
+def main():
+    """
+    main function
+    """
+    print_center(UTILITY_TITLE, '-')
+    commands = read_args(FLAGS, HELP_STRING)
     
-    
+    try:
+        my_file = csvf.CsvFile(commands["--infile"], True)
+        my_steps = csvf.CsvFile(commands["--stepfile"], True)
+    except IOError:
+        print_center("ERROR: a required file was not found", '*')
+        exit_on_failure()
+    my_file[1] = step_function(my_file.get_dates(), my_file[1],
+                                    my_steps.get_dates(), my_steps[1])
+        
+    my_file.save(commands["--outfile"])
+    exit_on_success()   
 
-UTILITY_TITLE = "Step Function Utility"
-FLAGS = ("--infile", "--outfile", "--stepfile")
-HELP = """
-    To correctly use this python utility:
-        $ python track_delay.py --infile=<path>/filename.csv
-        --stepfile=<path>/filename.csv --outfile=<path>/filename.csv
-                  """
-END_MESSAGE_SUCCESS = "the utility has run successfully"
-#END_MESSAGE_FAILURE = "the utility was not successfull"
 
-print_center(UTILITY_TITLE, '-')                  
-
-FILE_NAMES = read_args(FLAGS, HELP)
-DATA_DATE , DATA_VAL , HEADER = load_file(FILE_NAMES["--infile"], 4)
-STEP_DATE , STEP_VAL , S_HEADER = load_file(FILE_NAMES["--stepfile"], 1)
-OUT_VAL = step_function(DATA_DATE , DATA_VAL, STEP_DATE, STEP_VAL) 
-write_to_csv(FILE_NAMES["--outfile"], DATA_DATE, OUT_VAL, HEADER)
-
-print_center(END_MESSAGE_SUCCESS, '-')
-
- 
-
+if __name__ == "__main__":
+    main()
