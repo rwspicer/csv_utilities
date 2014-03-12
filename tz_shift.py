@@ -3,16 +3,19 @@ tz_shift.py
 time sone shifter
 Rawser Spicer
 created: 2014/03/05
-modifyed: 2014/03/05
+modified: 2014/03/10
 
-    this utility allows for the conversion between the UTC-0 and UTC-9(AKST) 
+        this utility allows for the conversion between the UTC-0 and UTC-9(AKST) 
     time zones  
+
+    version 2014.3.10.1:
+        now uses the csv arg class
 
 """
 from datetime import timedelta
 import csv_lib.csv_file as csvf
-from csv_lib.csv_utilities import read_args, get_command_value, print_center, \
-                                  exit_on_success, exit_on_failure
+import csv_lib.csv_args as csva
+from csv_lib.csv_utilities import print_center, exit_on_success, exit_on_failure
 
 
 UTILITY_TITLE = "< Time Zone Shifter >"
@@ -26,26 +29,6 @@ HELP_STRING = """
     --timezone:     which time zone to change to <"toUTC" | "toAK">
               """
 FLAGS = ("--in_file", "--out_file", "--timezone")
-
-
-def check_flags(cmds, req_flags):
-    """
-    checks to see that all required flags are filled out
-    if a flag is missing it is printed and the program exits
-    
-    cmds: the commands from command line
-    req_flags: list of requitred flags    
-    """
-    missing = []
-    for item in req_flags:
-        try:
-            cmds[item]
-        except KeyError:
-            missing.append(item)
-    if len(missing) != 0:
-        for item in missing:       
-            print_center(" ERROR: <" + item + "> must be defined ", "*")
-        exit_on_failure()
 
     
 def interp_tz(value=""):
@@ -64,11 +47,25 @@ def interp_tz(value=""):
 def main():
     """ main function """
     print_center(UTILITY_TITLE, "-")
-    commands = read_args(FLAGS, HELP_STRING)
-    to_utc = get_command_value(commands, "--timezone", interp_tz)
-    check_flags(commands, FLAGS)
     
-    my_file = csvf.CsvFile(commands["--in_file"])
+    try:
+        commands = csva.ArgClass(FLAGS, (), HELP_STRING)
+    except RuntimeError, (ErrorMessage):
+         exit_on_failure(ErrorMessage[0])    
+
+    if commands.is_missing_flags():
+        for items in commands.get_missing_flags():
+            print_center(" ERROR: flag <" + items + "> is required ", "*")
+        exit_on_failure()
+
+    to_utc = commands.get_command_value("--timezone", interp_tz)
+    
+    try:
+        my_file = csvf.CsvFile(commands["--in_file"])
+    except IOError:
+        print_center("ERROR: input file was not found", '*')
+        exit_on_failure()    
+        
     header = my_file.get_header()
     dates = my_file.get_dates()
     delta = timedelta(hours = 9*(to_utc))
@@ -78,7 +75,7 @@ def main():
     elif to_utc == -1:  
         header[2][0] = "UTC-9(AKST)"
     else:
-        print "toAK of toUTC not specifyed"
+        print_center("toAK or toUTC not specified")
     print_center("Time Zone will be " + header[2][0])
 
     newtimes = []
@@ -89,6 +86,7 @@ def main():
     my_file.set_dates(newtimes)
     my_file.save(commands["--out_file"])
     exit_on_success()
+
 
 if __name__ == "__main__":
     main()

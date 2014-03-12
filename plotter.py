@@ -4,10 +4,13 @@ csv plotter
 csv_plot.py
 Rawser Spicer
 created: 2014/02/03
-modifyed: 2014/02/28
+modifyed: 2014/03/12
 
         This utility is designed to plot csv files. It can plot up to 10 
     files at a time, or 1 file with an arbitary number of columns of data
+
+    version 2014.3.12.1
+        added ArgClass support
 
     version 2014.2.28.1
         added support for multiple columns of data
@@ -39,6 +42,7 @@ modifyed: 2014/02/28
         plots a csv file
 
 """
+import csv_lib.csv_args as csva
 from csv_lib.csv_utilities import read_args, print_center, check_file, \
                           get_command_value, exit_on_failure, exit_on_success, \
                            get_title, bv_to_nan, load_file_new, get_header
@@ -291,18 +295,15 @@ def plot_lines_as_avg_mcm(data_to_plot, interval):
     return plot_list
 
 
-def csv_plotter():
-    """
-    this is the csv plotter utility this functon acts like main
-    """
-    utility_title = " plotting utility "
-    data_files = ("--data_0", "--data_1", "--data_2", "--data_3", "--data_4", 
+
+UTILITY_TITLE = " plotting utility "
+FILES = ("--data_0", "--data_1", "--data_2", "--data_3", "--data_4", 
               "--data_5", "--data_6", "--data_7", "--data_8", "--data_9")
-    flag_types = ("--time_interval", "--output_png", "--title", "--y_label",
+FLAGS = ("--time_interval", "--output_png", "--title", "--y_label",
                "--x_label", "--year", "--days", "--show", "--plot_avg",
-                "--multi_col_mode", "--num_cols") + data_files
+                "--multi_col_mode", "--num_cols") + FILES
     
-    help_string = """
+HELP_STRING = """
     --data_0: the csv file to plot
     --data_[1-9]: other csv fils to plot (optional)
     --output_png: name of the .png file to save the plot to
@@ -327,37 +328,48 @@ def csv_plotter():
                 alaways be column 0 and should NOT! be included in this number 
               """
 
-    print_center(utility_title, '-')
-    commands = read_args(flag_types, help_string)
+
+
+
+def csv_plotter():
+    """
+    this is the csv plotter utility this functon acts like main
+    """
+    print_center(UTILITY_TITLE, '-')
+
+    try: 
+        commands = csva.ArgClass((), FLAGS, HELP_STRING)
+    except RuntimeError, error_message:
+        exit_on_failure(error_message[0])
     
-    png = get_command_value(commands, "--output_png", get_file_name)
+    png = commands.get_command_value( "--output_png", get_file_name)
     
-    y_label = get_command_value(commands, "--y_label", get_string)
-    x_label = get_command_value(commands, "--x_label", get_string)
-    title = get_command_value(commands, "--title", get_string)
+    y_label = commands.get_command_value("--y_label", get_string)
+    x_label = commands.get_command_value( "--x_label", get_string)
+    title = commands.get_command_value( "--title", get_string)
     interval, mode = process_interval(commands)    
     
     set_up_plot(title, x_label, y_label, mode)
     
-    data_to_plot, titles = check_files(commands, data_files) 
+    data_to_plot, titles = check_files(commands, FILES) 
     
-    if (get_command_value(commands, "--multi_col_mode", get_bool)):
+    if (commands.get_command_value( "--multi_col_mode", get_bool)):
 
-        num_cols = get_command_value(commands, "--num_cols", get_year) 
+        num_cols = commands.get_command_value("--num_cols", get_year) 
         num_cols += 1  
         
         titles = get_header(data_to_plot[0], 4)[3:(3+num_cols)]    
         data_to_plot = load_file_new(data_to_plot[0], 4, num_cols)     
         
     
-        if (get_command_value(commands, "--plot_avg", get_bool)):
+        if (commands.get_command_value( "--plot_avg", get_bool)):
             plots = plot_lines_as_avg_mcm(data_to_plot, interval)
         else:
             plots = plot_lines_mcm(data_to_plot, interval, num_cols)        
 
     else:
       
-        if (get_command_value(commands, "--plot_avg", get_bool)):
+        if (commands.get_command_value( "--plot_avg", get_bool)):
             plots = plot_lines_as_avg(data_to_plot, interval)
         else:
             plots = plot_lines(data_to_plot, interval)
@@ -365,7 +377,7 @@ def csv_plotter():
     make_legend_plot(plots, titles)
 
 
-    if (get_command_value(commands, "--show", get_bool)):
+    if (commands.get_command_value( "--show", get_bool)):
         show_plot()
     else:    
         save_plot(png)
@@ -374,7 +386,8 @@ def csv_plotter():
 
 
 #---run utility----
-csv_plotter()
+if __name__ == "__main__":
+    csv_plotter()
 
 
 

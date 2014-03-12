@@ -105,5 +105,5 @@ def is_in_interval(date, interval):
     interval = an interval of dates
     returns true if date is in the give interval
     """
-    return (interval[0] <= date and date <= interval[1])
+    return (interval[0] <= date and date < interval[1])
 

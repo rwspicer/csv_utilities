@@ -3,9 +3,12 @@ relative humidity calulator
 rh_calculator.py
 Rawser Spicer
 created: 2014/01/24
-modifyed: 2014/02/10
+modifyed: 2014/02/12
 
-    version 2014.2.10.1
+    version 2014.3.12.1
+        now works with csv_lib.csv_file and .csv_args
+
+    version 2014.3.10.1
         updated to use new csv_lib name
 
     version 2014.02.03.2
@@ -22,11 +25,10 @@ modifyed: 2014/02/10
    This utility calcualtes relative humidity from air temepeature and dew point 
    data
 """
-
-import sys
 import math
-from csv_lib.csv_utilities import read_args, load_file, write_to_csv, \
-                                    print_center
+import csv_lib.csv_file as csvf
+import csv_lib.csv_args as csva
+from csv_lib.csv_utilities import print_center, exit_on_success, exit_on_failure
 
 
 def calc_rh(at_date, at_val, dp_date, dp_val):
@@ -45,8 +47,9 @@ def calc_rh(at_date, at_val, dp_date, dp_val):
     while (index < len(at_date)):
         rh_val = comp_val
         if not(at_date[index] == dp_date[index]):
-            print "dates do not match for air temp and dew point"
-            sys.exit(1)
+            print_center("ERROR: dates do not match for air temp and dew point",
+                            "*")
+            exit_on_failure()
             # how to handle this?
         if (at_val[index] != comp_val and  dp_val[index] != comp_val):
             denominator = 0.611 * math.exp((17.3 * at_val[index])
@@ -60,7 +63,6 @@ def calc_rh(at_date, at_val, dp_date, dp_val):
     return o_val
     
 
-#________________________________start utility
 UTILITY_TITLE = "Realative Humidity Calculator"
 FLAGS = ("--at_file", "--dp_file", "--rh_file")
 HELP_STR = """
@@ -70,28 +72,53 @@ HELP_STR = """
         
                   """
 
-END_MESSAGE_SUCCESS = "the utility has run successfully"
-#END_MESSAGE_FAILURE = "the utility was not successfull"
-                  
-print_center(UTILITY_TITLE, '-')
-FILE_NAMES = read_args(FLAGS, HELP_STR)
-AT_DATE , AT_VAL , AT_HEADER = load_file(FILE_NAMES["--at_file"], 4)
+def main():
+    """ the utility """
+    print_center(UTILITY_TITLE, '-')   
+    
+    try: 
+        commands = csva.ArgClass(FLAGS, (), HELP_STR)
+    except RuntimeError, error_message:
+        exit_on_failure(error_message[0])
 
-#temp header fix up
-TEMP = AT_HEADER[1].split(',')
-TEMP[1] = "Relative Humidity"
-AT_HEADER[1] = TEMP[0] + ',' + TEMP[1] + '\n'
+    if commands.is_missing_flags():
+        for items in commands.get_missing_flags():
+            print_center(" ERROR: flag <" + items + "> is required ", "*")
+        exit_on_failure()
 
-TEMP = AT_HEADER[2].split(',')
-TEMP[1] = "Percent"
-AT_HEADER[2] = TEMP[0] + ',' + TEMP[1] + '\n'
+    try:
+        at_file = csvf.CsvFile(commands["--at_file"], True)
+        dp_file = csvf.CsvFile(commands["--dp_file"], True)
+    except IOError:
+        print_center("ERROR: a required file was not found", '*')
+        exit_on_failure()
+    
+    rh_file = csvf.CsvFile(commands["--rh_file"])
+    if not rh_file.exists():
+        print_center(rh_file.name() + " not found, it will be created")
+        temp = at_file.get_header()
+        temp[1][1] = "Relative Humidity\n"
+        temp[2][1] = "Percent\n"
+        rh_file.set_header(temp)   
+    else:
+        print_center(rh_file.name() + " found, it will be appended to") 
 
-DP_DATE , DP_VAL , DP_HEADER = load_file(FILE_NAMES["--dp_file"], 4)
-RH_VAL = calc_rh(AT_DATE , AT_VAL, DP_DATE, DP_VAL) 
+    rh_data = calc_rh(at_file[0], at_file[1], dp_file[0], dp_file[1])
+    rh_file.set_dates(at_file[0])
+    rh_file[1] = rh_data
 
-write_to_csv(FILE_NAMES["--rh_file"], AT_DATE, RH_VAL, AT_HEADER)
+    if not rh_file.append():
+        print_center("Old dates indcate no new data to be appended.") 
+        print_center("No data was written.                         ")      
 
-print_center(END_MESSAGE_SUCCESS, '-')
+    exit_on_success()
+ 
+
+if __name__ == "__main__":
+    main()
+
+    
+    
 
  
 

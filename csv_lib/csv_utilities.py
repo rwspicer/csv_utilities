@@ -291,7 +291,7 @@ def load_file_new(f_name, h_len, cols):#, unpack = True):
             d_type = "float"
         r_list.append(get_column(f_name, h_len, items, d_type))
         items += 1    
-    return numpy.array(r_list)
+    return r_list
     # --------- unpack feature ------- perhapse work out later
     #if unpack:
     #    if len(cols) >1:

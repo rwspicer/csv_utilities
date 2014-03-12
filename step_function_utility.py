@@ -5,8 +5,14 @@ stepFuncUtil.py
 Rawser Spicer
 created: 2014/01/??
 modified: 2014/03/06
+
+        This utility applys a step function to processed data
+    to allow for corrections to be applyed to said data
     
-    version 2013.3.6.1
+    version 2014.3.10.1
+        uses csv_args to handel the command line
+    
+    version 2014.3.6.1
         updated to work with the CsvFile class
         the old version apperes to not have been working at all but this one 
         should. it now also has a main finction, and is executible
@@ -23,13 +29,11 @@ modified: 2014/03/06
     update 1: 
         now the unility creates the out put file if it dose not exist and
     appends the data to one that does.
-
-   This utility applys a step function to processed data
-to allow for corrections to be applyed to said data
+  
 """
-from csv_lib.csv_utilities import read_args, print_center, exit_on_failure, \
-                                exit_on_success
+from csv_lib.csv_utilities import print_center, exit_on_failure, exit_on_success
 import csv_lib.csv_file as csvf
+import csv_lib.csv_args as csva
 
 
 
@@ -86,8 +90,12 @@ def main():
     main function
     """
     print_center(UTILITY_TITLE, '-')
-    commands = read_args(FLAGS, HELP_STRING)
     
+    try:    
+        commands = csva.ArgClass(FLAGS, (), HELP_STRING)
+    except RuntimeError, (error_message):
+        exit_on_failure(error_message[0])   
+     
     try:
         my_file = csvf.CsvFile(commands["--infile"], True)
         my_steps = csvf.CsvFile(commands["--stepfile"], True)

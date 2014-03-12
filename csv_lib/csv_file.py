@@ -18,7 +18,7 @@ import copy
 import os
 import csv_lib.csv_utilities as csvu
 import csv_lib.csv_date as csvd
-import numpy as np
+#import numpy as np
 #import datetime
 
 def load_info( f_name):
@@ -60,6 +60,7 @@ class CsvFile:
         self.m_headlen = 0
         self.m_header = []
         self.m_datacols = []
+        self.m_exists = False
         
         if os.path.isfile(f_name):
             self.open_csv(f_name)  
@@ -78,11 +79,12 @@ class CsvFile:
             self.m_numcols,  self.m_headlen, self.m_header = \
                                                         load_info(self.m_name)
             self.m_datacols = csvu.load_file_new(self.m_name, self.m_headlen, 
-                                                                self.m_numcols) 
+                                                             self.m_numcols)[:]
+            self.m_exists = True
         else:
             raise IOError, "file, " + f_name + " was not found"
             
-    def create(self, f_name, header = "def,\n"):  
+    def create(self, f_name, header = "def,\ndef,def\n"):  
         """
         creates the representation of a csv file with out any major attributes 
         set beyond their default value. 
@@ -95,10 +97,12 @@ class CsvFile:
             self.string_to_header(header)
         except TypeError:
             self.m_header = header          
-        self.m_headlen = len(self.m_header)           
+        self.m_headlen = len(self.m_header)  
+             
         self.m_numcols = 0           
         self.m_datacols = []            
         self.update_num_cols()
+        self.m_exists = False
             
     
     def update_num_cols(self):
@@ -136,11 +140,11 @@ class CsvFile:
             t_delta += t_step
 
         temp_arr.append(def_val)
-        self.m_datacols[0] = np.array(dates)
+        self.m_datacols[0] = dates[:]
                 
         index = 1
         while index < self.m_numcols:
-            self.m_datacols[index] = (np.array(temp_arr))            
+            self.m_datacols[index] = temp_arr[:]            
             index += 1 
 
     def __getitem__(self, key):
@@ -152,20 +156,21 @@ class CsvFile:
     def __setitem__(self, key, value):
         """        
         overloaded [] operator
-        """
+        """ 
         self.m_datacols[key] = value
     
     def __len__(self):
         """
         returns the len of the header and the number of columns
         """
-        return (self.m_headlen, self.m_numcols)
+        return ( self.m_numcols)
 
     def __delitem__(self, key):
         """
         mabey i should delete somthing
         """
-        pass      
+        pass
+              
 
     def header_to_string(self):
         """
@@ -195,7 +200,8 @@ class CsvFile:
                     line += h_str[0]               
                     h_str = h_str[1:]
                 except IndexError:
-                    return header
+                    self.m_header = header
+                    return
             segs = line.split(',')
             header.append(segs)
         self.m_header = header
@@ -209,7 +215,7 @@ class CsvFile:
             data_str += str(date)
             for values in self.m_datacols[1:]:
                 try:
-                    data_str += (',' + str(values[index]))
+                    data_str += ',' + ("%.2f" % values[index])
                 except IndexError:
                     break          
             data_str += '\n'     
@@ -265,12 +271,50 @@ class CsvFile:
         f_stream.write(self.data_to_string())
        
         f_stream.close()
+        self.m_exists = True
 
-    def append(self, data):
+    def append(self, name = ""):
         """
         will append to the end of the data 
         """
-        pass
+        if name == "" :
+            name = self.m_name
+        else:
+            self.m_name = name
+        #print "hello"
+        if not os.path.exists(name):
+            self.save(name)
+            return True
+        #print "hello again"
+        temp = CsvFile(name, True)
+        last_date = temp[0][-1]
+        if self[0][-1] <= last_date:
+            return False
+        index = len(temp[0])
+        #print last_date
+        #while self[0][index] <= last_date:
+            #index += 1
+        
+        f_stream = open (name, 'a')
+        w_str = ""
+        while (index < len(self[0])):
+            w_str += str(self[0][index])
+            col = 1
+            while col < self.m_numcols:
+                w_str += ',' + ("%.2f" % self[col][index])
+                col += 1    
+            index += 1
+            w_str += "\n"
+        f_stream.write(w_str)            
+            
+        f_stream.close()
+        self.m_exists = True
+        return True
 
-
-
+    def exists(self):
+        """
+        returns if the file exists at the path provided
+        """
+        return self.m_exists
+    def name(self):
+        return self.m_name

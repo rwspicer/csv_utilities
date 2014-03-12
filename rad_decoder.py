@@ -8,10 +8,12 @@ created 2014/03/03
 """
 from datetime import datetime
 from scipy.io import netcdf
-from csv_lib.csv_utilities import read_args,get_column
+from csv_lib.csv_utilities import read_args,get_column, exit_on_failure
 from os import listdir
 import os
 from os.path import isfile, join
+import csv_lib.csv_args as csva
+import csv_lib.csv_file as csvf
 
 
 def write_to_csv(f_name, dates, vals, header):
@@ -84,7 +86,7 @@ def get_times(my_vars):
     return ts
 
 
-def avg_vars(my_vars):
+def avg_vars(my_vars,lists):
     """
     averges all of the varibles in a list of data 
     my_vars = the list of data
@@ -107,44 +109,60 @@ def avg_vars(my_vars):
 
 
 
-utility_title = "radition extractor utility"
+UTILITY_TITLE = "radition extractor utility"
 
-flag_types = ("--in_directory", "--out_directory", "--sitename")
-help_string = "write me "
-commands = read_args(flag_types, help_string)
-
-
-path = commands["--in_directory"]
-onlyfiles = [f for f in listdir(path) if isfile(join(path,f)) ]
-
-onlyfiles = [f for f in onlyfiles if (f[-4:] == ".cdf")]
-
-onlyfiles.sort()
+FLAGS = ("--in_directory", "--out_directory", "--sitename")
+HELP_STR = "write me "
 
 
-print onlyfiles
+def main():
+    """ the utility """
+    try:
+        commands = csva.ArgClass(FLAGS, (), HELP_STR)
+    except RuntimeError, (error_message):
+        exit_on_failure(error_message[0]) 
 
-for f_name in onlyfiles:
+    path = commands["--in_directory"]
+    onlyfiles = [f for f in listdir(path) if isfile(join(path,f)) ]
 
-    my_file = netcdf.netcdf_file(f_name,'r')
+    onlyfiles = [f for f in onlyfiles if (f[-4:] == ".cdf")]
+
+    onlyfiles.sort()
+
+
+    print onlyfiles
+
+    for f_name in onlyfiles:
+
+        my_file = netcdf.netcdf_file(path+f_name,'r')
     
-    my_vars = my_file.variables
+        my_vars = my_file.variables
   
-    times =  get_times(my_vars)
-
-    lists = get_list_vars(my_vars)
-
-    avgs = avg_vars(my_vars)
-
-
-    for items in avgs:
-        header = commands["--sitename"] + ',\nTIMESTAMP,' +items+ '\nUTC+0,UNITS\n,avg\n'
-        out_f = commands["--out_directory"] + items + ".csv"
+        times =  get_times(my_vars)
         
-        write_to_csv(out_f, times, avgs[items], header) 
-        #print len(avgs[items])
+        lists = get_list_vars(my_vars)
+       
+        avgs = avg_vars(my_vars,lists)
+        
+
+        for items in avgs:
+            f_name = commands["--out_directory"] + items + ".csv"
+            #out_file = csvf.CsvFile(f_name)
+            header = commands["--sitename"] + ',\nTIMESTAMP,' + items \
+                                                + '\nUTC+0,UNITS\n,avg\n'
+            
+            #out_file.string_to_header(header)
+            #out_file[0] = (times)
+            #out_file[1] = (avgs)
+            #out_file.append()
+            write_to_csv(f_name, times, avgs[items], header) 
+            #print len(avgs[items])
         
            
-    my_file.close()
+        my_file.close()
+
+
+if __name__ == "__main__":
+    main()
 
 

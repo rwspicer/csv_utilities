@@ -3,8 +3,12 @@ relative humidity calulator
 rh_calculator.py
 Rawser Spicer
 created: 2014/01/24
-modifyed: 2013/02/10
+modifyed: 2013/03/12
     
+    version 2014.3.13.1
+        updated to use datetimes, ArgClass and CsvFile class
+    also the older version may not have worked properly, im not sure why it
+    wasnt caught but it works now, so use this version or newer
 
     version 2014.2.10.1
         updated to use new csv_lib name
@@ -17,10 +21,11 @@ modifyed: 2013/02/10
    This utility calcualtes relative humidity from air temepeature and dew point 
    data 
 """
-import sys
-import re
-from csv_lib.csv_utilities import read_args, print_center, check_file, \
-                          get_command_value, load_file, write_to_csv
+from datetime import datetime
+import csv_lib.csv_file as csvf
+import csv_lib.csv_args as csva
+import csv_lib.csv_date as csvd
+from csv_lib.csv_utilities import print_center, exit_on_success, exit_on_failure
 
 
 def get_cutoff(value):
@@ -35,60 +40,35 @@ def get_cutoff(value):
         return float(value)
         
 
-def compute_date(date_string):
-    """
-    converts the date from a string in mm/dd format to a number
-    date_string = the date in string form MM/DD
-    returns a number in this form MMDD
-    """
-    month, day = [t(s) for t , s in zip((int, int),
-                re.search(r'^(\d+)/(\d+)$',date_string).groups())]
-    
-    return month*100+day        
-
-
 def start_date(date):
     """
     gets the start date form a string
     string = a string formated (MM/DD)
-    returns the date as a number or 501 the represntation of 05/01 if "" is date
+    returns the date as a datetime with year as 1000
     """
     if (date == ""):
-        return compute_date('05/01')
+        return datetime(1000, 05, 01)
     else: 
-        return compute_date(date)
-        
+        return datetime(1000, int(date[0:2]), int(date[3:5]))
+
 
 def end_date(date):
     """
-    gets the end date form a string
-    date = a string formated (MM/DD)
-    returns the date as a number or 1001 the represntation of 10/01 if "" 
-        is date
+    gets the start date form a string
+    string = a string formated (MM/DD)
+    returns the date as a datetime with year as 1000
     """
     if (date == ""):
-        return compute_date('10/01')
+        return datetime(1000, 10, 01)
     else: 
-        return compute_date(date)
-        
-        
-def get_month_day(date):
-    """
-    gets the month and day (MMDD) portion from a YYYYMMDDHHmmSS date number
-    date = a date number
-    returns MMDD portion of datenumber
-    """
-    temp = date / 1000000
-    temp %= 10000
-    return int(temp)
+        return datetime(1000, int(date[0:2]), int(date[3:5]))
+   
     
-    
-
-def precip_check(p_dates, p_vals, at_dates, at_vals, start, end, cutoff):
+def precip_check(p_dates, p_vals, at_dates, at_vals, interval, cutoff):
     """
     this function checks to see if preciptation values lie with in the given 
         date and temperature values. If they do they are written to a new array 
-        as is: else bad_val isw written
+        as is: else bad_val is written
     p_dates = precip date array
     p_vals = precip value array
     at_dates = air temerature date array
@@ -105,77 +85,71 @@ def precip_check(p_dates, p_vals, at_dates, at_vals, start, end, cutoff):
         if not(p_dates[index] == at_dates[index]):
             print_center("dates do not match for precipitation and air temp"
                                                                           ,'*')
-            sys.exit(1)
+            exit_on_failure()
             # how to handle this?
-        date = get_month_day(p_dates[index])
-        if (date < start or date > end):
+        date = p_dates[index].replace(year = 1000)
+        if not(csvd.is_in_interval(date, interval)):
+            o_val.insert(index, bad_val)
+            
+        elif (at_vals[index] < cutoff):
             o_val.insert(index, bad_val)
         else:
-            if (at_vals[index] < cutoff):
-                o_val.insert(index, bad_val)
-            else:
-                o_val.insert(index, p_vals[index])
+            o_val.insert(index, p_vals[index])
         index += 1
 
     return o_val
     
 
-#__________________________START UTILITY
 UTILITY_TITLE = "Realative Humidity Calculator"
-FLAG_TYPES = ("--precip_infile", "--precip_outfile", "--at_file", 
-              "--startdate", "--enddate", "--cutoff")
+REQ_FLAGS = ("--precip_infile", "--precip_outfile", "--at_file")
+OPT_FLAGS = ("--startdate", "--enddate", "--cutoff")
+
 HELP_STRING = """
         --precip_infile: the path to the precipitation in file
         --pricip_outfile: path to pricipitation out file
         --at_file: the air temp file
         --startdate: the start date (optional)
         --enddate: the end date (optional)
-        --cutoff: the cutoff temperature
+        --cutoff: the cutoff temperature (optional)
               """
 
-END_MESSAGE_SUCCESS = "the utility has run successfully"
-END_MESSAGE_FAILURE = "the utility was not successfull"
 
-print_center(UTILITY_TITLE, '-')
-COMMANDS = read_args(FLAG_TYPES, HELP_STRING)
+def main():
+    """ the utility """
+    print_center(UTILITY_TITLE, '-')
+    try: 
+        commands = csva.ArgClass(REQ_FLAGS, OPT_FLAGS, HELP_STRING)
+    except RuntimeError, error_message:
+        exit_on_failure(error_message[0])
 
-if not (check_file(COMMANDS["--precip_infile"])):
-    print_center("ERROR: invalid precip_infile, " + COMMANDS["--precip_infile"])
-    print_center(END_MESSAGE_FAILURE, '-')
-    sys.exit(1)
+    if commands.is_missing_flags():
+        for items in commands.get_missing_flags():
+            print_center(" ERROR: flag <" + items + "> is required ", "*")
+        exit_on_failure()
+
+    try:
+        at_file = csvf.CsvFile(commands["--at_file"], True)
+        p_in_file = csvf.CsvFile(commands["--precip_infile"], True)
+    except IOError:
+        print_center("ERROR: a required file was not found", '*')
+        exit_on_failure()
+
+    cutoff = commands.get_command_value("--cutoff", get_cutoff)
+    interval = csvd.make_interval(
+                    commands.get_command_value("--startdate" , start_date), 
+                    commands.get_command_value("--enddate" , end_date))
+    print interval
+    p_in_file[1] = precip_check(p_in_file[0], p_in_file[1], at_file[0], 
+                                        at_file[1], interval, cutoff)
     
-if not (check_file(COMMANDS["--at_file"])):
-    print_center("ERROR: invalid at_file, " + COMMANDS["--at_file"])
-    print_center(END_MESSAGE_FAILURE, '-')
-    sys.exit(1)
     
-if (check_file(COMMANDS["--precip_outfile"])):
-    print_center("file, " + COMMANDS["--precip_outfile"]
-                          +", will be appeanded to")
-else:
-    print_center("file, " + COMMANDS["--precip_outfile"] 
-                          + ", not found, it will be created")
-  
-CUTOFF = get_command_value(COMMANDS, "--cutoff" , get_cutoff)
-STARTDATE = get_command_value(COMMANDS, "--startdate" , start_date)
-ENDDATE = get_command_value(COMMANDS, "--enddate" , end_date)
+    if not p_in_file.append(commands["--precip_outfile"]):
+        print_center("Old dates indcate no new data to be appended.") 
+        print_center("No data was written.                         ")  
 
-try:
-    P_IN_DATES, P_IN_VALS, P_IN_HEADER = load_file(COMMANDS["--precip_infile"]
-                                                                           , 4)
-    AT_DATES, AT_VALS, AT_HEADER = load_file(COMMANDS["--at_file"], 4)
-except (BaseException):
-    print_center(END_MESSAGE_FAILURE, '-')
-    sys.exit(1)
-    
-P_OUT_VALS = precip_check(P_IN_DATES, P_IN_VALS, AT_DATES, AT_VALS,
-                          STARTDATE, ENDDATE, CUTOFF)
+    exit_on_success()
+ 
 
-try:
-    write_to_csv(COMMANDS["--precip_outfile"], P_IN_DATES, P_OUT_VALS
-                                                         , P_IN_HEADER)
-except (BaseException):
-    print_center(END_MESSAGE_FAILURE, '-')
-    sys.exit(1)
+if __name__ == "__main__":
+    main()
 
-print_center(END_MESSAGE_SUCCESS, '-')

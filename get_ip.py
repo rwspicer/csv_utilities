@@ -2,17 +2,20 @@
 get_ip.py
 Rawser Spicer
 created: 2014/02/13
-modifyed: 2014/02/14
+modifyed: 2014/03/12
 
     gets the ip adderess from a saved ifconfig output
 
-    version 2014.2.13
+    version 2013.3.12.1
+        now uses ArgClass
+
+    version 2014.2.13.1
         adds documentation and support for interface
 
 
 """
-from csv_lib.csv_utilities import read_args, get_command_value, print_center,\
-                                    exit_on_success
+import csv_lib.csv_args as csva
+from csv_lib.csv_utilities import print_center, exit_on_success, exit_on_failure
 
 
 
@@ -27,31 +30,43 @@ def get_dev(value):
     else:
         return value
 
-
-def get_ip():
-    """
-    gets the ip adderess from a file
-    """
-    help = """
+UTILITY_TITLE = " ip adderess locator "
+HELP = """
         this utility can be used to get an ip adderess from the saved output of
     an ifconfig run
     
         --infile:       the input text from ifconfig
         --outfile:      where to write the ip adderss to
         --interface:    the interface for the ip adderess (eth0 by default) 
-           """
-    print_center(" ip adderess locator ", "-")
+         """
+REQ_FLAGS = ("--infile", "--outfile")
+OPT_FLAGS = ("--interface",)
 
-    inputs = read_args(("--infile", "--outfile", "--interface"), help )
 
 
+def get_ip():
+    """
+    gets the ip adderess from a file
+    """
+
+    print_center(UTILITY_TITLE, "-")
+    try:
+        inputs = csva.ArgClass(REQ_FLAGS, OPT_FLAGS, HELP)
+    except RuntimeError, error_message:
+        exit_on_failure(error_message[0])
+
+    if inputs.is_missing_flags():
+        for items in inputs.get_missing_flags():
+            print_center(" ERROR: flag <" + items + "> is required ", "*")
+        exit_on_failure()    
+    
     f_stream = open(inputs['--infile'], 'r')
 
     while (True):
         line = f_stream.readline()
         line = line.split()
         try:
-            if (get_command_value(inputs, "--interface", get_dev) == line[0]):
+            if (inputs.get_command_value("--interface", get_dev) == line[0]):
                 break
         except IndexError:
             continue
@@ -68,5 +83,6 @@ def get_ip():
             break
     exit_on_success()    
 
-get_ip()
+if __name__ == "__main__":
+    get_ip()
 
