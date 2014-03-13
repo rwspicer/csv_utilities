@@ -18,7 +18,7 @@ import copy
 import os
 import csv_lib.csv_utilities as csvu
 import csv_lib.csv_date as csvd
-#import numpy as np
+import numpy as np
 #import datetime
 
 def load_info( f_name):
@@ -169,7 +169,7 @@ class CsvFile:
         """
         mabey i should delete somthing
         """
-        pass
+        del self.m_datacols[key] 
               
 
     def header_to_string(self):
@@ -281,20 +281,18 @@ class CsvFile:
             name = self.m_name
         else:
             self.m_name = name
-        #print "hello"
+     
         if not os.path.exists(name):
             self.save(name)
             return True
-        #print "hello again"
+        
         temp = CsvFile(name, True)
         last_date = temp[0][-1]
+              
         if self[0][-1] <= last_date:
             return False
         index = len(temp[0])
-        #print last_date
-        #while self[0][index] <= last_date:
-            #index += 1
-        
+        del temp
         f_stream = open (name, 'a')
         w_str = ""
         while (index < len(self[0])):
@@ -316,5 +314,23 @@ class CsvFile:
         returns if the file exists at the path provided
         """
         return self.m_exists
+
     def name(self):
+        """Returns the file name"""
         return self.m_name
+
+
+    def set_name(self, new_name):
+        """ change the name associated with the file """
+        self.m_name = new_name
+
+    def add_dates(self, new_dates):
+        self.add_data(0, new_dates)
+
+
+    def add_data(self, col, new_data):
+        """ adds the new data to the end of column"""
+        
+        self.m_datacols[col] = np.append(self.m_datacols[col], new_data)
+        #print self.m_datacols[col]
+

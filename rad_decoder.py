@@ -2,58 +2,26 @@
 rad_decoder.py
 rawser spicer
 created 2014/03/03
+modified 2014/03/13
+    
+    version 2014.2.13.1
+        added support for the CsvFile Class
+        
+    version 2014.3.12.1
+        cleanded up a bit 
 
     this utility extracts the dated from a cdf file
 
 """
 from datetime import datetime
 from scipy.io import netcdf
-from csv_lib.csv_utilities import read_args,get_column, exit_on_failure
+from csv_lib.csv_utilities import exit_on_success, exit_on_failure, print_center
 from os import listdir
 import os
 from os.path import isfile, join
 import csv_lib.csv_args as csva
 import csv_lib.csv_file as csvf
-
-
-def write_to_csv(f_name, dates, vals, header):
-    """
-    writes to a csv file, creating it with a header if it does not exist
-    or appending to it if it does
-    f_name = the filename
-    dates = the dates coulumn
-    vals = the value column
-    header = alist of lines to make up the header
-    returns nothing
-    """
-    try:
-        if (not os.path.exists(f_name)):
-            f_stream = open(f_name, 'w')
-            for line in header:
-               f_stream.write(line)
-            last_date = 0
-        else:
-            last_date= get_column(f_name, 4, 0, 'datetime')[-1]
-            if (last_date >= dates[-1]):
-                return
-            f_stream = open(f_name, 'a')
-    except (ValueError):
-        print "error in opening file", f_name, ' for writing\n'
-        #sys.exit(1)   
-             
-    index = 0     
-       
-    try:
-        while (index < len(dates)):
-            temp = '%s,%3.2f\n' % (dates[index].isoformat(' '), vals[index])
-            f_stream.write(temp)
-            index += 1
-
-    except (ValueError):
-        print "error in wrting file", f_name, '\n'
-        #sys.exit(1)
-        
-    f_stream.close()
+import sys
 
 
 def get_list_vars(my_vars):
@@ -112,11 +80,21 @@ def avg_vars(my_vars,lists):
 UTILITY_TITLE = "radition extractor utility"
 
 FLAGS = ("--in_directory", "--out_directory", "--sitename")
-HELP_STR = "write me "
+HELP_STR = """
+        This utility can be use to extract the data from a directory of 
+    .cdf files. it will cread a csv file for ecah data array in the 
+    provided cdf files.
+        
+    flags:
+        --in_directory:     the directory containg the input
+        --out_directory:    the directory to save the out put
+        --sitename:         the name of the site asscosiated with the data          
+           """
 
 
 def main():
     """ the utility """
+    print_center(UTILITY_TITLE, '-')
     try:
         commands = csva.ArgClass(FLAGS, (), HELP_STR)
     except RuntimeError, (error_message):
@@ -128,9 +106,6 @@ def main():
     onlyfiles = [f for f in onlyfiles if (f[-4:] == ".cdf")]
 
     onlyfiles.sort()
-
-
-    print onlyfiles
 
     for f_name in onlyfiles:
 
@@ -144,23 +119,26 @@ def main():
        
         avgs = avg_vars(my_vars,lists)
         
-
-        for items in avgs:
+        
+        for index, items in enumerate(avgs):
+            
+            
+            
             f_name = commands["--out_directory"] + items + ".csv"
-            #out_file = csvf.CsvFile(f_name)
+            out_file = csvf.CsvFile(f_name)
             header = commands["--sitename"] + ',\nTIMESTAMP,' + items \
                                                 + '\nUTC+0,UNITS\n,avg\n'
             
-            #out_file.string_to_header(header)
-            #out_file[0] = (times)
-            #out_file[1] = (avgs)
-            #out_file.append()
-            write_to_csv(f_name, times, avgs[items], header) 
-            #print len(avgs[items])
-        
+            out_file.string_to_header(header)
+            out_file.add_dates(times)
+            out_file.add_data(1,avgs[items])
+         
+            out_file.append()
+            
            
         my_file.close()
 
+    exit_on_success()
 
 if __name__ == "__main__":
     main()
