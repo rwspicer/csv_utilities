@@ -48,7 +48,7 @@ HELP_STRING = """
 def linear_step_function(d_val, l_func):
     """linear step function"""
     o_val = []
-    for time_step in d_val:
+    for index, time_step in enumerate(d_val):
         val = l_func[1] * time_step + l_func[0]
         o_val.append(val)
     return o_val
