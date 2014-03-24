@@ -444,7 +444,7 @@ def bv_to_nan(array):
     while (index < len(array)):
         if (6999 == array[index] or 7777 == array[index] 
                                  or 9999 == array[index]):
-            print array[index]
+            #print array[index]
             array[index] = numpy.nan
         index += 1
     return array

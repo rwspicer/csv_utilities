@@ -4,11 +4,14 @@ csv plotter
 csv_plot.py
 Rawser Spicer
 created: 2014/02/03
-modifyed: 2014/03/12
+modifyed: 2014/03/15
 
         This utility is designed to plot csv files. It can plot up to 10 
     files at a time, or 1 file with an arbitary number of columns of data
 
+    version 2013.3.17.1
+        added support  for the new polot class in csvPlot
+    
     version 2014.3.12.1
         added ArgClass support
 
@@ -43,12 +46,10 @@ modifyed: 2014/03/12
 
 """
 import csv_lib.csv_args as csva
-from csv_lib.csv_utilities import read_args, print_center, check_file, \
-                          get_command_value, exit_on_failure, exit_on_success, \
-                           get_title, bv_to_nan, load_file_new, get_header
-from csv_lib.csv_plot import line_to_plot, show_plot, set_up_plot, \
-                             load_file_to_plot, save_plot, make_legend_plot
-from csv_lib.csv_date import make_interval, get_last_date
+from csv_lib.csv_utilities import print_center, check_file, \
+                                exit_on_failure, exit_on_success
+import csv_lib.csv_plot as csvp
+from csv_lib.csv_date import get_last_date
 import datetime as dtime 
 
 
@@ -62,18 +63,6 @@ def get_year(value):
         return 0
     else:
         return int(value)
-
-
-def get_file_name(value):
-    """
-    get a file name
-    value = the argument from client
-    retuns a file name
-    """
-    if (value == ""):
-        return "def.png"
-    else:
-        return value
 
 
 def get_interval(value):
@@ -129,11 +118,10 @@ def check_files(cmds, file_keys):
     creates a list of files to plot
     cmds = the list of command imputs
     file_keys = the keys that might contain files
-    retuns a list of valid files, and the titles of their data  
+    retuns a list of valid files
     """
     count = 0  
     files = []
-    titles = []
     for key in file_keys:
         try:
             if not (check_file(cmds[key])):
@@ -142,17 +130,16 @@ def check_files(cmds, file_keys):
             else:
                 count += 1
                 files.append(cmds[key])
-                titles.append(get_title(cmds[key]))
         except KeyError:
             if (count == 0) :
-                print_center("ERROR: no files indicated", '*')
-                print_center("use --data_0 as flag for a singal file")
-                exit_on_failure() 
+                raise KeyError, "no files indicated"
+                #print_center("ERROR: no files indicated", '*')
+                #print_center("use --data_0 as flag for a singal file")
+                #exit_on_failure() 
             else:
-                print_center("+++ file " + key +
-                         " not indicated, IGNORING +++") 
+                continue
 
-    return files, titles
+    return files
 
 
 def process_interval(commands):
@@ -161,147 +148,34 @@ def process_interval(commands):
     commands = the commands
     returns a interval
     """
-    year = get_command_value(commands, "--year", get_year) 
-    interval_string = get_command_value(commands,
-                                    "--    time_interval", get_interval)
-    days = get_command_value(commands, "--days", get_delta)
+    year = commands.get_command_value("--year", get_year) 
+    interval_string = commands.get_command_value("--time_interval"
+														, get_interval)
+    days = commands.get_command_value( "--days", get_delta)
     
     if (year != 0):
-        interval = make_interval(str(year)+"-01-01", str(year)+"-12-31")
-        mode = "year"
+        return str(year)+"-01-01" , str(year)+"-12-31"
     elif (interval_string != "0000-00-00,0000-00-00"):
-        interval = make_interval(interval_string.split()[0],
-                                 interval_string.split()[2])
-        mode = "month"
+        return interval_string.split(',')[0], interval_string.split(',')[1]
     elif (days):
         end = get_last_date(commands['--data_0'])
-        interval = make_interval(end - days, end)
-        mode = "day"
+        return end - days, end
     else:
-        interval = make_interval("min", "max")
-        mode = "year"
+        return "min", "max"
 
-    return interval, mode
+    #return start, end
 
-
-def plot_lines(files_to_plot, interval):
-    """
-    plots lines
-    files_to_plot: the data files to plot
-    interval: the inteval over which to plot them
-    """
-    plot_list = []
-    for item in files_to_plot:
-        dates, values = load_file_to_plot(item)
-        values = bv_to_nan(values)
-        temp = line_to_plot(interval, dates, values)
-        plot_list.append(temp[0]) 
-    return plot_list
-
-
-def plot_lines_mcm(data_to_plot, interval, num_cols):
-    """
-    plots lines
-    **** this version works for files with mulitple columns
-    data_to_plot: the data files to plot
-    interval: the inteval over which to plot them
-    num_cols: the number of columns
-    """
-    plot_list = []
-    dates = data_to_plot[0]
-    index = 1 # start at 1 b/c dates are at 0
-    while (index < num_cols):
-        values = data_to_plot[index]
-        values = bv_to_nan(values)
-        temp = line_to_plot(interval, dates, values)
-        plot_list.append(temp[0]) 
-        index += 1
-    return plot_list
-
-
-def plot_lines_as_avg(files_to_plot, interval):
-    """
-    plots each lines over the average of the other lines
-    files_to_plot: the data files to plot
-    interval: the inteval over which to plot them
-    """
-    plot_list = []
-    for index_o, item_o in enumerate(files_to_plot):
-        dates, values = load_file_to_plot(item_o)
-        values = bv_to_nan(values)
-        num = 0
-        avg_total = values - values
-        for index_i, item_i in enumerate(files_to_plot):
-            if not(index_i == index_o):
-                try:
-                    avg_total += bv_to_nan(load_file_to_plot(item_i)[1])
-                    num += 1
-                except ValueError:
-                    print_center(" ERROR: in plot_lines_as_avg      ", "*")
-                    print_center(" ERROR: data sets not same length ", "*")
-                    exit_on_failure()
-        if (num):        
-            avg = avg_total / num
-        else:
-            print_center(">>> WARNING: in plot_lines_as_avg         <<<")
-            print_center(">>>          no data for average ploting  <<<")
-            print_center(">>>          plottting values over 1      <<<")
-            avg = 1        
-        plot_val = values / avg    
-        
-        temp = line_to_plot(interval, dates, plot_val)
-        plot_list.append(temp[0]) 
-    return plot_list
-
-
-def plot_lines_as_avg_mcm(data_to_plot, interval):
-    """
-    plots each lines over the average of the other lines
-    **** this version works for files with mulitple columns
-    data_to_plot: the data files to plot
-    interval: the inteval over which to plot them
-    """
-    plot_list = []
-    for index_o, item_o in enumerate(data_to_plot):
-        if (index_o==0):        
-            dates = item_o
-            continue
-         
-        values = bv_to_nan(item_o)
-        num = 0
-        avg_total = values - values
-        for index_i, item_i in enumerate(data_to_plot):
-            if index_i == 0:
-                continue
-            if not(index_i == index_o):
-                try:
-                    avg_total += bv_to_nan(item_i)
-                    num += 1
-                except ValueError:
-                    print_center(" ERROR: in plot_lines_as_avg      ", "*")
-                    print_center(" ERROR: data sets not same length ", "*")
-                    exit_on_failure()
-        if (num):        
-            avg = avg_total / num
-        else:
-            print_center(">>> WARNING: in plot_lines_as_avg         <<<")
-            print_center(">>>          no data for average ploting  <<<")
-            print_center(">>>          plottting values over 1      <<<")
-            avg = 1        
-        plot_val = values / avg    
-        
-        temp = line_to_plot(interval, dates, plot_val)
-        plot_list.append(temp[0]) 
-    return plot_list
 
 
 
 UTILITY_TITLE = " plotting utility "
 FILES = ("--data_0", "--data_1", "--data_2", "--data_3", "--data_4", 
               "--data_5", "--data_6", "--data_7", "--data_8", "--data_9")
-FLAGS = ("--time_interval", "--output_png", "--title", "--y_label",
+OPT_FLAGS = ("--time_interval", "--output_png", "--title", "--y_label",
                "--x_label", "--year", "--days", "--show", "--plot_avg",
-                "--multi_col_mode", "--num_cols") + FILES
+                "--multi_col_mode", "--num_cols") + FILES[1:]
+REQ_FLAGS = (FILES[0],)
+
     
 HELP_STRING = """
     --data_0: the csv file to plot
@@ -313,8 +187,8 @@ HELP_STRING = """
                     +++ NOTICE: if one of the above time interval  +++ 
                     +++ options in not  selected the entire data   +++
                     +++ sets will be plotted                       +++
-    --title: plot title (optional: "" by default)
-    --y_label: y-axis label (optional: "" by default)
+    --title: plot title (optional: will be detrimined by the class by default)
+    --y_label: y-axis label (optional: will be detrimined by the class by default)
     --x_label: x-axis label (optional: "" by default)
     --show: set to true to show the plot instead of saving it 
             (optional: false by default) 
@@ -322,10 +196,10 @@ HELP_STRING = """
                     >>> back end is changed in csv_plot.py          <<<
     --plot_avg: set to true to plot all data sets over an averge of 
                 the other data sets (optional: false by default)
-    --multi_col_mode: the first file has multiple columns of data 
-                      (optional: false by default)
-    --num_cols: the number columns that have data, the date column should 
-                alaways be column 0 and should NOT! be included in this number 
+    --multi_col_mode: this flag no longer does any thing as the 
+					  PlotClass should work by auto
+    --num_cols: this flag no longer does any thing as the 
+				PlotClass should work by auto
               """
 
 
@@ -338,49 +212,38 @@ def csv_plotter():
     print_center(UTILITY_TITLE, '-')
 
     try: 
-        commands = csva.ArgClass((), FLAGS, HELP_STRING)
+        commands = csva.ArgClass(REQ_FLAGS, OPT_FLAGS, HELP_STRING)
     except RuntimeError, error_message:
         exit_on_failure(error_message[0])
     
-    png = commands.get_command_value( "--output_png", get_file_name)
+    files_to_plot = check_files(commands, FILES)
+    start, end = process_interval(commands)
     
-    y_label = commands.get_command_value("--y_label", get_string)
-    x_label = commands.get_command_value( "--x_label", get_string)
-    title = commands.get_command_value( "--title", get_string)
-    interval, mode = process_interval(commands)    
+   
+    plot = csvp.PlotClass(files_to_plot, commands["--output_png"])
+ 
+    plot.set_interval(start, end)
+    plot.set_up_plot()
     
-    set_up_plot(title, x_label, y_label, mode)
+    temp = commands.get_command_value("--y_label", get_string)
+    if (temp != ""):
+        plot.set_y_label(temp)
+    temp = commands.get_command_value( "--x_label", get_string)
+    if (temp != ""):
+        plot.set_x_label(temp)
+    temp = commands.get_command_value( "--title", get_string)
+    if (temp != ""):
+        plot.set_title(temp)
+		
     
-    data_to_plot, titles = check_files(commands, FILES) 
-    
-    if (commands.get_command_value( "--multi_col_mode", get_bool)):
-
-        num_cols = commands.get_command_value("--num_cols", get_year) 
-        num_cols += 1  
-        
-        titles = get_header(data_to_plot[0], 4)[3:(3+num_cols)]    
-        data_to_plot = load_file_new(data_to_plot[0], 4, num_cols)     
-        
-    
-        if (commands.get_command_value( "--plot_avg", get_bool)):
-            plots = plot_lines_as_avg_mcm(data_to_plot, interval)
-        else:
-            plots = plot_lines_mcm(data_to_plot, interval, num_cols)        
-
+    if (commands.get_command_value( "--plot_avg", get_bool)):
+        plot.plot_avg()
     else:
-      
-        if (commands.get_command_value( "--plot_avg", get_bool)):
-            plots = plot_lines_as_avg(data_to_plot, interval)
-        else:
-            plots = plot_lines(data_to_plot, interval)
-
-    make_legend_plot(plots, titles)
-
-
-    if (commands.get_command_value( "--show", get_bool)):
-        show_plot()
-    else:    
-        save_plot(png)
+        plot.plot()
+    plot.set_legend()
+    
+    
+    plot.save_plot()   
     
     exit_on_success()
 

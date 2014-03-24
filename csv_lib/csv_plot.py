@@ -13,6 +13,9 @@ modified: 2014/02/19
         make_legend_plot        -- makes a legend below the plot
         show_plot               -- shows a plot
         save_plot               -- saves a plot
+        
+    version 2014.3.17.1
+        added a class to handle the plotting
 
     version 2014.2.19.1
         fixed imports
@@ -43,11 +46,13 @@ from matplotlib import use
 use('Agg') 
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+import matplotlib
 #from csv_lib.csv_date import string_to_datetime, is_in_interval
-import csv_date as csvd
+import csv_lib.csv_date as csvd
 #from csv_lib.csv_utilities import print_center
-import csv_utilities as csvu
-import datetime
+import csv_lib.csv_utilities as csvu
+import csv_lib.csv_file as csvf
+
 
 
 def load_file_to_plot(f_name, skip = 4):
@@ -109,8 +114,8 @@ def set_up_plot(title = "plot", x_axis = "x-axis", y_axis = "y-axis",
     axis.xaxis.set_major_formatter(major_fmt)
     axis.xaxis.set_minor_locator(minor)
 
-
-def line_to_plot(interval, dates, vals):
+#line to plot is a seperate fuction sitll that the class calls
+def line_to_plot(interval, dates, vals, name = "def"):
     """
     generates a line to plot
     interval = the interval to graph
@@ -123,21 +128,20 @@ def line_to_plot(interval, dates, vals):
     index = 0 
     while (index < len(dates)):
         if (csvd.is_in_interval(dates[index], interval)):
-            temp = dates[index].replace(1000)
+            temp = dates[index]#.replace(1000)
             o_date.append(temp)
             o_val.append(vals[index])
         index += 1
 
-    return plt.plot(o_date, o_val)    
+    return plt.plot(o_date, o_val, label = name)    
 
 
-def make_legend_plot(plots, names):
+def make_legend_plot():
     """
     makes a legend for the plot
-    plots = the lines being plotted
-    names = their names
     """
-    plt.legend(plots, names, bbox_to_anchor=(0.5, -0.15), loc='upper center',
+    #print names
+    plt.legend( bbox_to_anchor=(0.5, -0.15), loc='upper center',
                 fancybox=True, shadow=True, ncol=2)
 
 
@@ -158,3 +162,156 @@ def save_plot(f_name):
 
 
 
+class PlotClass:
+    """
+    a class to create a plot
+    the inputs shoud be:
+    file_names: a list of files to plot
+    png: optional- a name to save the plot to
+    """
+    
+    def __init__(self, file_names, png = "def.png"):
+        """
+        this fucntion sets up the plot class
+        """
+        self.plot_files = {}
+        for files in file_names:
+            try:
+                self.plot_files[files] = csvf.CsvFile(files, True)
+                temp_key = files
+            except IOError:
+                exc_str = "' cannot be plotted as it does not exist."
+                raise IOError, "The file  '" + files + exc_str 
+        self.interval = csvd.make_interval("min","max")
+        self.y_label = self.plot_files[temp_key].get_header()[-2][1]
+        self.x_label = ""
+        self.title = self.plot_files[temp_key].get_header()[0][0]
+        self.set_up_plot()
+        self.plots = []
+        self.save_name = png
+        
+    def set_interval(self, start, end):
+        """
+        set the interval for plotting
+        start = the start date(string or datetime)
+        end = the end date(string or datetime)
+        """
+        self.interval = csvd.make_interval(start, end)
+    
+    def set_y_label(self, label):
+        """
+        sets the label for the y axixs
+        label: the label
+        """
+        self.y_label = label
+        self.set_up_plot()
+        
+    def set_x_label(self, label):
+        """
+        sets the label for the x axis
+        label: the label
+        """
+        self.x_label = label
+        self.set_up_plot()
+    
+    def set_title(self, label):
+        """
+        sets the title
+        label: the new title
+        """
+        self.title = label
+        self.set_up_plot()
+    
+    def save_plot(self):
+        """
+        save plot to file of f_name
+        f_name = name of the file
+        """
+        plt.axis('tight')
+        plt.savefig(self.save_name, bbox_inches='tight' )
+        
+    def show_plot(self):
+        """
+        prints the plot to a window
+        """
+        plt.show()  
+        
+    def plot(self):
+        """
+        plot the data points as they are 
+        """
+        for files in self.plot_files:
+            
+            temp = self.plot_files[files]
+            for items in range(len(temp)):
+                if items == 0:
+                    continue
+                values = csvu.bv_to_nan(temp[items])
+                
+                label = temp.get_header()[-3][items]
+                self.plots.append(line_to_plot(self.interval, temp[0], 
+                                                values, label))
+                
+    def plot_avg(self):
+        """
+        Plots the the points in a data set as an average over all other
+        data sets
+        """
+        values = []
+        titles = []
+        dates_set = False 
+        for files in self.plot_files:
+            temp = self.plot_files[files]
+            
+            if not dates_set:
+                dates = temp[0]
+
+            for cols in range(len(temp)):
+                if cols == 0:
+                    continue
+                titles.append(temp.get_header()[1][cols])
+                values.append(csvu.bv_to_nan(temp[cols]))
+                
+        length = 0
+        for items in values:
+            if length == 0:
+                length = len(items)
+            if length != len(items):
+                raise RuntimeError, "data sets not same length"
+                
+        avg = values[0] - values[0]
+        num = 0
+        
+        for items in values:
+            avg += items
+            num += 1
+        avg = avg/num
+        index = 0
+        for index in range(len(values)):
+            self.plots.append(line_to_plot(self.interval, dates,
+                                           values[index]/avg, titles[index]))  
+            index += 1  
+            
+            
+    def set_legend(self):
+        """
+        set  up the legend for a plot
+        """
+        plt.legend(bbox_to_anchor=(0.5, -0.15), loc='upper center',
+                fancybox=True, shadow=True, ncol=2)
+        
+    def set_up_plot(self):
+        """
+        sets up the plot labels
+        """
+        fig, axis = plt.subplots()
+        plt.title(self.title)
+        plt.xlabel(self.x_label)
+        plt.ylabel(self.y_label)
+        fig.canvas.set_window_title(self.title)
+
+        major_fmt = mdates.DateFormatter('%b %d %Y')
+        fig.autofmt_xdate()
+        axis.xaxis.set_major_locator(matplotlib.ticker.AutoLocator())
+        axis.xaxis.set_major_formatter(major_fmt)
+        axis.xaxis.set_minor_locator(matplotlib.ticker.AutoLocator())
