@@ -4,9 +4,12 @@ qc utility
 qc.py
 Rawser Spicer
 created: 2014/03/13
-modified: 2014/03/13
+modified: 2014/04/14
 
-       this utility preforms quality based on a file with values to compare 
+       this utility preforms quality based on a file with values to compare
+
+    version 2013.4.14.1
+        added documetation 
   
 """
 from csv_lib.csv_utilities import print_center, exit_on_failure, exit_on_success
@@ -75,8 +78,12 @@ UTILITY_NAME = "< quality control utility >"
 REQ_FLAGS = ("--input",)
 OPT_FLAGS = ("--insitu", "--short")
 HELP_STR = """
-            help goes here
+            the folowing flags can be used with this utility
+            --input: the input (.csv file)
+            --short: a correction file (excel format)
+            --insitu: a correction file (excel format)
 
+            note: use --short or --insitu, not both 
            """ 
 
 def main():

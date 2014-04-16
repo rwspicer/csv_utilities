@@ -1,10 +1,13 @@
 """
-relative humidity calulator
-rh_calculator.py
+preciptation utility
+precip_utility.py
 Rawser Spicer
 created: 2014/01/24
-modifyed: 2013/03/12
+modifyed: 2013/04/16
     
+    version 2014.4.16.1
+        updated header to have the correct utility and file name
+
     version 2014.3.13.1
         updated to use datetimes, ArgClass and CsvFile class
     also the older version may not have worked properly, im not sure why it
@@ -18,8 +21,8 @@ modifyed: 2013/03/12
     step after the final time step in the out put file if the output 
     file alerady exists
 
-   This utility calcualtes relative humidity from air temepeature and dew point 
-   data 
+        This utility checks to see if the recorded precipitation lies with in 
+    given paramaters or not and sets values out side of range to bad
 """
 from datetime import datetime
 import csv_lib.csv_file as csvf
