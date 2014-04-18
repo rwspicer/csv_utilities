@@ -33,7 +33,7 @@ def from_SI(value, unit):
     if(unit == "degerees-rev"):
         if (value >= 180):
             return value - 180
-        else 
+        else :
             return value + 180
     return value 
 
