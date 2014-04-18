@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 weather underground data formatting utility
 wunder_fromatter.py
