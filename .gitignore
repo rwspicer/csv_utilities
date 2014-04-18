@@ -1,0 +1,13 @@
+*.[ao]
+*.csv
+*~
+plotter_old.py
+*.pyc
+*.png
+test.py
+#*.sh
+*.txt
+#myip
+/support_files/*
+/rad_test/*
+/excel_qa/*

@@ -27,7 +27,7 @@ def from_SI(value, unit):
     if(unit == "millibars"):
         return value * .0295333727
     if(unit == "celsius"):
-        return value * float(9/5) + 32
+        return value * float(5/9) + 32
     if(unit == "meters/second"):
         return  value * 2.23694
     if(unit == "degerees-rev"):
