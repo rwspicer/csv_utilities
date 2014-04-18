@@ -27,7 +27,7 @@ def from_SI(value, unit):
     if(unit == "millibars"):
         return value * .0295333727
     if(unit == "celsius"):
-        return value * float(9/5) + 32
+        return value * float(9.0/5) + 32
     if(unit == "meters/second"):
         return  value * 2.23694
     if(unit == "degerees-rev"):
@@ -58,7 +58,7 @@ class WUURL:
     def __str__(self):
         r_str = self.base_url + '?'
         for key in self.url_items.keys(): 
-            r_str += key + '=' + self.url_items[key] + '&'
+            r_str += key + '=' + self.url_items[key].replace(".","%2E").replace("%","%25") + '&'
         return r_str[:-1] 
 
     def add_item(self, key, value):
