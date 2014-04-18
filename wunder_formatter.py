@@ -31,7 +31,7 @@ def from_SI(value, unit):
     if(unit == "meters/second"):
         return  value * 2.23694
     if(unit == "degerees-rev"):
-        if (value >= 180)
+        if (value >= 180):
             return value - 180
         else 
             return value + 180
