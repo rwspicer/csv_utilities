@@ -145,7 +145,7 @@ def main():
         first_date = first_file[0][idx]
         if (first_date.minute == 0 and first_date.second == 0):
             break
-        idx -= -1
+        idx -= 1
 
     my_url.add_item("dateutc", str(first_date.year) + '-' + \
                                str(first_date.month).zfill(2) + '-' + \
@@ -164,7 +164,7 @@ def main():
             temp_date = temp[0][idx]
             if (temp_date.minute == 0 and temp_date.second == 0):
                 break
-            idx -= -1
+            idx -= 1
 
         if (first_date == temp_date):
             my_url.add_item(key,str(from_SI(temp[1][idx],units)))
