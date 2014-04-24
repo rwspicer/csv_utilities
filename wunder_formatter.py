@@ -167,7 +167,7 @@ def main():
             idx -= -1
 
         if (first_date == temp_date):
-            my_url.add_item(key,str(from_SI(temp[1][-1],units)))
+            my_url.add_item(key,str(from_SI(temp[1][idx],units)))
         del temp
         
     
