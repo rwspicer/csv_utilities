@@ -4,12 +4,15 @@ weather underground data formatting utility
 wunder_fromatter.py
 Rawser Spicer
 created: 2014/04/16
-modified: 2014/04/18
+modified: 2014/04/24
 
         this utility is designed to create links to upload data to weather
     underground. the format is specified here: 
             http://wiki.wunderground.com/index.php/PWS_-_Upload_Protocol
 
+    version 2014.4.24.1:
+        added check for hourly data    
+    
     version 2014.4.18.1:
         the completed utility    
     
@@ -137,7 +140,13 @@ def main():
     my_file = open(f_name, 'r')
     fulltext = my_file.read()
     first_file = csvf.CsvFile(fulltext.split('\n')[0].split(',')[2],True)
-    first_date = first_file[0][-1]
+    idx = -1    
+    while True:    
+        first_date = first_file[0][idx]
+        if (first_date.minute == 0 and first_date.second == 0):
+            break
+        idx -= -1
+
     my_url.add_item("dateutc", str(first_date.year) + '-' + \
                                str(first_date.month).zfill(2) + '-' + \
                                str(first_date.day).zfill(2) + '+' + \
@@ -150,7 +159,14 @@ def main():
     for lines in fulltext.split('\n'):
         key,units,in_name = lines.split(',')
         temp = csvf.CsvFile(in_name)
-        if (first_date == temp[0][-1]):
+        idx = -1        
+        while True:    
+            temp_date = temp[0][idx]
+            if (temp_date.minute == 0 and temp_date.second == 0):
+                break
+            idx -= -1
+
+        if (first_date == temp_date):
             my_url.add_item(key,str(from_SI(temp[1][-1],units)))
         del temp
         
