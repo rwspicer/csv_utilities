@@ -151,7 +151,7 @@ class CsvFile:
         """        
         overloaded [] operator
         """
-        return copy.deepcopy(self.m_datacols[key])
+        return (self.m_datacols[key])
 
     def __setitem__(self, key, value):
         """        
@@ -245,7 +245,7 @@ class CsvFile:
         """
         returns the list form of the header
         """
-        return copy.deepcopy(self.m_header)        
+        return (self.m_header)        
 
     def set_header(self, new_header):
         """
