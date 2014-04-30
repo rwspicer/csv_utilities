@@ -1,1 +1,20 @@
-csv utilities project
+csv utilities project  
+Rawser Spicer
+2014/04/30
+
+    these utilities and library are desgined to be used with csv files that are 
+created with the datapro program for the most part, there may be some other 
+uses. A short descriptoonof each utility is provided here. see each utility 
+for more info. 
+
+step_function_utility.py -- applies a correction to data values over given 
+                            time periods
+rh_calculator.py -- given data on precipitation and dew point caclualtes the 
+                    relative humidity
+precip_utility.py -- allows for removal of bad pecipatation data
+plotter.py -- used to plot csv files
+get_ip -- a utility to get the ip adderess of a machine
+rad_decoder.py -- takes a cdf File and converts to csv file
+tz_shift.py -- for shifting between utc - 0 and akst timezones
+wunder_formatter.py -- takes csv file data and converts it to a url that can 
+                        be sent to weather under ground 
