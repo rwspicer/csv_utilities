@@ -27,6 +27,12 @@ import csv_lib.csv_file as csvf
 import httplib2
 
 def from_SI(value, unit):
+    """
+    this function is for unit conversions from SI
+    value -- the input value
+    unit -- input units
+    returns the value in imperial units
+    """
     if(unit == "millibars"):
         return value * .0295333727
     if(unit == "celsius"):
@@ -169,10 +175,6 @@ def main():
         if (first_date == temp_date):
             my_url.add_item(key,str(from_SI(temp[1][idx],units)))
         del temp
-        
-    
-
-
 
     print my_url
     resp, content = httplib2.Http().request(str(my_url))
