@@ -4,11 +4,14 @@ weather underground data formatting utility
 wunder_fromatter.py
 Rawser Spicer
 created: 2014/04/16
-modified: 2014/04/24
+modified: 2014/05/01
 
         this utility is designed to create links to upload data to weather
     underground. the format is specified here:
             http://wiki.wunderground.com/index.php/PWS_-_Upload_Protocol
+
+    version 2014.5.1.1:
+        added error checking for missing flags
 
     version 2014.4.24.1:
         added check for hourly data
@@ -150,6 +153,11 @@ def main():
         commands = csva.ArgClass(REQ_FLAGS, OPT_FLAGS, HELP_STRING)
     except RuntimeError, error_message:
         exit_on_failure(error_message[0])
+
+    if commands.is_missing_flags():
+        for items in commands.get_missing_flags():
+            print_center(" ERROR: flag <" + items + "> is required ", "*")
+        exit_on_failure()
 
     my_url = WUURL()
     f_name = commands["--ref_file"]
