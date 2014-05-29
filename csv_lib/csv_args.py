@@ -86,6 +86,12 @@ class ArgClass:
     #def get_bad_flags(self):
     #    return self.m_bad_flags
 
+    def keys(self):
+        """
+        returns a list of the flags that were used
+        """
+        return self.m_commands.keys()
+
     def check_flags(self, req_flags):
         """
         checks to see that all required flags are filled out
