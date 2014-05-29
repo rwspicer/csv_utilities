@@ -11,3 +11,4 @@ test.py
 /support_files/*
 /rad_test/*
 /excel_qa/*
+*.dat

@@ -8,15 +8,21 @@ modifyed: 2014/05/29
     cr1000 datalogers. the commuincation wiht the logger uses the pakbus 
     package avaible at http://sourceforge.net/projects/pypak/files/ 
 
+    version 2014.5.29.2: 
+        the write function has been completed and can wite a table to a
+    . dat file. 
+    
     version 2014.5.29.1:
         most features work and commets have been added to the top of the
     file. the downloading and saving of data from logger is still a work
     in progress.
+    
 
 """
 import csv_lib.csv_args as csva
 from csv_lib.csv_utilities import print_center, exit_on_success, exit_on_failure
 import pakbus
+import datetime as dt
 
 
 UTILITY_TITLE = " data logger communicator "
@@ -47,6 +53,9 @@ class LoggerLink(object):
         self.ping()
         self.progs = []
         self.table_list = []
+        FileData, Response = pakbus.fileupload(self.link, self.l_id, self.c_id, '.TDF')
+        self.tabledef = pakbus.parse_tabledef(FileData)
+        
         self.fetchprogs()
         
     def set_host(self, val):
@@ -143,28 +152,29 @@ class LoggerLink(object):
         """ lsit programs on the logger"""
         return self.progs
         
+    def refresh_tabledef(self):
+        self.ping()
+        FileData, Response = pakbus.fileupload(self.link, self.l_id, self.c_id, '.TDF')
+        self.tabledef = pakbus.parse_tabledef(FileData)
+        
     def listtables(self, refresh = False):
         """ list the tables """
         if (self.table_list == []) or refresh:
             self.ping()
             self.table_list = []
-            FileData, Response = pakbus.fileupload(self.link, self.l_id, self.c_id, '.TDF')
-            tabledef = pakbus.parse_tabledef(FileData)
-            for table in tabledef:
+            for table in self.tabledef:
                 self.table_list.append(table['Header']['TableName'])
         return self.table_list
         
     def fetchdata(self, t_name = "Snow"):
         """step 1 ping fetch the data form a given table"""
         self.ping()
-        FileData, Response = pakbus.fileupload(self.link, self.l_id, self.c_id, '.TDF')
-        tabledef = pakbus.parse_tabledef(FileData)
-       # print tabledef
-        recs, more =  pakbus.collect_data(self.link, self.l_id, self.c_id, tabledef, t_name,P1 = 1)
+        
+        recs, more =  pakbus.collect_data(self.link, self.l_id, self.c_id, self.tabledef, t_name,P1 = 1)
         
         numRecs = recs[0]['RecFrag'][0]['RecNbr'] + 1 
         
-        recs, more =  pakbus.collect_data(self.link, self.l_id, self.c_id, tabledef, t_name,P1 = numRecs)
+        recs, more =  pakbus.collect_data(self.link, self.l_id, self.c_id, self.tabledef, t_name,P1 = numRecs)
         
         array = [] 
         for items in recs[0]['RecFrag']:
@@ -172,11 +182,63 @@ class LoggerLink(object):
         
         return array
         
-    def write(self, table, f_name, delim = ','):
+    def get_unit_info(self, t_name):
+        """ gets the units for the table """
+        #~ self.ping()
+        tableno = pakbus.get_TableNbr(self.tabledef, t_name) - 1
+        
+        units = {}
+        processing = {}
+        fields = self.tabledef[tableno]['Fields']
+        for items in fields:
+            units[items['FieldName']] = items['Units']
+            processing[items['FieldName']] = items['Processing']
+        return units, processing 
+        
+        
+    def write(self, table, logger_name, delim = ','):
         """ writes given table to the given file name """
-        data = fetchdata(table)
+        data = self.fetchdata(table)
         info = self.progstat()
-        line1 = "TOA5" + delim + ""
+        units, pro = self.get_unit_info(table)
+        line1 = '"TOA5"' + delim + '"' + logger_name + '"' + delim + \
+                 '"' + info["OSVer"].split('.')[0]  + '"' + delim + \
+                 '"' + str(info["SerialNbr"]) + '"' + delim + \
+                 '"' + info["OSVer"] + '"' + delim + \
+                 '"' + info["ProgName"] + '"' + delim + \
+                 '"' + str(info['ProgSig']) + '"' + delim + \
+                 '"' + table + '"\n'
+        line2 = '"TIMESTAMP"' + delim + '"RN"' 
+        line3 = '"TS"' + delim + '"RN"'
+        line4 = '""' + delim + '""'
+        for items in data[0]['Fields'].keys():
+            line2 += delim + '"' + items + '"'
+            line3 += delim + '"' + str(units[items]) + '"'
+            line4 += delim + '"' + pro[items] + '"'
+        line2 += '\n'    
+        line3 += '\n'
+        line4 += '\n'
+        records = ""
+        for recs in data:
+            the_date = dt.datetime.fromtimestamp(recs['TimeOfRec'][0]) 
+            the_date = the_date.replace(year = the_date.year+20)
+            records += '"' + str(the_date) + '"'
+            records += delim + '"' + str(recs['RecNbr']) + '"'
+            
+            for items in data[0]['Fields'].keys():
+                records += delim + '"' + str(recs['Fields'][items][0]) + '"'
+            records += '\n'
+        
+        
+        filename = logger_name + '_' + table + ".dat"
+        f = open(filename, "w")
+        f.write(line1)
+        f.write(line2)
+        f.write(line3)
+        f.write(line4)
+        f.write(records)
+        
+        return filename 
         
 
 def main():
