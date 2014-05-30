@@ -4,44 +4,47 @@ csv plotter
 csv_plot.py
 Rawser Spicer
 created: 2014/02/03
-modifyed: 2014/03/15
+modified: 2014/03/15
 
         This utility is designed to plot csv files. It can plot up to 10 
     files at a time, or 1 file with an arbitary number of columns of data
 
-    version 2013.3.17.1
+    version 2014.5.30.1:
+        fixed typo in date portion of file header 
+
+    version 2013.3.17.1:
         added support  for the new polot class in csvPlot
     
-    version 2014.3.12.1
+    version 2014.3.12.1:
         added ArgClass support
 
-    version 2014.2.28.1
+    version 2014.2.28.1:
         added support for multiple columns of data
 
-    version 2014.2.12.2
+    version 2014.2.12.2:
         fixed up documentation and help
 
-    version 2014.2.12.1
+    version 2014.2.12.1:
         added --plot_avg flag, which will plot the a data set over the average 
     of all other data sets
 
-    version 2014.2.10.1
+    version 2014.2.10.1:
         the legend will now show the data titile instead of the file name
 
-    version 2014.2.7.2
+    version 2014.2.7.2:
         added the legend
 
-    version 2014.2.7.1 (working version 1)
+    version 2014.2.7.1 (working version 1):
         this is the working version. added a fuction process interval to further
     subdevide the work of csv_plotter function. fixed all documentation
 
-    version 2014.2.6.2
+    version 2014.2.6.2:
         added the plotter function to act like a main function in c++
 
-    version 2014.2.6.1
+    version 2014.2.6.1:
         polts a csv file with the csv_plot module
 
-    version 2014.2.3.1
+    version 2014.2.3.1:
         plots a csv file
 
 """

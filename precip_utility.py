@@ -3,17 +3,20 @@ preciptation utility
 precip_utility.py
 Rawser Spicer
 created: 2014/01/24
-modifyed: 2013/04/16
+modified: 2013/04/16
     
-    version 2014.4.16.1
+    version 2014.5.30.1:
+        fixed typo in date portion of file header 
+
+    version 2014.4.16.1:
         updated header to have the correct utility and file name
 
-    version 2014.3.13.1
+    version 2014.3.13.1:
         updated to use datetimes, ArgClass and CsvFile class
     also the older version may not have worked properly, im not sure why it
     wasnt caught but it works now, so use this version or newer
 
-    version 2014.2.10.1
+    version 2014.2.10.1:
         updated to use new csv_lib name
 
     update 1: 

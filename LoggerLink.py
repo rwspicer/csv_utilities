@@ -2,11 +2,15 @@
 LoggerLink.py 
 Rawser Spicer -- rwspicer@alaska.edu
 Created: 2014/05/23
-modifyed: 2014/05/29
+modified: 2014/05/30
 
         this appilcation and class are used for communicating with the 
     cr1000 datalogers. the commuincation wiht the logger uses the pakbus 
     package avaible at http://sourceforge.net/projects/pypak/files/ 
+    
+    version 2014.5.30.1: 
+        fixed the issue where the date on the data from logger was 20 
+    years off
 
     version 2014.5.29.2: 
         the write function has been completed and can wite a table to a
@@ -170,8 +174,10 @@ class LoggerLink(object):
         """step 1 ping fetch the data form a given table"""
         self.ping()
         
-        recs, more =  pakbus.collect_data(self.link, self.l_id, self.c_id, self.tabledef, t_name,P1 = 1)
-        
+        try:
+            recs, more =  pakbus.collect_data(self.link, self.l_id, self.c_id, self.tabledef, t_name,P1 = 1)
+        except StandardError:
+            print "Error: table " + t_name + " was not found."
         numRecs = recs[0]['RecFrag'][0]['RecNbr'] + 1 
         
         recs, more =  pakbus.collect_data(self.link, self.l_id, self.c_id, self.tabledef, t_name,P1 = numRecs)
@@ -220,8 +226,8 @@ class LoggerLink(object):
         line4 += '\n'
         records = ""
         for recs in data:
-            the_date = dt.datetime.fromtimestamp(recs['TimeOfRec'][0]) 
-            the_date = the_date.replace(year = the_date.year+20)
+            the_date = pakbus.nsec_to_time(recs['TimeOfRec'])
+            the_date = dt.datetime.fromtimestamp(the_date) 
             records += '"' + str(the_date) + '"'
             records += delim + '"' + str(recs['RecNbr']) + '"'
             

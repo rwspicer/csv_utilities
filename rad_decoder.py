@@ -4,10 +4,10 @@ rawser spicer
 created 2014/03/03
 modified 2014/03/13
     
-    version 2014.2.13.1
+    version 2014.2.13.1:
         added support for the CsvFile Class
         
-    version 2014.3.12.1
+    version 2014.3.12.1:
         cleanded up a bit 
 
     this utility extracts the dated from a cdf file

@@ -3,18 +3,21 @@ relative humidity calulator
 rh_calculator.py
 Rawser Spicer
 created: 2014/01/24
-modifyed: 2014/02/12
+modified: 2014/02/12
 
-    version 2014.3.12.1
+    version 2014.5.30.1:
+        fixed typo in date portion of file header     
+
+    version 2014.3.12.1:
         now works with csv_lib.csv_file and .csv_args
 
-    version 2014.3.10.1
+    version 2014.3.10.1:
         updated to use new csv_lib name
 
-    version 2014.02.03.2
+    version 2014.2.3.2:
         uses the basic csv_utilities lib features
 
-    version 2014.02.03.1:
+    version 2014.2.3.1:
         adds support for the csv_utilities module
 
     update 1: 

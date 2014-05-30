@@ -2,14 +2,17 @@
 get_ip.py
 Rawser Spicer
 created: 2014/02/13
-modifyed: 2014/03/12
+modified: 2014/03/12
 
     gets the ip adderess from a saved ifconfig output
 
-    version 2013.3.12.1
+    version 2014.5.30.1:
+        fixed typo in date portion of file header 
+
+    version 2014.3.12.1:
         now uses ArgClass
 
-    version 2014.2.13.1
+    version 2014.2.13.1:
         adds documentation and support for interface
 
 

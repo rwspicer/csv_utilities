@@ -9,21 +9,21 @@ modified: 2014/03/06
         This utility applys a step function to processed data
     to allow for corrections to be applyed to said data
     
-    version 2014.3.10.1
+    version 2014.3.10.1:
         uses csv_args to handel the command line
     
-    version 2014.3.6.1
+    version 2014.3.6.1:
         updated to work with the CsvFile class
         the old version apperes to not have been working at all but this one 
         should. it now also has a main finction, and is executible
 
-    version 2014.2.10.1
+    version 2014.2.10.1:
         updated to use new csv_lib name
     
-    version 2014.02.03.2
+    version 2014.02.03.2:
         uses the basic csv_utilities lib features
 
-    version 2014.02.03.1
+    version 2014.02.03.1:
         added support for the csv_utilites module
 
     update 1: 
