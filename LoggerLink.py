@@ -2,11 +2,17 @@
 LoggerLink.py 
 Rawser Spicer -- rwspicer@alaska.edu
 Created: 2014/05/23
-modified: 2014/05/30
+modified: 2014/06/02
 
         this appilcation and class are used for communicating with the 
     cr1000 datalogers. the commuincation wiht the logger uses the pakbus 
     package avaible at http://sourceforge.net/projects/pypak/files/ 
+    
+    version 2014.6.2.1:
+        fixed the issue where olny first part of data table from logger 
+    was written to .dat file. Added feature to collect olny new if a 
+    .dat file alread exists.
+        
     
     version 2014.5.30.1: 
         fixed the issue where the date on the data from logger was 20 
@@ -170,22 +176,32 @@ class LoggerLink(object):
                 self.table_list.append(table['Header']['TableName'])
         return self.table_list
         
-    def fetchdata(self, t_name = "Snow"):
+    def fetchdata(self, t_name = "Snow", lastrecs = 0):
         """step 1 ping fetch the data form a given table"""
         self.ping()
+        array = [] 
         
         try:
             recs, more =  pakbus.collect_data(self.link, self.l_id, self.c_id, self.tabledef, t_name,P1 = 1)
         except StandardError:
             print "Error: table " + t_name + " was not found."
-        numRecs = recs[0]['RecFrag'][0]['RecNbr'] + 1 
+        numRecs = recs[0]['RecFrag'][0]['RecNbr']  +1
         
-        recs, more =  pakbus.collect_data(self.link, self.l_id, self.c_id, self.tabledef, t_name,P1 = numRecs)
-        
-        array = [] 
-        for items in recs[0]['RecFrag']:
-            array.append(items)
-        
+        if lastrecs != 0:
+            numRecs -= (lastrecs + 1)
+        #~ print numRecs
+        more = 1 
+        while numRecs != 0:
+            recs, more =  pakbus.collect_data(self.link, self.l_id, self.c_id, self.tabledef, t_name,P1 = numRecs)
+            if len(recs) < 1 :
+                return array
+            for items in recs[0]['RecFrag']:
+                array.append(items)
+            temp = recs[0]['NbrOfRecs'] 
+            #~ print temp
+            numRecs -= temp 
+            #~ print numRecs
+            
         return array
         
     def get_unit_info(self, t_name):
@@ -204,7 +220,25 @@ class LoggerLink(object):
         
     def write(self, table, logger_name, delim = ','):
         """ writes given table to the given file name """
-        data = self.fetchdata(table)
+        filename = logger_name + '_' + table + ".dat"
+        try:
+            f = open(filename, 'r')
+            first = f.readline()     
+            f.seek(-2, 2)            
+            while f.read(1) != "\n": 
+                f.seek(-2, 1)        
+            last = f.readline()
+            oldrecs = int(last.split(',')[1].replace('"',''))
+            f.close()
+            f_exists = True
+        except IOError:
+            oldrecs = 0
+            f_exists = False
+            
+        data = self.fetchdata(table, oldrecs)
+        
+        if len(data) == 0:
+            return "no data to write"
         info = self.progstat()
         units, pro = self.get_unit_info(table)
         line1 = '"TOA5"' + delim + '"' + logger_name + '"' + delim + \
@@ -236,14 +270,16 @@ class LoggerLink(object):
             records += '\n'
         
         
-        filename = logger_name + '_' + table + ".dat"
-        f = open(filename, "w")
-        f.write(line1)
-        f.write(line2)
-        f.write(line3)
-        f.write(line4)
-        f.write(records)
         
+        f = open(filename, "a")
+        if not f_exists:
+            f.write(line1)
+            f.write(line2)
+            f.write(line3)
+            f.write(line4)
+        
+        f.write(records)
+        f.close()
         return filename 
         
 
