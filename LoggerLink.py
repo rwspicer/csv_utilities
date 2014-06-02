@@ -8,12 +8,14 @@ modified: 2014/06/02
     cr1000 datalogers. the commuincation wiht the logger uses the pakbus 
     package avaible at http://sourceforge.net/projects/pypak/files/ 
     
+    version 2014.6.2.2:
+        the user interface has been compleated
+
     version 2014.6.2.1:
         fixed the issue where olny first part of data table from logger 
     was written to .dat file. Added feature to collect olny new if a 
     .dat file alread exists.
         
-    
     version 2014.5.30.1: 
         fixed the issue where the date on the data from logger was 20 
     years off
@@ -33,18 +35,42 @@ import csv_lib.csv_args as csva
 from csv_lib.csv_utilities import print_center, exit_on_success, exit_on_failure
 import pakbus
 import datetime as dt
+import os
 
 
 UTILITY_TITLE = " data logger communicator "
 
-OPT_FLAGS = ("--action", "--port", "--host", "--filename", 
-             "--tablename")
-REQ_FLAGS = ()
+OPT_FLAGS = ( "--port", "--host", "--filename", "--loggername", "--dir")
+REQ_FLAGS = ("--action",)
 
 HELP_STRING = """
         This utility is for communication with a datalogger. it can be 
     used for uploading and downloading programs, downloading data, and 
     veiwing the general status of the datalogger. 
+    
+        --action=<upload|downloadstatus|fetch|programs|tables>
+                upload: upload a program file to the logger and start it
+                download: downlaod a program file from the logger
+                status: returns the status of the logger.
+                fetch: fetch a data table from the logger
+                programs: list the programs on the logger
+                tables: list the tables on the logger
+                
+        --host=<host IP>
+                The ip adderess of the computer the logger is linked to.
+                
+        --port=<port number>
+                The number of the port the logger is on.
+                
+        --filename=<filename>
+                The name of the file. Use with download, upload, 
+            and start.
+
+        --loggername=<loggername>
+                the name of the logger use with fetch
+                
+        --dir=<directory to save .dat files to>
+        
               """
 
 class LoggerLink(object):
@@ -91,9 +117,14 @@ class LoggerLink(object):
     def upload(self, filename, s_cond = 0x0000, swath = 0x0200):
         """ upload a file to the logger"""
         self.ping()
-        f = open(filename, 'rb')
+        try:
+            f = open(filename, 'rb')
+        except IOError:
+            return "File Error"
         f_contents = f.read()
         f.close()
+        
+        
         rsp = pakbus.filedownload(self.link, self.l_id, self.c_id, 
                             "CPU:"+filename, f_contents , s_cond, swath)
         self.fetchprogs()
@@ -109,7 +140,7 @@ class LoggerLink(object):
         if response != 13:
             return response 
         f = open(filename,'w')
-        print filedata
+        #~ print filedata
         f.write(filedata)
         f.close()
         return response
@@ -185,6 +216,8 @@ class LoggerLink(object):
             recs, more =  pakbus.collect_data(self.link, self.l_id, self.c_id, self.tabledef, t_name,P1 = 1)
         except StandardError:
             print "Error: table " + t_name + " was not found."
+        if t_name == "Status" or t_name == "Public":
+            return recs[0]['RecFrag']
         numRecs = recs[0]['RecFrag'][0]['RecNbr']  +1
         
         if lastrecs != 0:
@@ -218,8 +251,11 @@ class LoggerLink(object):
         return units, processing 
         
         
-    def write(self, table, logger_name, delim = ','):
+    def write(self, table, logger_name, w_dir = './', delim = ','):
         """ writes given table to the given file name """
+        if not os.path.isdir(w_dir):
+            os.makedirs(w_dir)
+        
         filename = logger_name + '_' + table + ".dat"
         try:
             f = open(filename, 'r')
@@ -237,9 +273,31 @@ class LoggerLink(object):
             
         data = self.fetchdata(table, oldrecs)
         
+        
         if len(data) == 0:
             return "no data to write"
         info = self.progstat()
+        
+        # here is the case for status and public
+        if table == "Status" or table == "Public":
+            line1 = '"TOA5"' + delim + '"' + logger_name + '"' + delim + \
+                 '"' + info["OSVer"].split('.')[0]  + '"' + delim + \
+                 '"' + str(info["SerialNbr"]) + '"' + delim + \
+                 '"' + info["OSVer"] + '"' + delim + \
+                 '"' + info["ProgName"] + '"' + delim + \
+                 '"' + str(info['ProgSig']) + '"' + delim + \
+                 '"' + table + '"\n'
+                 
+                 
+            f = open(w_dir+filename, "w")
+            if not f_exists:
+                f.write(line1)
+            
+            f.write(data)
+            f.close()
+            return filename 
+        
+        
         units, pro = self.get_unit_info(table)
         line1 = '"TOA5"' + delim + '"' + logger_name + '"' + delim + \
                  '"' + info["OSVer"].split('.')[0]  + '"' + delim + \
@@ -271,7 +329,7 @@ class LoggerLink(object):
         
         
         
-        f = open(filename, "a")
+        f = open(w_dir+filename, "a")
         if not f_exists:
             f.write(line1)
             f.write(line2)
@@ -281,6 +339,15 @@ class LoggerLink(object):
         f.write(records)
         f.close()
         return filename 
+        
+    def write_all(self, logger_name, w_dir = './', delim=',',
+                  inc_pub =False):
+        """ write all of the data to .dat files"""
+        for items in self.listtables():
+            if items == 'Public' and not inc_pub:
+                continue
+            self.write(items, logger_name, w_dir, delim)
+    
         
 
 def main():
@@ -299,58 +366,76 @@ def main():
 
     
 
-    if not commands:
+    #~ if not commands:
+#~ 
+        #~ c = LoggerLink()
+        #~ prompt(c)
+    #~ else:  
+    #~ if not ("--action" in commands.keys()):
+        #~ print_center("Error: no action given", "*")
+        #~ exit_on_failure() 
+    if("--port" in commands.keys() and "--host" in commands.keys() ):
+        c = LoggerLink(commands['--host'], commands["--port"])
+    elif "--port" in commands.keys():
+        c = LoggerLink(commands["--port"])
+    elif "--host" in commands.keys():
+        c = LoggerLink(commands['--host']) 
+    else:
         c = LoggerLink()
-        prompt(c)
-    else:  
-        if not ("--action" in commands.keys()):
-            print_center("Error: no action given", "*")
-            exit_on_failure() 
-        if("--port" in commands.keys() and "--host" in commands.keys() ):
-            c = LoggerLink(commands['--host'], commands["--port"])
-        elif "--port" in commands.keys():
-            c = LoggerLink(commands["--port"])
-        elif "--host" in commands.keys():
-            c = LoggerLink(commands['--host']) 
-        else:
-            c = LoggerLink()
+    
+  
+  
+    
+    if "--filename" in commands.keys():
+        f_name = commands["--filename"]
+    else:
+        f_name = "no file"
         
-      
+    if "--tablename" in commands.keys():
+        l_name = commands["--tablename"]
+    else:
+        l_name = "logger"
         
-        if "--filename" in commands.keys():
-            f_name = commands["--filename"]
-        else:
-            f_name = "no file"
-            
-        if "--tablename" in commands.keys():
-            t_name = commands["--tablename"]
-        else:
-            t_name = "no table"
-        
-        print action(c, action, f_name, t_name)
+    if "--dir" in commands.keys():
+        d_name = commands["--dir"]
+    else:
+        d_name = "./"
+    
+    print action(c, commands["--action"], f_name, l_name, d_name)
         
     c.unlink()
     print exit_on_success()
 
 
 
-def action(c, command, f_name = "no file", t_name = "no table"): 
+def action(c, command, f_name = "no file", l_name = "logger", 
+                                                d_name = "./"): 
     """ preforms the action specifyed by command"""
     if command == "upload":
         ret = c.upload(f_name)
+        if ret == 0:
+            ret = c.progstart('CPU:' + f_name)
+        elif ret == "File Error":
+            ret = "File to upload was not found"
+        else:
+            ret = "upload error"
     elif command == "download":
         ret = c.download(f_name)
-    elif command == "start":
-        ret = c.progstart("CPU:" + f_name)
-    elif command == "upStart":
-        c.upload(f_name)
-        ret = c.progstart("CPU:" + f_name)
+        if ret == 13:
+            ret = "success"
+        else:
+            ret = "download error"
     elif command == "status":
         ret = c.progstat()
     elif command == "fetch":
-        ret = "comming soon"
+        c.write_all(l_name, d_name)
+        ret = "all data fetched"
+    elif command == "programs":
+        return c.listprogs()
+    elif command == "tables":
+        return c.listtables()
     else :
-        ret = "I dont know what that means"
+        ret = "Action is not Valid"
     return ret
     
     

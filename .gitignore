@@ -12,3 +12,4 @@ test.py
 /rad_test/*
 /excel_qa/*
 *.dat
+*.CR1
