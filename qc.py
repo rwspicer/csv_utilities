@@ -7,6 +7,8 @@ created: 2014/03/13
 modified: 2014/04/14
 
        this utility preforms quality based on a file with values to compare
+    this program uses the xlrd package to interface wiht excel files:
+    http://www.python-excel.org/
 
     version 2013.4.14.1:
         added documetation 

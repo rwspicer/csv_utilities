@@ -40,7 +40,7 @@ import os
 
 UTILITY_TITLE = " data logger communicator "
 
-OPT_FLAGS = ( "--port", "--host", "--filename", "--loggername", "--dir")
+OPT_FLAGS = ("--port", "--host", "--filename", "--loggername", "--dir")
 REQ_FLAGS = ("--action",)
 
 HELP_STRING = """
