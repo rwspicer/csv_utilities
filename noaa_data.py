@@ -2,11 +2,14 @@
 noaa_data.py
 rawser spicer
 created: 2014/07/25
-modified: 2014/07/28
+modified: 2014/07/29
 
         this utility will allow preciptation data to be pulled from a page on 
     the noaa web site. This utility uses beautiful soup 4 for html parsing 
     http://www.crummy.com/software/BeautifulSoup/
+    
+    version 2014.07.29.2:
+        fixed bug that has the data in the reverse order
     
     version 2014.07.29.1:
         the utility now works for saving data
@@ -132,7 +135,10 @@ class NCDCData(object):
             idx = my_str.find("n")+1
             my_str = my_str[idx:-3]
             precip.append(float(my_str))
-            
+        date.reverse()
+        temp.reverse()
+        precip.reverse()
+        
         self.ncdc_table = [date, temp, precip]
             
 
