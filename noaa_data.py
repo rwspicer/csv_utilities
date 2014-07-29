@@ -8,6 +8,9 @@ modified: 2014/07/29
     the noaa web site. This utility uses beautiful soup 4 for html parsing 
     http://www.crummy.com/software/BeautifulSoup/
     
+    version 2014.07.29.3:
+        fixed error caused when data is unavaible
+    
     version 2014.07.29.2:
         fixed bug that has the data in the reverse order
     
@@ -129,12 +132,19 @@ class NCDCData(object):
             my_str = items[1]
             idx = my_str.find("F")+1
             my_str = my_str[idx:-2]
-            temp.append(float(my_str))
+            try:
+                temp.append(float(my_str))
+            except:
+                temp.append(float('nan'))
 
             my_str = items[2]
             idx = my_str.find("n")+1
             my_str = my_str[idx:-3]
-            precip.append(float(my_str))
+            try:
+                precip.append(float(my_str))
+            except:
+                precip.append(float('nan'))
+        
         date.reverse()
         temp.reverse()
         precip.reverse()
