@@ -6,8 +6,14 @@ modified: 2014/07/29
 
         this utility will allow preciptation data to be pulled from a page on 
     the noaa web site. This utility uses beautiful soup 4 for html parsing 
-    http://www.crummy.com/software/BeautifulSoup/
+    http://www.crummy.com/software/BeautifulSoup/. apt-get install python-bs4 
+    will install beautiful soup. The file contains a class for the data and 
+    an utility to use the class from the command line
     
+    
+    version 2014.07.29.4:
+        updated documentation
+
     version 2014.07.29.3:
         fixed error caused when data is unavaible
     
@@ -31,6 +37,8 @@ from csv_lib.csv_utilities import print_center, exit_on_failure, exit_on_success
 import csv_lib.csv_file as csvf
 import csv_lib.csv_args as csva
 
+
+# maps the months to strings
 mon_to_num = {"JAN":"1", "FEB":"2", "MAR":"3", "APR":"4", "MAY":"5",
               "JUN":"6", "JUL":"7", "AUG":"8", "SEP":"9", "OCT":"10",
               "NOV":"11","DEC":"12"}
@@ -38,7 +46,9 @@ mon_to_num = {"JAN":"1", "FEB":"2", "MAR":"3", "APR":"4", "MAY":"5",
 
 class NCDCData(object):
     """
-    this is a class
+        this class can be used to get the data from one of the sites on 
+    www.ncdc.noaa.gov. Hourly percipatation and temperature are avaible for
+    a given date. 
     """
     def __init__(self):
         """
@@ -62,8 +72,7 @@ class NCDCData(object):
         
     def process_html(self):
         """
-        maybe removes newlines from html. beautiful soup may have a way of
-        doing this
+        processes the html into a more useable format 
         """
         for item in self.html.find(id="hourly").thead.find_all('th'):
             self.col_names.append(item.text.strip().replace("Calculated",""))
@@ -121,7 +130,7 @@ class NCDCData(object):
             year = datetime.datetime.now().year
             mon, day, hour, am_pm = [t(s) for t , s in zip((int, int, int, int),
                                         re.search(reg_exp, date_str).groups())]
-            #print mon,day,year,hour,am_pm
+
             hour += am_pm
             if hour == 12:
                 hour = 0
@@ -192,11 +201,18 @@ HELP_STRING = """
         This Utility gets the teperature or precipitation data from a NOAA 
     website.
     
-        --time - the time and day you want the utility to get, can be "now", 
-                 "yesterday", or a date in the YYYY-MM-DD formant
-        --filename - the file the data will be saved to
-        --id - the id for the site (ie. 1007 for the AK Barrow 4 ENE site)
-        --value - <temp|precip>
+        --time = <"day"|"yesterday"|"yyyy/mm/dd">
+                    the time and day you want the utility to get, can be "now", 
+                "yesterday", or a date in the YYYY-MM-DD formant
+        
+        --filename = <*.csv>
+                    the file the data will be saved to
+        
+        --id = <*number*>
+                    the id for the site (ie. 1007 for the AK Barrow 4 ENE site)
+        
+        --value = <temp|precip>
+                    save the tempearure or precipatation 
               """
 
 def main():
