@@ -3,7 +3,7 @@ CSV Utilities
 csv_utilities.py
 Rawser Spicer
 created: 2014/01/31
-modified: 2014/02/19
+modified: 2014/07/31
 
     TODO:
         --update execption types
@@ -35,7 +35,9 @@ modified: 2014/02/19
         bv_to_nan                   -- function to relpace bad values in an 
                                        array with nan
 
-    
+    version 2015.7.31.1:
+        updates to documentation    
+
     version 2014.2.28.1:
         load_file_new no longer has unpack feature and it loads a file starting 
         at column 0 to the size provided
@@ -93,7 +95,20 @@ import csv_date as csvd
 
 def read_args(valid_flags, string):
     """
-    reads argumens from the command line based on provided flags
+        DEPRECATED: use the ArgClass in csv_args.py instead    
+    
+        reads argumens from the command line based on provided flags. The 
+    "--help" flag is avaible by default.  
+    
+    arguments:
+        valid_flages:   (list) a list of the valid flags
+        string:         (string) a string to display if "--help" flag is used
+
+    returns:
+        a libary of values from the command line with the flags as keys.
+
+    notes:
+        terminats program if help string requested or a flag is not found
     """
     cmd = []
     for index in sys.argv:
@@ -125,30 +140,42 @@ def read_args(valid_flags, string):
     return ret_val
 
 
-
 def get_command_value(cmds, key, func):
     """
-    gets a value entered at the command line based on a function that the cilent 
-    has passed as input
-    cmds = the array of commands
-    key = the key to access
-    func = a function that takes one argument at returns a value 
+    DEPRECATED: part of the ArgClass in csv_args.py now
+
+        Gets a value entered at the command line based on a function that the 
+    cilent has passed as input
+    
+    Arguments:
+        cmds:   (list) the array of commands
+        key:    (string) the key to access
+        func:   (function) a function that takes one argument at returns a value
+
+    returns:
+        the value returned by the function
     """
     try:
         value = cmds[key]
     except KeyError:
         value = ""
     return func(value)
-    
-   
+       
    
 def date_to_num(con_val):
     """ 
-    converts a date to a number
-    con_val = a string of format '"yyyy-mm-dd hh:MM:ss"' to be converted to a 
-    number that looks like this yyyymmddhhMMss
-        example '"2013-01-10 10:00:00"' => 20130110100000
-    returns a number in yyyymmddhhMMss format
+    DEPRECATED: dates are now treated as datetime objects. See csv_date.py for 
+                more info
+
+        converts a date to a number
+    
+    arguments:
+        con_val:    (string) a string of format '"yyyy-mm-dd hh:MM:ss"' to be 
+                converted to a number that looks like this yyyymmddhhMMss
+                        example '"2013-01-10 10:00:00"' => 20130110100000
+
+    returns: 
+        a number in yyyymmddhhMMss format
     """
     ts_numbers = [t(s) for t , s in zip((int, int, int, int, int, int),
         re.search(r'^"(\d+)-(\d+)-(\d+) (\d+):(\d+):(\d+)"$',con_val).groups())]
@@ -157,14 +184,20 @@ def date_to_num(con_val):
                 +100*(ts_numbers[2]+100*(ts_numbers[1]+100*(ts_numbers[0]))))))
                 
                 
-                
 def num_to_date(con_val):
     """
-    converts a number back to a date string
-    con_val = a number of format yyyymmddhhMMss to be converted to a string in
-    '"yyyy-mm-dd hh:MM:ss"' format
-        example  20130110100000 => '"2013-01-10 10:00:00"'
-    returns date/time string in  '"2013-01-10 10:00:00"' format
+    DEPRECATED: dates are now treated as datetime objects. See csv_date.py for 
+                more info
+
+        converts a number back to a date string
+    
+    arguments:    
+        con_val:     (int) a number of format yyyymmddhhMMss to be converted to 
+                a string in '"yyyy-mm-dd hh:MM:ss"' format
+                example  20130110100000 => '"2013-01-10 10:00:00"'
+    
+    returns:
+        date/time string in  '"2013-01-10 10:00:00"' format
     """
     con_val /= 100
     sec = int(con_val % 10)
@@ -188,25 +221,38 @@ def num_to_date(con_val):
         minute, sec )
         
     return date
-    
+
     
 def check_file(f_name):
     """
-    checks if a file exsts
-    f_name = name of the file 
+    DEPRECATED: part of class CsvFile in csv_file.py
+    
+        checks if a file exsts
+    
+    arguments:
+        f_name:     (string) name of the file 
+
+    returns:
+        true if the file exists; false otherwise
     """
     if not (os.path.exists(f_name)):
         #print_center("File, " + f_name + ", not found")
         return False
     else:
         return True
-   
-    
+
+       
 def get_last_date_in_file(f_name):
     """
-    gets the last date in a czv file
-    f_name = the name of the file
-    returns the last date in the file
+    DEPRECATED: part of class CsvFile in csv_file.py
+    
+        gets the last date in a csv file
+ 
+    arguments:
+        f_name:     (string) the name of the file
+
+    returns: 
+        the last date in the file
     """
     try:
         dates = load_file(f_name, 4)[0]
@@ -218,9 +264,13 @@ def get_last_date_in_file(f_name):
 
 def get_header(f_name, h_len):
     """
-    gets the header from the file as a list
-    f_name = the filename
-    h_len = the length of the header
+    DEPRECATED: part of class CsvFile in csv_file.py
+
+        gets the header from the file as a list
+    
+    arguments:
+        f_name:     (string) the filename
+        h_len:      (int) the number of lines in header
     """
     h_list = []
     try:
@@ -239,21 +289,35 @@ def get_header(f_name, h_len):
 
 def get_title(f_name, h_len = 4, title_cell = 3):
     """
-    get the files title
-    f_name = the filename
-    h_len = the length of the header
-    title_cell = the cell containg the title
+    DEPRECATED: part of class CsvFile in csv_file.py
+
+        get the files title
+
+    arguments:
+        f_name:     (string) the filename
+        h_len:      (int) the rows in the header
+        title_cell: (int) the cell containg the title
+    
+    returns
+        the title     
     """
     return get_header(f_name, h_len)[title_cell]
 
 
 def get_column(f_name, h_len, col, d_type):
     """
-    gets a column of data from a file
-    f_name = the file
-    h_len = header length
-    col = column to read
-    d_type= datatype
+    DEPRECATED: part of class CsvFile in csv_file.py
+
+        gets a column of data from a file
+
+    arguments:
+        f_name:     (string) the file
+        h_len:      (int) header length
+        col:        (int) column to read
+        d_type:     (string) datatype of column
+
+    returns:
+        a list of the items in the column
     """
     f_value = numpy.loadtxt(f_name, delimiter=',', usecols=(col ,),
             skiprows=h_len, 
@@ -275,12 +339,19 @@ def get_column(f_name, h_len, col, d_type):
 
 def load_file_new(f_name, h_len, cols):#, unpack = True):
     """
-    new load file finction, allows arbitrary number of columns to be loaded from'
-    a csv file. if the colum 0 is given as on of the columns it will evalute to 
-    datetime.dattime objects; otherwise it will evaulate as a float.
-    f_name = the file name
-    h_len = length of the header
-    cols = # of columns in file
+    DEPRECATED: part of class CsvFile in csv_file.py
+
+        new load file finction, allows arbitrary number of columns to be loaded 
+    from a csv file. if the colum 0 is given as on of the columns it will 
+    evalute to datetime.dattime objects; otherwise it will evaulate as a float.
+    
+    arguments:
+        f_name:     (string) the file name
+        h_len:      (int) length of the header
+        cols:       (int) # of columns in file
+
+    returns:
+        a list of the lists of column values
     """
     r_list = []
     items = 0
@@ -305,14 +376,24 @@ def load_file_new(f_name, h_len, cols):#, unpack = True):
     #    #r_list = temp 
     #    return r_list
 
+
 def load_file(f_name, rows_to_skip):
     """
-    loads a csv file to two arrays and the lines indicated as a header
+    DEPRECATED: see load_file_new
+    
+        loads a csv file to two arrays and the lines indicated as a header
     into a list
-    f_name = the file to read
-    rows_to_skip = indicates the number of rows that are the header 
-    returns an array of dates in # form, an array of values corrisponding with 
+
+    arguments:
+        f_name:         (string) the file to read
+        rows_to_skip:   (int) indicates the number of rows that are the header 
+    
+    returns: 
+            an array of dates in # form, an array of values corrisponding with 
     said dates, and a list of the lines in the header.
+
+    Notes:
+        exits if loading of file fails
     """
     try:
         f_stream = open(f_name, 'r')
@@ -336,16 +417,21 @@ def load_file(f_name, rows_to_skip):
     return date , value, header
      
     
-    
 def write_to_csv(f_name, dates, vals, header):
     """
-    writes to a csv file, creating it with a header if it does not exist
+    DEPRECATED: part of class CsvFile in csv_file.py
+
+        writes to a csv file, creating it with a header if it does not exist
     or appending to it if it does
-    f_name = the filename
-    dates = the dates coulumn
-    vals = the value column
-    header = alist of lines to make up the header
-    returns nothing
+    
+    arguments:
+        f_name:     (string) the filename
+        dates:      (list) the dates coulumn
+        vals:       (list) the value column
+        header:     (list) alist of lines to make up the header
+
+    Note:
+        exits program if writing of file fails
     """
     try:
         if (not os.path.exists(f_name)):
@@ -384,12 +470,16 @@ def write_to_csv(f_name, dates, vals, header):
     f_stream.close()
 
         
-        
 def write_rep(length, fill = ' '):
     """
-    writs the fill char to a string length times
-    length = the number of times to write
-    fill = the charicter to write
+        writes the fill char to a string length times
+    
+    arguments:
+        length: (int) the number of times to write
+        fill:   (char)the charicter to write
+
+    returns:
+        a string of length of the fill char 
     """
     string = ""
     index = 0
@@ -399,13 +489,14 @@ def write_rep(length, fill = ' '):
     return string
     
 
-
 def print_center(string, fill=' ', size=80):
     """
-    prints strings in the center of a terminal window
-    string = the string to be written
-    fill = the fill char
-    size = size of terminal window 
+        prints strings in the center of a terminal window
+    
+    argurmnts:
+        string:     (string) the string to be written
+        fill:       (char) the fill char
+        size:       (int) size of terminal window 
     """
     str_len = len(string)
     space = (size - str_len) / 2
@@ -415,11 +506,12 @@ def print_center(string, fill=' ', size=80):
         print write_rep(space + 1 , fill) + string + write_rep(space, fill)
         
 
-
 def exit_on_failure(msg = " the utility was not successfull "):
     """
-    displays an message and then termiates a utility
-    msg = the message displayed
+        displays an message and then termiates a utility
+    
+    arguments:    
+        msg:    (string) the message displayed
     """
     print_center(msg,'-') 
     sys.exit(1)
@@ -427,8 +519,10 @@ def exit_on_failure(msg = " the utility was not successfull "):
     
 def exit_on_success(msg = "the utility has run successfully"):
     """
-    prints the exit on sucess message
-    msg = the message to be displayed
+        prints the exit on sucess message
+    
+    arguments:
+        msg: (string) the message to be displayed
     """
     print_center(msg,'-')
     sys.exit(0)
@@ -436,9 +530,13 @@ def exit_on_success(msg = "the utility has run successfully"):
 
 def bv_to_nan(array):
     """
-    replaces the bad values, 6999, 7777, 9999 with nan values
-    array = the array to find bad values in
-    array is returned
+        replaces the bad values, 6999, 7777, 9999 with nan values
+    
+    argumets:        
+        array:      (list)the array to find bad values in
+
+    returns:    
+        corrected array
     """
     index = 0
     while (index < len(array)):
