@@ -4,11 +4,14 @@ Step Function Utility
 stepFuncUtil.py
 Rawser Spicer
 created: 2014/01/??
-modified: 2014/03/06
+modified: 2014/07/31
 
         This utility applys a step function to processed data
     to allow for corrections to be applyed to said data
     
+    version 2014.7.31.1:
+        updates documantation.    
+
     version 2014.3.10.1:
         uses csv_args to handel the command line
     
@@ -40,13 +43,24 @@ import csv_lib.csv_args as csva
 UTILITY_TITLE = "Step Function Utility"
 FLAGS = ("--infile", "--outfile", "--stepfile")
 HELP_STRING = """
-    To correctly use this python utility:
-        $ python track_delay.py --infile=<path>/filename.csv
-        --stepfile=<path>/filename.csv --outfile=<path>/filename.csv
+        This utility can be used to correct values in a csve file by applying a 
+    correction value over time periods specified in an second file
+        
+        --infile:   <<path>/*.csv>
+                the file with the initial values
+
+        --stepfile: <<path>/*.csv>
+                the file withe the step values
+
+        --outfile:  <<path>/*.csv>
+                file to save output too
                   """
 
 def linear_step_function(d_val, l_func):
-    """linear step function"""
+    """
+    linear step function
+        a work in progress    
+    """
     o_val = []
     for index, time_step in enumerate(d_val):
         val = l_func[1] * time_step + l_func[0]
@@ -56,13 +70,18 @@ def linear_step_function(d_val, l_func):
 
 def step_function(d_date, d_val, s_date, s_val):
     """
-    applys the step function
-    d_date = an array of the dates of the input data
-    d_val = an array of values from the input data
-    s_date = an array of dates from the step file indcating when values need 
-    to be modifyed
-    s_val = an array of values to modify the input values by 
-    returns a corrected array of values
+        Adds the step values to the initila values
+
+    arguments:
+        d_date:     ((datetime.dateime)list) an array of the dates of the 
+                input data.
+        d_val:      ((values)list) an array of values from the input data
+        s_date:     ((datetime.dateime)list) an array of dates from the step 
+                file indcating when values need to be modifyed
+        s_val:      ((values)list) an array of values to modify the input values 
+    
+    returns:
+        a corrected array of values
     """
     d_index = len(d_date)-1
     s_index = len(s_date)-1
