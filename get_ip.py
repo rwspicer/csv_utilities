@@ -2,9 +2,12 @@
 get_ip.py
 Rawser Spicer
 created: 2014/02/13
-modified: 2014/03/12
+modified: 2014/07/31
 
     gets the ip adderess from a saved ifconfig output
+    
+    version 2014.6.31.1:
+        updated documentation
 
     version 2014.5.30.1:
         fixed typo in date portion of file header 
@@ -24,9 +27,11 @@ from csv_lib.csv_utilities import print_center, exit_on_success, exit_on_failure
 
 def get_dev(value):
     """
-    for fetching the interface from command line. will set to eth0 if no
+        for fetching the interface from command line. will set to eth0 if no
     value is given
-    value: the value from command line
+    
+    arguments
+        value:      (string) the value from command line
     """   
     if (value == ""):
         return "eth0"

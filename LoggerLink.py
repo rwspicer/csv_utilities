@@ -2,12 +2,15 @@
 LoggerLink.py 
 Rawser Spicer -- rwspicer@alaska.edu
 Created: 2014/05/23
-modified: 2014/06/02
+modified: 2014/07/31
 
         this appilcation and class are used for communicating with the 
     cr1000 datalogers. the commuincation wiht the logger uses the pakbus 
     package avaible at http://sourceforge.net/projects/pypak/files/ 
     
+    version 2014.7.31.1:
+        updates to documentation
+  
     version 2014.6.2.2:
         the user interface has been compleated
 
@@ -74,11 +77,22 @@ HELP_STRING = """
               """
 
 class LoggerLink(object):
-    """ this class represents a connection to the data logger """
+    """ 
+    this class represents a connection to the data logger
+    """
     
     def __init__(self, host = 'localhost', port = 7809, timeout = 30, 
                             logger_id = 0x001, computer_id = 0x802 ):
-        """ this initilizer function sets up the connection """
+        """ 
+            this initilizer function sets up the connection
+            
+        arguments:
+            host:       (string) a string repesenting the ip for the connection
+            port:       (int) the port number
+            timeout:    (int) timeout value
+            logger_id:  (int) the ID of the logger
+            computer_id:(int) the id of the computer 
+        """
         self.host = host
         self.port = port
         self.timeout = timeout
@@ -89,17 +103,30 @@ class LoggerLink(object):
         self.ping()
         self.progs = []
         self.table_list = []
-        FileData, Response = pakbus.fileupload(self.link, self.l_id, self.c_id, '.TDF')
+        FileData, Response = pakbus.fileupload(self.link, self.l_id, self.c_id
+                                                        , '.TDF')
         self.tabledef = pakbus.parse_tabledef(FileData)
         
         self.fetchprogs()
         
+        
     def set_host(self, val):
-        """ set the host"""
+        """ 
+            set the host
+        
+        arguments:
+            val:    (string) the new IP addr
+        """
         self.host = val
         
+        
     def set_port(self, val):
-        """ set the port"""
+        """ 
+            set the port
+        
+        arguments:
+            port:   (int)the new port number
+        """
         self.port = val
                                         
     def relink(self):
@@ -107,15 +134,29 @@ class LoggerLink(object):
         self.link = pakbus.open_socket(self.host, self.port
                                                  , self.timeout)
                                                  
+    
     def ping(self):
-        """pings the logger"""
+        """
+            pings the logger
+        """
         rsp = {}
         while rsp == {}:
             rsp = pakbus.ping_node(self.link, self.l_id, self.c_id)
         return rsp
         
+    
     def upload(self, filename, s_cond = 0x0000, swath = 0x0200):
-        """ upload a file to the logger"""
+        """
+            upload a file to the logger
+        
+        arguments:
+            filename:   (string) the file to be uploaded
+            s_cond:     (int) the security condition
+            swath:      (int) 
+            
+        returns:
+            the response from the logger
+        """
         self.ping()
         try:
             f = open(filename, 'rb')
@@ -132,7 +173,16 @@ class LoggerLink(object):
         
                             
     def download(self, filename, s_cond = 0x0000):
-        """ download a file from the loger """
+        """ 
+            downloads a file from the loger 
+            
+        arguments: 
+            filename:   (string) the file name
+            s_cond:     (int) the securit condition
+        
+        returns:
+            the response from the logger
+        """
         self.ping()
         filedata, response = pakbus.fileupload(self.link, self.l_id, self.c_id, 
                                         "CPU:"+filename ,s_cond)
@@ -144,36 +194,69 @@ class LoggerLink(object):
         f.write(filedata)
         f.close()
         return response
+                    
                             
     def unlink(self):
-        """ close the link to the data logger"""
+        """ 
+            close the link to the data logger
+        """
         pakbus.send(self.link, pakbus.pkt_bye_cmd(self.l_id, self.c_id))
         self.link.close()
 
+
     def info(self):
-        """ print the info for the link """
+        """ 
+            get the info for the link
+            
+        returns:
+            a string containing iformation on the logger 
+        """
         return "host = " + str(self.host) + '\n' + \
                "port = " + str(self.port) + '\n' + \
                "timeout = " + str(self.timeout) + '\n' + \
                "logger ID = " + str(self.l_id) + '\n' + \
                "computer ID = " + str(self.c_id) 
+               
         
     def progstat(self):
-        """ return the status of the running program"""
+        """
+            gets the status of the program running on the logger
+             
+        return: 
+            the status of the running program as a string
+        """
         self.ping()
         pkt, TranNbr = pakbus.pkt_getprogstat_cmd(self.l_id, self.c_id)
         pakbus.send(self.link, pkt)
         hdr, msg = pakbus.wait_pkt(self.link, self.l_id, self.c_id, TranNbr)
         return msg
         
+        
     def progstart(self, FileName):
-        """starts the given progam"""
+        """
+            starts the given progam
+        
+        arguments:
+            FileName:   (string) the name of the program to start
+        
+        returns:
+            the new status of the logger
+        """
         self.ping()
         return self.progctrl(FileName,1)    
                
-    def progctrl(self, FileName, FileCmd, SecurityCode = 0x0000, TranNbr = None):
-        """ allows for commands to be sent to the data logger to controll the program
-            FileCmd - 0 turns off program (ithink),  1 starts a program(probably might be 2) 
+               
+    def progctrl(self, FileName, FileCmd, SecurityCode = 0x0000
+                     , TranNbr = None):
+        """ 
+            allows for commands to be sent to the data logger to control
+        the program
+        
+        arguments:
+            FileName:   (string) the file to start
+            FileCmd:    <0|1> (int) 0 turns off program, 1 starts a program
+            SecurityCode:   (int) security code
+            TranNbr:        best left to default
         """
         pkt, t = pakbus.pkt_filecontrol_cmd(self.l_id, self.c_id,  FileName, 
                             FileCmd, SecurityCode, TranNbr)
@@ -182,24 +265,44 @@ class LoggerLink(object):
         
         return msg
         
+        
     def fetchprogs(self):
-        """ makes a list of the programs avaible on the data logger"""
-        FileData, Response = pakbus.fileupload(self.link, self.l_id, self.c_id, '.DIR')
+        """
+            makes a list of the programs avaible on the data logger
+        """
+        FileData, Response = pakbus.fileupload(self.link, self.l_id, self.c_id 
+                                                        , '.DIR')
         file_dir = pakbus.parse_filedir(FileData)
         for files in file_dir['files']:
             self.progs.append(files['FileName'])
             
     def listprogs(self):
-        """ lsit programs on the logger"""
+        """ 
+            get programs on the logger
+        
+        returns: 
+            a list of the programs on the logger
+        """
         return self.progs
         
+        
     def refresh_tabledef(self):
+        """
+            refresh the table definition
+        """
         self.ping()
-        FileData, Response = pakbus.fileupload(self.link, self.l_id, self.c_id, '.TDF')
+        FileData, Response = pakbus.fileupload(self.link, self.l_id, self.c_id
+                                                        , '.TDF')
         self.tabledef = pakbus.parse_tabledef(FileData)
         
+        
     def listtables(self, refresh = False):
-        """ list the tables """
+        """ 
+            get list of tables
+            
+        returns:
+            a list of the tables on the logger 
+        """
         if (self.table_list == []) or refresh:
             self.ping()
             self.table_list = []
@@ -207,13 +310,25 @@ class LoggerLink(object):
                 self.table_list.append(table['Header']['TableName'])
         return self.table_list
         
+        
     def fetchdata(self, t_name = "Snow", lastrecs = 0):
-        """step 1 ping fetch the data form a given table"""
+        """
+            fetch the data form a table on the logger
+        
+        arguments:
+            t_name:     (string) name of the table
+            lastrecs:   (int) the last record recived
+            
+        returns:
+            the data in an array
+        """
         self.ping()
         array = [] 
         
         try:
-            recs, more =  pakbus.collect_data(self.link, self.l_id, self.c_id, self.tabledef, t_name,P1 = 1)
+            recs, more =  pakbus.collect_data(self.link, self.l_id, self.c_id
+                                                       , self.tabledef
+                                                       , t_name,P1 = 1)
         except StandardError:
             print "Error: table " + t_name + " was not found."
         if t_name == "Status" or t_name == "Public":
@@ -225,7 +340,9 @@ class LoggerLink(object):
         #~ print numRecs
         more = 1 
         while numRecs != 0:
-            recs, more =  pakbus.collect_data(self.link, self.l_id, self.c_id, self.tabledef, t_name,P1 = numRecs)
+            recs, more =  pakbus.collect_data(self.link, self.l_id, self.c_id
+                                                       , self.tabledef
+                                                       , t_name,P1 = numRecs)
             if len(recs) < 1 :
                 return array
             for items in recs[0]['RecFrag']:
@@ -237,8 +354,17 @@ class LoggerLink(object):
             
         return array
         
+        
     def get_unit_info(self, t_name):
-        """ gets the units for the table """
+        """ 
+            gets the units for the table 
+        
+        arguments:
+            t_name:     (string)the table
+            
+        returns: 
+            information on the units
+        """
         #~ self.ping()
         tableno = pakbus.get_TableNbr(self.tabledef, t_name) - 1
         
@@ -252,7 +378,18 @@ class LoggerLink(object):
         
         
     def write(self, table, logger_name, w_dir = './', delim = ','):
-        """ writes given table to the given file name """
+        """ 
+            writes given table to a file 
+        
+        arguments:
+            table:          (stirng) the table
+            logger_name:    (string) the logger name
+            w_dir:          (string) the directory to write to
+            delim:          (char) the delimiting char
+            
+        returns:
+            the name of the file written
+        """
         if not os.path.isdir(w_dir):
             os.makedirs(w_dir)
         
@@ -342,7 +479,9 @@ class LoggerLink(object):
         
     def write_all(self, logger_name, w_dir = './', delim=',',
                   inc_pub =False):
-        """ write all of the data to .dat files"""
+        """ 
+            write all of the data to .dat files
+        """
         for items in self.listtables():
             if items == 'Public' and not inc_pub:
                 continue

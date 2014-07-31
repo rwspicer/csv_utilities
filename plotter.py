@@ -4,10 +4,13 @@ csv plotter
 csv_plot.py
 Rawser Spicer
 created: 2014/02/03
-modified: 2014/03/15
+modified: 2014/07/31
 
         This utility is designed to plot csv files. It can plot up to 10 
     files at a time, or 1 file with an arbitary number of columns of data
+
+    version 2014.7.31.1:
+        updated documentation
 
     version 2014.5.30.1:
         fixed typo in date portion of file header 
@@ -58,9 +61,13 @@ import datetime as dtime
 
 def get_year(value):
     """
-    get a year
-    value = the argument from client
-    retuns a interger year
+        get a year
+        
+    arguments    
+        value:      (string) the argument from client
+    
+    returns: 
+        a interger year
     """
     if (value == ""):
         return 0
@@ -70,9 +77,13 @@ def get_year(value):
 
 def get_interval(value):
     """
-    gets an interval from the command line 
-    value = the argument from client
-    retuns an interval string
+        gets an interval from the command line 
+    
+    arguments:
+        value:      (string) the argument from client
+    
+    returns: 
+        an interval string
     """
     if(value == ""):
         return "0000-00-00,0000-00-00"
@@ -82,18 +93,26 @@ def get_interval(value):
 
 def get_string(value):
     """
-    gets a string form clinet or returns "" for no argument
-    value = the argument from client
-    retuns a string
+        gets a string form clinet or returns "" for no argument
+    
+    arguments:
+        value:      (string)the argument from client
+    
+    returns: 
+        a string
     """
     return value
 
 
 def get_delta(value):
     """
-    turns a number of days input into a datetime.timedelat object
-    value = the argument from client
-    retuns a datetime.timedelat object
+        turns a number of days input into a datetime.timedelat object
+    
+    arguments:
+        value:  (string) the argument from client
+    
+    returns: 
+        a datetime.timedelat object
     """
     if (value == ""):
         return dtime.timedelta(0)
@@ -103,9 +122,13 @@ def get_delta(value):
 
 def get_bool(value):
     """
-    get boolean from command line
-    value = the argument from client
-    retuns a bool 
+        get boolean from command line
+    
+    arguments:
+        value:   (string)the argument from client
+    
+    returns:
+        a bool 
     """
     if (value == ""):
         return False
@@ -118,10 +141,14 @@ def get_bool(value):
 
 def check_files(cmds, file_keys):
     """
-    creates a list of files to plot
-    cmds = the list of command imputs
-    file_keys = the keys that might contain files
-    retuns a list of valid files
+        creates a list of files to plot
+        
+    arguments:
+        cmds:       ((string)list)the list of command imputs
+        file_keys:  ((string)list)the keys that might contain files
+    
+    returns: 
+        a list of valid files
     """
     count = 0  
     files = []
@@ -147,9 +174,13 @@ def check_files(cmds, file_keys):
 
 def process_interval(commands):
     """
-    this function processes the commands for making a plot interval
-    commands = the commands
-    returns a interval
+        this function processes the commands for making a plot interval
+    
+    arguments
+        commands:   ((string)list) the commands
+    
+    returns:
+        a interval
     """
     year = commands.get_command_value("--year", get_year) 
     interval_string = commands.get_command_value("--time_interval"

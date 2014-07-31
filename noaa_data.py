@@ -2,7 +2,7 @@
 noaa_data.py
 rawser spicer
 created: 2014/07/25
-modified: 2014/07/29
+modified: 2014/07/31
 
         this utility will allow preciptation data to be pulled from a page on 
     the noaa web site. This utility uses beautiful soup 4 for html parsing 
@@ -10,6 +10,8 @@ modified: 2014/07/29
     will install beautiful soup. The file contains a class for the data and 
     an utility to use the class from the command line
     
+    version 2014.7.31.1:
+        more documentation updates
     
     version 2014.07.29.4:
         updated documentation
@@ -52,7 +54,7 @@ class NCDCData(object):
     """
     def __init__(self):
         """
-        this will do somthing, i dont know what yet
+            initilizes the class
         """
         self.url = "str"
         self.html = "someday I'll be beautiful soup"
@@ -65,14 +67,14 @@ class NCDCData(object):
         
     def get_html(self):
         """
-        gets the html from the noaa website
+            gets the html from the noaa website
         """
         self.html = bes(Http().request(self.url)[1])
 
         
     def process_html(self):
         """
-        processes the html into a more useable format 
+            processes the html into a more useable format 
         """
         for item in self.html.find(id="hourly").thead.find_all('th'):
             self.col_names.append(item.text.strip().replace("Calculated",""))
@@ -90,7 +92,14 @@ class NCDCData(object):
                                            
     def construct_url(self, date = "now", ID = "1007"):
         """
-        makes the url to get the given dates url
+            makes the url to get the given dates url
+        
+        arguments:
+            date:       <now|yesterday>(string) or (datetime.datetime)
+            ID:         (int) the site id from the ncdc website
+        
+        exceptions:
+            TypeError:  if the date type is not correct
         """
         self.ID=ID
         if (date == "now"):
@@ -115,7 +124,7 @@ class NCDCData(object):
         
     def create_table(self):
         """
-        creates the table from the parsed html
+            creates the table from the parsed html
         """
         date = []
         temp = []
@@ -163,14 +172,21 @@ class NCDCData(object):
 
     def set_filename(self, name):
         """
-        allows the filename to be changed
+            allows the filename to be changed
+        
+        arguments:
+            name:   (string) a filename
         """
         self.save_name = name
 
 
     def save_table(self, col = 2):
         """
-        saves the table
+            saves the table
+        
+        arguments:
+            col:    <1|2>(int) the column to save to the data section of the 
+                output file
         """
         try:
             output = csvf.CsvFile(self.save_name)
