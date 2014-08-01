@@ -2,10 +2,17 @@
 csv_args.py
 raswer spicer
 created 2014/03/10
-modified 2014/07/31
+modified 2014/08/01
 
         this is a class for storing and accessing varibles and data from the
     command line
+    
+    version 2014.8.1.2:
+        fixed bug were help would not register as a valid flag if no flags 
+    were required
+    
+    version 2014.8.1.1:
+        added a legacy flag for old utilits that is set by default
 
     version 22014.7.31.1:
         updated documentation
@@ -21,7 +28,8 @@ class ArgClass:
     a class for reading command line arguments
     """
     def __init__(self, req_flags, opt_flags = ()
-                                            , help_str = "i need some help"):
+                                            , help_str = "i need some help"
+                                            , legacy = True):
         """
             sets up the class and reads the arguments from the comman line
 
@@ -30,6 +38,7 @@ class ArgClass:
             opt_flags:  (list) optional flags
             help_str:   (string) a string to pront if "--help" key is called 
         """
+        self.legacy = legacy
         self.m_flags = req_flags + opt_flags 
         self.m_help = help_str
         self.m_commands = {}
@@ -106,16 +115,19 @@ class ArgClass:
             if (index % 2 == 0):
                 found = False
                 
+                if ('--help' == item):
+                    found = True
+                    if self.legacy == True:
+                        print self.m_help
+                    raise RuntimeError, ("the help string was requested")
+                
                 for flags in self.m_flags:
                     if (item == flags): 
 
                         found = True
                         self.m_commands[flags] = cmd[index+1] 
                     
-                    elif ('--help' == item):
-                        found = True
-                        print self.m_help
-                        raise RuntimeError, ("the help string was requested")
+                    
                         
                 if not found:
                     raise RuntimeError, (" <" + item + "> is not a valid flag ")
