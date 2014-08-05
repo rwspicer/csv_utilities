@@ -9,7 +9,10 @@ modified: 2014/07/31
     http://www.crummy.com/software/BeautifulSoup/. apt-get install python-bs4 
     will install beautiful soup. The file contains a class for the data and 
     an utility to use the class from the command line
-    
+
+    version 2014.8.4.1:
+        fixed bug where using yesterday would use the current hour insted of 0
+
     version 2014.7.31.1:
         more documentation updates
     
@@ -109,7 +112,8 @@ class NCDCData(object):
         elif (date == "yesterday"):
             t_delta = datetime.timedelta(days=1)
             date = datetime.datetime.today() - t_delta
-            date = date.strftime("%Y%m%d%H")
+            date = date.replace(hour=0)
+            date = date.strftime("%Y%m%d%H")            
         elif type(date) is datetime.datetime:
             date = date.strftime("%Y%m%d%H")
         else:
