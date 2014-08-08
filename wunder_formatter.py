@@ -4,11 +4,14 @@ weather underground data formatting utility
 wunder_fromatter.py
 Rawser Spicer
 created: 2014/04/16
-modified: 2014/05/01
+modified: 2014/08/08
 
         this utility is designed to create links to upload data to weather
     underground. the format is specified here:
             http://wiki.wunderground.com/index.php/PWS_-_Upload_Protocol
+            
+    version 2014.8.8.1:
+        updated documentation
 
     version 2014.5.1.1:
         added error checking for missing flags
@@ -29,10 +32,13 @@ import httplib2
 
 def from_si(value, unit):
     """
-    this function is for unit conversions from SI
-    value -- the input value
-    unit -- input units
-    returns the value in imperial units
+        this function is for unit conversions from SI
+    
+    arguments:
+        value:  (float)the input value
+        unit:   (int) input units
+    returns 
+        the value in imperial units
     """
     if unit == "millibars":
         return value * .0295333727
@@ -81,7 +87,11 @@ class WUURL(object):
 
     def add_item(self, key, value):
         """
-        adds an item to url
+            adds an item to url
+        
+        arguments:
+            key:    (string)
+            value:  (string)
         """
         for items in self.valid_keys:
             loc = items.find('*')
@@ -118,8 +128,10 @@ class WUURL(object):
 
     def send(self, show=False):
         """
-        send the url
-        show -- (bool) show the response
+            send the url
+            
+        arguments:
+            show:    (bool) show the response
         """
         resp = httplib2.Http().request(str(self))
         if show:

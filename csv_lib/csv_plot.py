@@ -3,7 +3,7 @@ CSV Utilitys Plot Module
 csv_plot.py
 Rawser Spicer
 created: 2014/02/05
-modified: 2014/02/19
+modified: 2014/08/08
 
         This module contains the ploting functions for csv_lib library. It
      contains the following functions:
@@ -14,6 +14,9 @@ modified: 2014/02/19
         show_plot               -- shows a plot
         save_plot               -- saves a plot
         
+    version 2014.8.8.1:
+        updated documentation  
+      
     version 2014.3.17.1
         added a class to handle the plotting
 
@@ -60,8 +63,10 @@ def load_file_to_plot(f_name, skip = 4):
         loads a array of a datetime.datetime object and an array of 
     coorisponding values
     
-    f_name = the file name
-    skip = number of rows to skip (defaluts to 4 the data logger header length)
+    arguments
+        f_name:     (string)the file name
+        skip:       (int) number of rows to skip (defaluts to 4 the data logger
+                header length)
     """    
     date_string , value = numpy.loadtxt(f_name, 
                     dtype = {'names':('date' , 'val'),'formats':('S100','f4')},
@@ -77,14 +82,14 @@ def load_file_to_plot(f_name, skip = 4):
 def set_up_plot(title = "plot", x_axis = "x-axis", y_axis = "y-axis",
                                                     mode = "year"):
     """
-    sets up the plot labels
-    title = the plots title
-    x_axis = name of the x-axis
-    y_axis = name of the y-axis
-    mode = a flag to indicate how to labe the axies
+        sets up the plot labels
+    
+    arguments:
+        title:      (string) the plots title
+        x_axis:     (string) name of the x-axis
+        y_axis:     (string) name of the y-axis
+        mode:       (string) a flag to indicate how to labe the axies
     """
-
-
     fig, axis = plt.subplots()
     plt.title(title)
     plt.xlabel(x_axis)
@@ -114,14 +119,19 @@ def set_up_plot(title = "plot", x_axis = "x-axis", y_axis = "y-axis",
     axis.xaxis.set_major_formatter(major_fmt)
     axis.xaxis.set_minor_locator(minor)
 
-#line to plot is a seperate fuction sitll that the class calls
+
+#line_to_plot is a seperate fuction that the class still calls
 def line_to_plot(interval, dates, vals, name = "def"):
     """
-    generates a line to plot
-    interval = the interval to graph
-    dates = dates to plot
-    vals = values to plot
-    returns a modifiable plot
+        generates a line to plot
+    
+    arguments:
+        interval:   (datetime, datetime) the interval to graph
+        dates:      ((datetime)list) dates to plot
+        vals:       ((float)list) values to plot
+    
+    returns:
+        a modifiable plot
     """
     o_date = []
     o_val = []
@@ -138,7 +148,7 @@ def line_to_plot(interval, dates, vals, name = "def"):
 
 def make_legend_plot():
     """
-    makes a legend for the plot
+        makes a legend for the plot
     """
     #print names
     plt.legend( bbox_to_anchor=(0.5, -0.15), loc='upper center',
@@ -147,15 +157,17 @@ def make_legend_plot():
 
 def show_plot():
     """
-    prints the plot to a window
+        prints the plot to a window
     """
     plt.show()  
 
 
 def save_plot(f_name):
     """
-    save plot to file of f_name
-    f_name = name of the file
+        save plot to file of f_name
+    
+    arguments:
+        f_name:     (string) name of the file
     """
     csvu.print_center("+++ saving plot to " + f_name + " +++")
     plt.savefig(f_name, bbox_inches='tight')
@@ -165,14 +177,14 @@ def save_plot(f_name):
 class PlotClass:
     """
     a class to create a plot
-    the inputs shoud be:
-    file_names: a list of files to plot
-    png: optional- a name to save the plot to
     """
-    
     def __init__(self, file_names, png = "def.png"):
         """
-        this fucntion sets up the plot class
+            this fucntion sets up the plot class
+        
+        arguments:
+            file_names:     ((string)list) list of the filenames
+            png:            (string) name of file to save the plot to
         """
         self.plot_files = {}
         for files in file_names:
@@ -192,53 +204,60 @@ class PlotClass:
         
     def set_interval(self, start, end):
         """
-        set the interval for plotting
-        start = the start date(string or datetime)
-        end = the end date(string or datetime)
+            set the interval for plotting
+        
+        arguments:
+            start:      (string| datetime) the start date
+            end:        (string| datetime) the end date
         """
         self.interval = csvd.make_interval(start, end)
     
     def set_y_label(self, label):
         """
-        sets the label for the y axixs
-        label: the label
+            sets the label for the y axixs
+            
+        arguments:    
+            label:      (string)the label
         """
         self.y_label = label
         self.set_up_plot()
         
     def set_x_label(self, label):
         """
-        sets the label for the x axis
-        label: the label
+            sets the label for the x axis
+        
+        arguments:    
+            label:      (string)the label
         """
         self.x_label = label
         self.set_up_plot()
     
     def set_title(self, label):
         """
-        sets the title
-        label: the new title
+            sets the title
+        
+        arguments:    
+            label:      (string)the label
         """
         self.title = label
         self.set_up_plot()
     
     def save_plot(self):
         """
-        save plot to file of f_name
-        f_name = name of the file
+            save plot to file
         """
         plt.axis('tight')
         plt.savefig(self.save_name, bbox_inches='tight' )
         
     def show_plot(self):
         """
-        prints the plot to a window
+            prints the plot to a window
         """
         plt.show()  
         
     def plot(self):
         """
-        plot the data points as they are 
+            plot the data points as they are 
         """
         for files in self.plot_files:
             
@@ -254,7 +273,7 @@ class PlotClass:
                 
     def plot_avg(self):
         """
-        Plots the the points in a data set as an average over all other
+            Plots the the points in a data set as an average over all other
         data sets
         """
         values = []
@@ -295,14 +314,14 @@ class PlotClass:
             
     def set_legend(self):
         """
-        set  up the legend for a plot
+            set  up the legend for a plot
         """
         plt.legend(bbox_to_anchor=(0.5, -0.15), loc='upper center',
                 fancybox=True, shadow=True, ncol=2)
         
     def set_up_plot(self):
         """
-        sets up the plot labels
+            sets up the plot labels
         """
         fig, axis = plt.subplots()
         plt.title(self.title)

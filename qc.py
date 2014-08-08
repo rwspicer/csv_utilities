@@ -9,6 +9,9 @@ modified: 2014/04/14
        this utility preforms quality based on a file with values to compare
     this program uses the xlrd package to interface wiht excel files:
     http://www.python-excel.org/
+    
+    version 2014.8.8.1:
+        updated docs
 
     version 2013.4.14.1:
         added documetation 
@@ -23,9 +26,13 @@ import math
 
 def fetch_excel_data(file_name):
     """
-    reads excel file data
-    file_name : the file to read
-    returs a list of two lists [[dates],[values]]
+        reads excel file data
+    
+    arguments:
+        file_name:      (string) the file to read
+    
+    returs 
+        a list of two lists [[dates],[values]]
     """
     wb = xlrd.open_workbook(file_name)
     sheet = wb.sheet_by_index(0)
@@ -46,9 +53,13 @@ def fetch_excel_data(file_name):
 
 def is_bv(val):
     """
-    checks for a bad value
-    val: value to check
-    returns true if the value is a bad value
+        checks for a bad value
+    
+    arguments:
+        val:    (float) value to check
+    
+    returns: 
+        true if the value is a bad value
     """
     if math.isnan(val):
         return True
@@ -56,14 +67,18 @@ def is_bv(val):
         return True
     return False
 
-
+#todo close f_stream
 def qc_func(in_data, xl_data, log_file):
     """
-    preforms the quality controll check
-    in_data: data to check
-    xl_data: data to check with
-    log_file: a file to log changes
-    retuens fixed data in [[dates],[values]] form
+        preforms the quality controll check
+    
+    arguments:
+        in_data:    (list) data to check
+        xl_data:    (list) data to check with
+        log_file:   (string) a file to log changes
+    
+    returns: 
+        fixed data in [[dates],[values]] form
     """    
     f_stream = open(log_file, 'a')    
 
@@ -75,6 +90,7 @@ def qc_func(in_data, xl_data, log_file):
                                 str(xl_data[1][xidx]) + "\n")
                 in_data[1][index] = xl_data[1][xidx]
     return in_data[:]
+
 
 UTILITY_NAME = "< quality control utility >"
 REQ_FLAGS = ("--input",)
@@ -89,6 +105,7 @@ HELP_STR = """
            """ 
 
 def main():
+    """the utility"""
     print_center(UTILITY_NAME, '-')
     
     try:    

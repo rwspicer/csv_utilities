@@ -8,6 +8,9 @@ modified: 2014/03/10
         this utility allows for the conversion between the UTC-0 and UTC-9(AKST) 
     time zones  
 
+    version 2014.8.8.1:
+        updated documentation
+
     version 2014.3.10.1:
         now uses the csv arg class
 
@@ -34,7 +37,12 @@ FLAGS = ("--in_file", "--out_file", "--timezone")
 def interp_tz(value=""):
     """
     gets the time zone to switch to
-    value - the value from the command line
+    
+    arguments:
+        value:    (string) the value from the command line
+    
+    retunrs:
+        the time zone multiplier
     """
     if (value == "toAK"):
         return -1

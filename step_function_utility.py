@@ -9,6 +9,9 @@ modified: 2014/07/31
         This utility applys a step function to processed data
     to allow for corrections to be applyed to said data
     
+    version 2014.8.8.1:
+        added a class for the utility
+    
     version 2014.7.31.1:
         updates documantation.    
 
@@ -128,11 +131,36 @@ def main():
     exit_on_success()   
 
 class StepFunctionUtility(util.utility_base):
+    """
+        this class is the setp function utility class
+    """
     def __init__(self, title = UTILITY_TITLE, r_args = FLAGS, o_args = (), 
                        help = HELP_STRING):
+        """
+            initilizes the utility
+        
+        arguments:
+            title:      (string) the utility title
+            r_args:     (list) the required arguments
+            o_args:     (list) the optional arguments
+            help:       (string) the help
+        """
         super(StepFunctionUtility, self).__init__(title , r_args, o_args, help)
        
+       
     def step_function(self, d_date, d_val, s_date, s_val):
+        """
+            the step function
+        
+        arguments:
+            d_date:     ((datetime)list) a list of the data dates
+            d_val:      ((float) list) a list of the data values
+            s_date:     ((datetime) list) a list of step dates
+            s_val:      ((float) list) a list of step values
+            
+        returns:
+            a list of corrected values
+        """
         d_index = len(d_date)-1
         s_index = len(s_date)-1
         o_val = []
@@ -154,6 +182,9 @@ class StepFunctionUtility(util.utility_base):
         return o_val
     
     def main(self):
+        """
+            main function
+        """
         try:
             my_file = csvf.CsvFile(self.commands["--infile"], True)
             my_steps = csvf.CsvFile(self.commands["--stepfile"], True)

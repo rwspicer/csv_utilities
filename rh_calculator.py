@@ -3,7 +3,10 @@ relative humidity calulator
 rh_calculator.py
 Rawser Spicer
 created: 2014/01/24
-modified: 2014/02/12
+modified: 2014/08/08
+
+    version 2014.8.8.1
+        upadated docs
 
     version 2014.5.30.1:
         fixed typo in date portion of file header     
@@ -36,12 +39,14 @@ from csv_lib.csv_utilities import print_center, exit_on_success, exit_on_failure
 
 def calc_rh(at_date, at_val, dp_date, dp_val):
     """
-    calcualtes the relative humidity
-    at_date = air temerature date array
-    at_val = air temerature value array
-    dp_date = dew point date array 
-    dp_val = dew point value array
-    returns an array of relative humiditys
+        calcualtes the relative humidity
+    arguments:
+        at_date:    ((datetime) list) air temerature date array
+        at_val:     ((float) list) air temerature value array
+        dp_date:    ((datetime) list) dew point date array 
+        dp_val:     ((float) list) dew point value array
+    returns:
+        an array of relative humiditys
     """
     
     comp_val = 6999

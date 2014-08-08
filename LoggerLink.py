@@ -300,6 +300,9 @@ class LoggerLink(object):
         """ 
             get list of tables
             
+        arguments:
+            refresh:    (bool) true to force the logger to reread the tables
+            
         returns:
             a list of the tables on the logger 
         """

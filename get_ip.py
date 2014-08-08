@@ -6,7 +6,7 @@ modified: 2014/07/31
 
     gets the ip adderess from a saved ifconfig output
     
-    version 2014.6.31.1:
+    version 2014.7.31.1:
         updated documentation
 
     version 2014.5.30.1:

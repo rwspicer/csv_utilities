@@ -3,7 +3,13 @@ preciptation utility
 precip_utility.py
 Rawser Spicer
 created: 2014/01/24
-modified: 2013/04/16
+modified: 2013/08/08
+
+         This utility checks to see if the recorded precipitation lies with in 
+    given paramaters or not.
+    
+    version 2014.8.8.1:
+        updated docs
     
     version 2014.5.30.1:
         fixed typo in date portion of file header 
@@ -24,8 +30,7 @@ modified: 2013/04/16
     step after the final time step in the out put file if the output 
     file alerady exists
 
-        This utility checks to see if the recorded precipitation lies with in 
-    given paramaters or not and sets values out side of range to bad
+   
 """
 from datetime import datetime
 import csv_lib.csv_file as csvf
@@ -36,9 +41,13 @@ from csv_lib.csv_utilities import print_center, exit_on_success, exit_on_failure
 
 def get_cutoff(value):
     """
-    gets the cuttoff value from a string
-    value = a string of the cutoff value
-    returns the value in the value as a float or -5.0 if value is ""
+        gets the cuttoff value from a string
+    
+    arguments:
+        value:      (string) the cutoff value
+    
+    returns 
+        the value in the value as a float or -5.0 if value is ""
     """
     if (value == ""):
         return -5.0
@@ -48,9 +57,13 @@ def get_cutoff(value):
 
 def start_date(date):
     """
-    gets the start date form a string
-    string = a string formated (MM/DD)
-    returns the date as a datetime with year as 1000
+        gets the start date form a string
+    
+    arguments:
+        date:       (string) a string formated (MM/DD)
+        
+    returns 
+        the date as a datetime with year as 1000
     """
     if (date == ""):
         return datetime(1000, 05, 01)
@@ -60,9 +73,13 @@ def start_date(date):
 
 def end_date(date):
     """
-    gets the start date form a string
-    string = a string formated (MM/DD)
-    returns the date as a datetime with year as 1000
+        gets the end date form a string
+        
+    arguments:
+        date:       (string) a string formated (MM/DD)
+        
+    returns 
+        the date as a datetime with year as 1000
     """
     if (date == ""):
         return datetime(1000, 10, 01)
@@ -72,17 +89,21 @@ def end_date(date):
     
 def precip_check(p_dates, p_vals, at_dates, at_vals, interval, cutoff):
     """
-    this function checks to see if preciptation values lie with in the given 
-        date and temperature values. If they do they are written to a new array 
-        as is: else bad_val is written
-    p_dates = precip date array
-    p_vals = precip value array
-    at_dates = air temerature date array
-    at_vals = air temerature value array
-    start = the start date
-    end = the end date
-    cutoff = the cutoff temperature
-    returns an array of relative humiditys
+        this function checks to see if preciptation values lie with in the given 
+    date and temperature values. If they do they are written to a new array 
+    as is: else bad_val is written
+    
+    arguments:
+        p_dates:     ((datetime) list)precip date array
+        p_vals:      ((float) list)precip value array
+        at_dates:    ((datetime) list)air temerature date array
+        at_vals:     ((float) list)air temerature value array
+        start:       (datetime) the start date
+        end:         (datetime) the end date
+        cutoff:      (float) the cutoff temperature
+    
+    returns 
+        an array of corrected precip values
     """
     bad_val = 6999
     o_val = []
@@ -106,7 +127,7 @@ def precip_check(p_dates, p_vals, at_dates, at_vals, interval, cutoff):
     return o_val
     
 
-UTILITY_TITLE = "Realative Humidity Calculator"
+UTILITY_TITLE = "Precipitation Checker"
 REQ_FLAGS = ("--precip_infile", "--precip_outfile", "--at_file")
 OPT_FLAGS = ("--startdate", "--enddate", "--cutoff")
 

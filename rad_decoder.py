@@ -2,7 +2,9 @@
 rad_decoder.py
 rawser spicer
 created 2014/03/03
-modified 2014/03/13
+modified 2014/08/08
+
+    version 2014.8.8.2
     
     version 2014.2.13.1:
         added support for the CsvFile Class
@@ -26,8 +28,13 @@ import sys
 
 def get_list_vars(my_vars):
     """
-    makes a list of varibles that are data lists
-    my_vars = the set of variables from a cdf file
+        makes a list of varibles that are data lists
+    
+    argumrnts:
+        my_vars:    (list)the set of variables from a cdf file
+        
+    returns:
+        list of vars in the files
     """
     lists = []
     for var in my_vars:
@@ -41,8 +48,13 @@ def get_list_vars(my_vars):
 
 def get_times(my_vars):
     """
-    get the times from the cdf file( gets every hour)
-    my_vars = the variables in the cdf file
+        get the times from the cdf file( gets every hour)
+    
+    arguments:
+        my_vars:    (list) the variables in the cdf file
+        
+    returns:
+        times of vars
     """
     base_time = my_vars['base_time'].getValue()
     times=my_vars['time']
@@ -56,8 +68,13 @@ def get_times(my_vars):
 
 def avg_vars(my_vars,lists):
     """
-    averges all of the varibles in a list of data 
-    my_vars = the list of data
+        avereges all of the varibles in a list of data 
+    
+    arguments:
+        my_vars:    (list)the list of data
+    
+    returns:
+        a list of the average values
     """
     avg_lists = {}
     for var in lists:

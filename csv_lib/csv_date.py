@@ -3,7 +3,7 @@ CSV Utilities Date Module
 csv_date.py
 Rawser Spicer
 created: 2014/02/06
-modified: 2014/02/19
+modified: 2014/08/08
 
         This module handles datetime objects for the csv_lib library. It       
     includes the following functions:
@@ -13,6 +13,9 @@ modified: 2014/02/19
         make_interval           -- makes a date time interval tuple
         is_in_interval          -- checks if a date is in an interval
 
+    version 2014.8.8.1:
+        updated documentataion
+    
     version 2014.2.19.1
         fixed imports   
 
@@ -30,9 +33,13 @@ import csv_utilities as csvu
 
 def string_to_datetime(string):
     """
-    converts a string to a datetime object
-    string = the string to convert
-    returns a date time date
+        converts a string to a datetime object
+        
+    arguments:
+        string:     (string)the string to convert
+    
+    returns:
+        a date time date
     """
     reg_exp = r'^"*(\d+)-(\d+)-(\d+) *(\d+)*:*(\d+)*:*(\d+)*"*$'
     try:
@@ -52,9 +59,13 @@ def string_to_datetime(string):
 
 def get_last_date(f_name):
     """
-    gets the last date form a file
-    f_name = the name of the file
-    returns a datetime date
+        gets the last date form a file
+        
+    arguments:    
+        f_name:     (string) the name of the file
+    
+    returns:
+        a datetime date
     """
     try:
         f_stream = open(f_name, 'r')
@@ -75,10 +86,14 @@ def get_last_date(f_name):
 
 def make_interval(start, end):
     """
-    makes a datetime interval from date strings that is a two value tuple
-    start = a string, or datetime object of the start date
-    end = a string, or datetime object of the end date
-    returns a date time interval A tuple of (start,end)
+        makes a datetime interval from date strings that is a two value tuple
+    
+    arguments:
+        start:  (string| datetime) object of the start date
+        end:    (string| datetime) object of the end date
+    
+    returns:
+        a date time interval A tuple of (start,end)
     """
     try:
         start = string_to_datetime(start)
@@ -100,10 +115,14 @@ def make_interval(start, end):
 
 def is_in_interval(date, interval):
     """
-    is the date in the interval
-    date = a date
-    interval = an interval of dates
-    returns true if date is in the give interval
+        is the date in the interval
+    
+    arguments:
+        date:   (datetime) a date
+        interval:   (datetime)pair an interval of dates
+    
+    returns:
+        true if date is in the give interval
     """
     return (interval[0] <= date and date < interval[1])
 
