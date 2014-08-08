@@ -37,7 +37,7 @@ modified: 2014/07/31
 from csv_lib.csv_utilities import print_center, exit_on_failure, exit_on_success
 import csv_lib.csv_file as csvf
 import csv_lib.csv_args as csva
-
+import csv_lib.utility as util
 
 
 UTILITY_TITLE = "Step Function Utility"
@@ -127,6 +127,46 @@ def main():
     my_file.save(commands["--outfile"])
     exit_on_success()   
 
+class StepFunctionUtility(util.utility_base):
+    def __init__(self, title = UTILITY_TITLE, r_args = FLAGS, o_args = (), 
+                       help = HELP_STRING):
+        super(StepFunctionUtility, self).__init__(title , r_args, o_args, help)
+       
+    def step_function(self, d_date, d_val, s_date, s_val):
+        d_index = len(d_date)-1
+        s_index = len(s_date)-1
+        o_val = []
+        while (d_index >= 0):
+            if (d_date[d_index] < s_date[s_index]):
+                if (s_index > 0):
+                    s_index = s_index - 1
+                    
+            if (d_date[d_index] >= s_date[s_index]):
+                temp = d_val[d_index] + s_val[s_index]
+                o_val.insert(0, temp)
+                
+            else:
+                temp = d_val[d_index]
+                o_val.insert(0, temp)
+                
+            d_index = d_index - 1
+            
+        return o_val
+    
+    def main(self):
+        try:
+            my_file = csvf.CsvFile(self.commands["--infile"], True)
+            my_steps = csvf.CsvFile(self.commands["--stepfile"], True)
+        except IOError:
+            self.print_center("ERROR: a required file was not found", '*')
+            self.exit()
+        my_file[1] = self.step_function(my_file.get_dates(), my_file[1],
+                                    my_steps.get_dates(), my_steps[1])
+        
+        my_file.save(self.commands["--outfile"])
+    
+
 
 if __name__ == "__main__":
-    main()
+    util = StepFunctionUtility()
+    util.run()
