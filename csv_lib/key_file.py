@@ -23,7 +23,7 @@ class KeyFile(object):
         k_file = open(file_name,"r")
         k_text = k_file.read()
         k_file.close()
-        self.dict = {}
+        self.lib = {}
         self.name = '?'
         for line in k_text.split("\n"):
             if line == "":
@@ -33,7 +33,7 @@ class KeyFile(object):
                 continue
             if line[0] == '#':
                 continue
-            self.dict[line.split(' = ')[0]] = line.split(' = ')[1]
+            self.lib[line.split(' = ')[0]] = line.split(' = ')[1]
             
     def __getitem__(self, key):
         """

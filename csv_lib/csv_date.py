@@ -3,7 +3,7 @@ CSV Utilities Date Module
 csv_date.py
 Rawser Spicer
 created: 2014/02/06
-modified: 2014/08/26
+modified: 2014/08/29
 
         This module handles datetime objects for the csv_lib library. It       
     includes the following functions:
@@ -13,7 +13,11 @@ modified: 2014/08/26
         make_interval           -- makes a date time interval tuple
         is_in_interval          -- checks if a date is in an interval
 
-    version 2014.8.6.1:
+    version 2014.8.29.1:
+        updated the string to datetime function to handle string with 
+    micro seconds
+   
+    version 2014.8.26.1:
         added julian_to_datetime function
    
     version 2014.8.8.1:
@@ -44,18 +48,28 @@ def string_to_datetime(string):
     returns:
         a date time date
     """
-    reg_exp = r'^"*(\d+)-(\d+)-(\d+) *(\d+)*:*(\d+)*:*(\d+)*"*$'
+    reg_exp = r'^"*(\d+)-(\d+)-(\d+) *(\d+)*:*(\d+)*:*(\d+)*.(\d+)*"*$'
+    
+    
     try:
-       
-        ts_numbers = [t(s) for t , s in zip((int, int, int, int, int, int),
+        ts_numbers = [t(s) for t , s in zip((int, int, int, int, int, int, int),
                                         re.search(reg_exp,string).groups())]
         temp = datetime.datetime(ts_numbers[0], ts_numbers[1], 
+                                 ts_numbers[2], ts_numbers[3], 
+                                 ts_numbers[4], ts_numbers[5], ts_numbers[6])
+    except TypeError:
+        try:
+            reg_exp = r'^"*(\d+)-(\d+)-(\d+) *(\d+)*:*(\d+)*:*(\d+)*"*$'
+            ts_numbers = [t(s) for t , s in zip((int, int, int, int, int, int),
+                                        re.search(reg_exp,string).groups())]
+            temp = datetime.datetime(ts_numbers[0], ts_numbers[1], 
                                      ts_numbers[2], ts_numbers[3], 
                                      ts_numbers[4], ts_numbers[5])
-    except TypeError:
-        ts_numbers = [t(s) for t , s in zip((int, int, int), 
+        except TypeError:
+            ts_numbers = [t(s) for t , s in zip((int, int, int), 
                                         re.search(reg_exp,string).groups())]
-        temp = datetime.datetime(ts_numbers[0], ts_numbers[1], ts_numbers[2])
+            temp = datetime.datetime(ts_numbers[0], ts_numbers[1],
+                                                    ts_numbers[2])
    
     return temp
 
