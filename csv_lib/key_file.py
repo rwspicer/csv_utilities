@@ -45,5 +45,5 @@ class KeyFile(object):
         returns:
             the keys value
         """
-        return self.dict[key]
+        return self.lib[key]
         
