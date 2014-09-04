@@ -22,6 +22,9 @@ import os
 
 
 class datapro_v3(util.utility_base):
+    """
+    this class contains the functions needed for the datapro utility
+    """
     def __init__(self):
         """
             sets up datapro
@@ -144,6 +147,11 @@ class datapro_v3(util.utility_base):
         if not os.path.exists(self.key_file["error_log_dir"]):
             os.mkdir(self.key_file["error_log_dir"])
         
+    
+    
+    
+
+
     def process_data(self):
         pass
     
