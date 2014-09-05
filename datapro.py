@@ -17,6 +17,7 @@ from csv_lib.key_file import KeyFile
 from csv_lib.param_file import ParamFile
 from csv_lib.dat_file import DatFile
 from csv_lib.therm_file import ThermFile
+import csv_lib.csv_date as csvd
 import os
 
 
@@ -37,6 +38,7 @@ class datapro_v3(util.utility_base):
         self.therm1 = "null"
         self.therm2 = "null"
         self.therm3 = "null"
+        self.date_col = []
 
 
     def main(self):
@@ -48,6 +50,7 @@ class datapro_v3(util.utility_base):
             self.errors.print_errors()
             self.exit()
         self.check_directories()
+        self.process_dates()
         
         
     def load_files(self):
@@ -89,7 +92,8 @@ class datapro_v3(util.utility_base):
         loads the paramater (config) file
         """
         try:
-            self.param_file = ParamFile( self.key_file["input_data_file"][5:])
+            self.param_file = \
+                        ParamFile( self.key_file["array_based_params_key_file"])
         except IOError:
             self.errors.set_error_state("I/O Error", 
                                 "Param (config) File not found")
@@ -101,7 +105,7 @@ class datapro_v3(util.utility_base):
         try:
             f_name = self.commands["--alt_data_file"]
         except KeyError:
-            f_name = self.key_file["array_based_params_key_file"]
+            f_name = self.key_file["input_data_file"][5:]
 
         try:
             self.data_file = DatFile(f_name)
@@ -149,7 +153,19 @@ class datapro_v3(util.utility_base):
         
     
     
-    
+    def process_dates(self):
+        """
+            This function creates the date column for the output csv files
+        from the time stamp column in tabel type data file 
+        """
+        for elems in self.param_file.params:
+            if elems["Data_Type"] == "tmstmpcol":
+                i_pos = int(elems["Input_Array_Pos"])
+                break
+        
+        for rows in self.data_file[:]:
+            self.date_col.append(csvd.string_to_datetime(rows[i_pos]))
+
 
 
     def process_data(self):

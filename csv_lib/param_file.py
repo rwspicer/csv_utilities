@@ -40,7 +40,7 @@ class Param(object):
             oh_meas:    (string) output header measurment
         """
         self.element = d_elem
-        self.type = d_type
+        self.d_type = d_type
         self.input_pos = i_pos
         self.coefs = (c1, c2, c3, c4, c5, c6, c7)
         self.Qc_high = qch
@@ -61,9 +61,9 @@ class Param(object):
             the data associated with the key
         """
         if key == "Data_Type":
-            return self.type
+            return self.d_type
         if key == "Input_Array_Pos":
-            return self.i_pos
+            return self.input_pos
         if key == "Coef_1":
             return self.coefs[0]
         if key == "Coef_2":
