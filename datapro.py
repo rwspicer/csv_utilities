@@ -18,6 +18,7 @@ from csv_lib.param_file import ParamFile
 from csv_lib.dat_file import DatFile
 from csv_lib.therm_file import ThermFile
 import csv_lib.csv_date as csvd
+import datetime
 import os
 
 
@@ -39,28 +40,30 @@ class datapro_v3(util.utility_base):
         self.therm2 = "null"
         self.therm3 = "null"
         self.date_col = []
+        self.logger_type = "unknown"
 
 
     def main(self):
         """
-        main body of datapr_v3
+        main body of datapro_v3
         """
         self.load_files()
-        if self.errors.get_error_state():
-            self.errors.print_errors()
-            self.exit()
+        self.evaluate_errors()
         self.check_directories()
         self.process_dates()
+        self.evaluate_errors()
         
+
         
     def load_files(self):
         """
         loads the input files
         """
         self.load_key_file()
-        if self.errors.get_error_state():
-            self.errors.print_errors()
-            self.exit()
+        self.logger_type = self.key_file["logger_type"].upper()
+        if "CR10X" == self.logger_type:
+            self.logger_type = "ARRAY"
+        self.evaluate_errors()
         self.load_param_file()
         self.load_data_file()
         self.load_therm_files()
@@ -105,6 +108,7 @@ class datapro_v3(util.utility_base):
         try:
             f_name = self.commands["--alt_data_file"]
         except KeyError:
+            #TODO: check for "file:///" deal
             f_name = self.key_file["input_data_file"][5:]
 
         try:
@@ -131,6 +135,12 @@ class datapro_v3(util.utility_base):
                 self.errors.set_error_state("I/O Error", 
                                             "thermistor file 2 not found")
         
+        #is there a third thermistior file
+        try:
+            self.key_file['therm3']
+        except:
+            return
+            
         if self.key_file['therm3'] != "null":
             try:
                 therm3 = ThermFile(self.key_file['therm3'])
@@ -145,15 +155,57 @@ class datapro_v3(util.utility_base):
         checks for and creates missing directories
         """
         if not os.path.exists(self.key_file["output_dir"]):
-            os.mkdir(self.key_file["output_dir"])
+            os.makedirs(self.key_file["output_dir"])
         if not os.path.exists(self.key_file["qc_log_dir"]):
-            os.mkdir(self.key_file["qc_log_dir"])
+            os.makedirs(self.key_file["qc_log_dir"])
         if not os.path.exists(self.key_file["error_log_dir"]):
-            os.mkdir(self.key_file["error_log_dir"])
+            os.makedirs(self.key_file["error_log_dir"])
         
     
-    
     def process_dates(self):
+        if self.logger_type == "ARRAY":
+            self.process_dates_array()
+        elif self.logger_type == "TABLE":
+            self.process_dates_table()
+        else:
+            self.errors.set_error_state("Runtime Error", "logger type unknown")
+    
+    def process_dates_array(self):
+        count = 0 
+        year_col = -1 
+        day_col = -1
+        hour_col = -1
+        for elems in self.param_file.params:
+            if count == 3:
+                break
+            print elems["Data_Type"]
+           
+            if elems["Data_Type"] == "datey":
+                year_col = int(elems["Input_Array_Pos"])
+                count += 1
+            if elems["Data_Type"] == "dated":
+                day_col = int(elems["Input_Array_Pos"])
+                count += 1
+            if elems["Data_Type"] == "dateh":
+                hour_col = int(elems["Input_Array_Pos"])
+                count += 1
+        
+        if day_col == -1 or hour_col == -1:
+            self.errors.set_error_state("Runtime Error", "date column error")
+            print day_col, hour_col
+            return
+    
+    
+        for item in self.data_file[:]:
+            if int(item[0]) == int(self.key_file["array_id"]):
+                if year_col == -1:
+                    year = datetime.datetime.now().year
+                else:
+                    year = item[year_col]
+                self.date_col.append(csvd.julian_to_datetime(year, 
+                                        item[day_col], item[hour_col]))
+    
+    def process_dates_table(self):
         """
             This function creates the date column for the output csv files
         from the time stamp column in tabel type data file 
@@ -177,3 +229,4 @@ class datapro_v3(util.utility_base):
 if __name__ == "__main__":
     datapro = datapro_v3()
     datapro.run()
+   # print datapro.date_col

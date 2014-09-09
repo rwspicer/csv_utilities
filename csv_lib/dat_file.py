@@ -2,13 +2,16 @@
 dat_file.py
 rawser spicer
 created: 2014/08/27
-modified: 2014/08/27
+modified: 2014/09/08
 
 Part of DataPro Version 3
 
     This class represents the data files used in datapro, table or array types.
 It stores each data row in an array, as an array of each value in each row. 
 Access is acheived via the [] operator
+
+    version 2014.9.8.1:
+        added suppoer for "#" type comments in the data files
 
 """
 
@@ -32,6 +35,8 @@ class DatFile(object):
         
         data = []
         for item in raw_data.strip().replace('\r','').split('\n'):
+            if item[0] == "#":
+                continue
             data.append(item.split(','))
             
         if (logger_type == "auto"):

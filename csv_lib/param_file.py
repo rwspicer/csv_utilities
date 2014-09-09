@@ -2,11 +2,14 @@
 param_file.py
 rawser spicer
 created: 2014/08/22
-modified: 2014/08/22
+modified: 2014/09/08
 
 Part of DataPro Version 3
 
     this file presnts classes that represent a param file
+
+    version 2014.9.8.1:
+        fixet issue with extra '"' characters 
 
 """
 
@@ -120,7 +123,7 @@ class ParamFile(object):
         """
         p_file = open(self.file_name, "r") 
         p_file.readline()
-        for rows in p_file.read().strip().split('\n'):
+        for rows in p_file.read().strip().replace('"',"").split('\n'):
             args = rows.split(',')
             self.params.append(Param(args[0], args[1], args[2], 
                                      args[3], args[4], args[5], 

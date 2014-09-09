@@ -2,11 +2,15 @@
 utility.py
 Rawser Spicer
 created: 2014/08/01
-modified: 2014/08/05
+modified: 2014/09/08
 
         this fill contains classes to help implement a base utility class. The 
     class should be used as a base class for new utilities. The class will hadle
     the internal runnings of a utility
+
+    version 2014.9.8.1:
+        added evaluate_error to handle error checking and and reduce code 
+    dupilcation during error check phase 
 
     version 2014.8.5.1:
         Basic version of the utility_base class, and error classes. A utility 
@@ -176,14 +180,14 @@ class utility_base(object):
             index += 1
         return string
     
-    def exit(self ):
+    def exit(self):
         """
             exits the utility
         """
-        self.print_center(" *** the utility was unsuccessful ***")
+        self.print_center("*** the utility was unsuccessful ***")
 
         self.print_center(" exiting ", "-")
-        sys.exit(1)    
+        sys.exit(1)   
             
     def run(self): 
         """
@@ -193,9 +197,10 @@ class utility_base(object):
         if self.help_bool:
             print self.help
             sys.exit(0)  
-        if self.errors.get_error_state():
-            self.errors.print_errors()
-            self.exit()
+        self.evaluate_errors()
+        #~ if self.errors.get_error_state():
+            #~ self.errors.print_errors()
+            #~ self.exit()
         self.main()
         self.print_center(self.success,'-')
         
@@ -205,4 +210,10 @@ class utility_base(object):
         """
         self.print_center("child classes should overwrite this")
     
-
+    def evaluate_errors(self):
+        """
+            checks the error state and exits
+        """
+        if self.errors.get_error_state():
+            self.errors.print_errors()
+            self.exit()
