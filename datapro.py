@@ -18,6 +18,7 @@ from csv_lib.param_file import ParamFile
 from csv_lib.dat_file import DatFile
 from csv_lib.therm_file import ThermFile
 import csv_lib.csv_date as csvd
+import csv_lib.csv_file as csvf
 import datetime
 import os
 
@@ -41,17 +42,20 @@ class datapro_v3(util.utility_base):
         self.therm3 = "null"
         self.date_col = []
         self.logger_type = "unknown"
+        self.output_directory = {}
 
 
     def main(self):
         """
         main body of datapro_v3
         """
+        import time
         self.load_files()
         self.evaluate_errors()
         self.check_directories()
         self.process_dates()
         self.evaluate_errors()
+        self.pre_process_data()
         
 
         
@@ -108,8 +112,7 @@ class datapro_v3(util.utility_base):
         try:
             f_name = self.commands["--alt_data_file"]
         except KeyError:
-            #TODO: check for "file:///" deal
-            f_name = self.key_file["input_data_file"][5:]
+            f_name = self.key_file["input_data_file"].replace("file:","")
 
         try:
             self.data_file = DatFile(f_name)
@@ -163,6 +166,10 @@ class datapro_v3(util.utility_base):
         
     
     def process_dates(self):
+        """
+            this function handles the processing of dates, by deciding which 
+        type of file is being used
+        """
         if self.logger_type == "ARRAY":
             self.process_dates_array()
         elif self.logger_type == "TABLE":
@@ -171,6 +178,9 @@ class datapro_v3(util.utility_base):
             self.errors.set_error_state("Runtime Error", "logger type unknown")
     
     def process_dates_array(self):
+        """
+            process the dates in array type files
+        """
         count = 0 
         year_col = -1 
         day_col = -1
@@ -178,7 +188,6 @@ class datapro_v3(util.utility_base):
         for elems in self.param_file.params:
             if count == 3:
                 break
-            print elems["Data_Type"]
            
             if elems["Data_Type"] == "datey":
                 year_col = int(elems["Input_Array_Pos"])
@@ -195,7 +204,6 @@ class datapro_v3(util.utility_base):
             print day_col, hour_col
             return
     
-    
         for item in self.data_file[:]:
             if int(item[0]) == int(self.key_file["array_id"]):
                 if year_col == -1:
@@ -204,6 +212,7 @@ class datapro_v3(util.utility_base):
                     year = item[year_col]
                 self.date_col.append(csvd.julian_to_datetime(year, 
                                         item[day_col], item[hour_col]))
+    
     
     def process_dates_table(self):
         """
@@ -218,15 +227,90 @@ class datapro_v3(util.utility_base):
         for rows in self.data_file[:]:
             self.date_col.append(csvd.string_to_datetime(rows[i_pos]))
 
+    def pre_process_data(self):
+        """
+            preforms setup steps required for data processing
+        """
+        self.setup_output_files()
+        
+    def setup_output_files(self):
+        """
+            sets up the out put files 
+        """
+        self.setup_output_directory()
+        for key in self.output_directory.keys():
+            curr_file = self.output_directory[key]
+            if not curr_file["exists"]:
+                header = self.generate_output_header(curr_file["index"])
+                curr_file["file"].set_header(header)
+                
 
-
-    def process_data(self):
-        pass
+    def setup_output_directory(self):
+        """
+            sets up a directory of output files needing to be writted or 
+        modified
+        """
+        rows = self.param_file.params
+        for index in range(len(rows)):
+            row = rows[index]
+            if row["Data_Type"] == "ignore" or row["Data_Type"] == "datey" or \
+               row["Data_Type"] == "dated" or row["Data_Type"] == "dateh" or \
+               row["Data_Type"] == "tmstmpcol":
+                   continue
+            out_name = row["d_element"] + ".csv"
+            out_file = csvf.CsvFile(self.key_file["output_dir"] + out_name)
+            out_exists = out_file.exists()
+            
+            self.output_directory[out_name] = {"name" : out_name,
+                                               "file" : out_file,
+                                               "exists" : out_exists,
+                                               "element" : row["d_element"],
+                                               "index" : index}
+        
+    def generate_output_header(self, idx):
+        """
+            generats a header for an output file given an index to a row in the
+        paramater file
+        
+        arguments:
+            idx:    (int) a row index to the param_file
+            
+        returns:
+            a header list
+        """
+        row = self.param_file.params[idx]
+        return [["TOA5", self.key_file["station_name"], 
+                        self.key_file["logger_type"] + '\n'],
+                ["TimeStamp", row["Output_Header_Name"] + '\n'],
+                ["", row["Output_Header_Name"] + '\n'],
+                ["", row["Output_Header_Measurment_Type"] + '\n']]
     
     def write_out(self):
         pass
 
 if __name__ == "__main__":
-    datapro = datapro_v3()
-    datapro.run()
-   # print datapro.date_col
+    time_code = "no"
+    if time_code == "ave":
+        import time
+        total = 0 
+        tries = 10
+        for idx in range(tries):
+            start = time.time()
+            datapro = datapro_v3()
+            datapro.run()
+            end = time.time()
+            total += (end - start)
+        print total/tries
+    elif time_code == "once":
+        import time
+        start = time.time()
+        datapro = datapro_v3()
+        datapro.run()
+        end = time.time()
+        print (end - start)
+    else:
+        datapro = datapro_v3()
+        datapro.run()
+        
+    #~ print datapro.output_directory
+    #~ print datapro.date_col

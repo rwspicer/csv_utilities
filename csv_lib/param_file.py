@@ -8,8 +8,17 @@ Part of DataPro Version 3
 
     this file presnts classes that represent a param file
 
+    version 2014.9.8.4:
+        fixed "output_header" keys
+ 
+    version 2014.9.8.3:
+        added "d_element" key to dictionary
+
+    version 2014.9.8.2:
+        fixed issue with extra '\r' newline characters 
+
     version 2014.9.8.1:
-        fixet issue with extra '"' characters 
+        fixed issue with extra '"' characters 
 
 """
 
@@ -63,6 +72,8 @@ class Param(object):
         returns:
             the data associated with the key
         """
+        if key == "d_element":
+            return self.element
         if key == "Data_Type":
             return self.d_type
         if key == "Input_Array_Pos":
@@ -87,11 +98,12 @@ class Param(object):
             return self.Qc_low
         if key == "Qc_Param_Step":
             return self.Qc_step
-        if key == "Output_Header_Line_2":
+        if key == "Output_Header_Line_2" or key == "Output_Header_Name":
             return self.out_name
-        if key == "Output_Header_Line_3":
+        if key == "Output_Header_Line_3" or key == "Output_Header_Units":
             return self.out_units
-        if key == "Output_Header_Line_4":
+        if key == "Output_Header_Line_4" or \
+                                key == "Output_Header_Measurment_Type":
             return self.out_measurement         
     
     def __str__(self):
@@ -123,7 +135,8 @@ class ParamFile(object):
         """
         p_file = open(self.file_name, "r") 
         p_file.readline()
-        for rows in p_file.read().strip().replace('"',"").split('\n'):
+        for rows in p_file.read().strip().replace('"',""). \
+                                                replace("\r","").split('\n'):
             args = rows.split(',')
             self.params.append(Param(args[0], args[1], args[2], 
                                      args[3], args[4], args[5], 
