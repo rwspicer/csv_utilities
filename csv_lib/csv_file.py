@@ -3,9 +3,12 @@ CSV Utilities file Module
 csv_file.py
 Rawser Spicer
 created 2014/03/05
-modifyed 2014/07/30
+modifyed 2014/09/12
 
     Implements a class to handle the file IO of .csv files.
+
+    version 2014.9.12.1
+        added new functionailty to load data    
 
     version 2014.7.30.1
         improved the documentation
@@ -43,6 +46,8 @@ def load_info(f_name):
     header = []
     while True:
         line = f_stream.readline()
+        if line == "":
+            break
         segs = line.split(',')
         try:
             csvd.string_to_datetime(segs[0])
@@ -106,17 +111,53 @@ class CsvFile:
         execptions:
             IOError: if file not found
         """
+        
         if os.path.isfile(f_name):
             self.m_name = f_name
             self.m_numcols,  self.m_headlen, self.m_header = \
                                                         load_info(self.m_name)
-            self.m_datacols = csvu.load_file_new(self.m_name, self.m_headlen,
-                                                             self.m_numcols)[:]
+                     
+            self.load_csv_file()            
+        
+            #self.m_datacols = csvu.load_file_new(self.m_name, self.m_headlen,
+            #                                                 self.m_numcols)[:]
             self.m_exists = True
         else:
             raise IOError, "file, " + f_name + " was not found"
 
 
+    def load_csv_file(self):
+        """
+            loads a csv file replaces the csv_utitlies version
+        """
+        f_stream = open(self.m_name, "r")   
+        f_text = f_stream.read()
+        f_stream.close()
+        rows = f_text.replace("\r","").split("\n")
+
+        
+
+        for idx in range(self.m_numcols):
+            self.m_datacols.append([])
+
+        
+        
+        if len(rows) == self.m_headlen:
+            return
+
+       
+        for item in rows[self.m_headlen:]:
+            if item == "":
+                continue
+            cells = item.split(",")
+            for col in range(len(cells)):
+                if col == 0:
+                    self.m_datacols[col].\
+                        append(csvd.string_to_datetime(cells[col]))
+                else:
+                    self.m_datacols[col].append(float(cells[col]))
+
+        
     def create(self, f_name, header = "title,\ncol 1,col 2\n"):
         """
             creates the representation of a csv file with out any major
