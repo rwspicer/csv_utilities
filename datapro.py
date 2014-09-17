@@ -57,6 +57,7 @@ class datapro_v3(util.utility_base):
         self.evaluate_errors()
         self.pre_process_data()
         
+        
 
         
     def load_files(self):
@@ -232,6 +233,14 @@ class datapro_v3(util.utility_base):
             preforms setup steps required for data processing
         """
         self.setup_output_files()
+        rows = self.param_file.params
+        for row in rows:
+            if row["Data_Type"] == "ignore" or row["Data_Type"] == "datey" or \
+               row["Data_Type"] == "dated" or row["Data_Type"] == "dateh" or \
+               row["Data_Type"] == "tmstmpcol":
+                   continue 
+            self.process_data(row)
+            
         
     def setup_output_files(self):
         """
@@ -266,6 +275,19 @@ class datapro_v3(util.utility_base):
                                                "exists" : out_exists,
                                                "element" : row["d_element"],
                                                "index" : index}
+                                               
+                                               
+    def save_output_files(self):
+        """
+            save the output files
+        """
+        for key in self.output_directory.keys():
+            print key
+            if not self.output_directory[key]["exists"]:
+                print "creating"
+                self.output_directory[key]["file"].save()
+            else:
+                print "appending"
         
     def generate_output_header(self, idx):
         """
@@ -284,9 +306,25 @@ class datapro_v3(util.utility_base):
                 ["TimeStamp", row["Output_Header_Name"] + '\n'],
                 ["", row["Output_Header_Name"] + '\n'],
                 ["", row["Output_Header_Measurment_Type"] + '\n']]
+                
+    def process_col(self, row):
+        self.process_data(row)
+        
     
-    def write_out(self):
-        pass
+                
+    def process_data(self, row):
+        col = []
+        for item in self.data_file[:]:
+            if self.key_file["array_id"] == "-9999" or \
+               self.key_file["array_id"] == item[0]:
+                try:
+                    pass
+                    col.append(item[int(row["Input_Array_Pos"])])
+                except IndexError:
+                    continue
+        print col
+
+
 
 if __name__ == "__main__":
     time_code = "no"
