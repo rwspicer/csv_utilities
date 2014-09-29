@@ -2,7 +2,7 @@
 equations.py
 rawser spicer
 created: 2014/08/28
-modified: 2014/09/04
+modified: 2014/09/29
 
 Part of DataPro Version 3
 
@@ -11,6 +11,9 @@ Part of DataPro Version 3
     version 2014.9.4.1:
         updated documentation and each class now allows any type converable to 
     float to be passed as an argument to varible
+    
+    version 2014.9.29.1:
+        fixed minor errors
 """
 from math import log
 
@@ -45,7 +48,7 @@ class   equation(object):
             Overloads the flaot type converter to return the result of the 
         calculation.
         """
-        return self.result()
+        return self.result
 
 
 class thermistor(equation):
@@ -117,7 +120,7 @@ class poly(equation):
         
         temp = 0 
         for idx in range(len(self.coefs)):
-            temp += self.coefs[idx] * self.varible ** idx
+            temp += float(self.coefs[idx]) * self.varible ** idx
         self.result = temp
         
         
@@ -223,9 +226,9 @@ class rt_sensor(equation):
                         bad data item  
         """
         self.div = float(div)
-        self.ofset = float(offset)
+        self.offset = float(offset)
         self.mult = float(mult) 
-        super(rt_sensor, self).__init__(var, bas_val)
+        super(rt_sensor, self).__init__(var, bad_val)
         
                     
     def calc(self):

@@ -156,7 +156,8 @@ class CsvFile:
                         append(csvd.string_to_datetime(cells[col]))
                 else:
                     self.m_datacols[col].append(float(cells[col]))
-
+                    
+                        
         
     def create(self, f_name, header = "title,\ncol 1,col 2\n"):
         """

@@ -19,6 +19,7 @@ from csv_lib.dat_file import DatFile
 from csv_lib.therm_file import ThermFile
 import csv_lib.csv_date as csvd
 import csv_lib.csv_file as csvf
+import csv_lib.equations as eq
 import datetime
 import os
 
@@ -55,7 +56,7 @@ class datapro_v3(util.utility_base):
         self.check_directories()
         self.process_dates()
         self.evaluate_errors()
-        self.pre_process_data()
+        self.function_to_loop_over_params_that_need_outputing()
         
         
 
@@ -307,48 +308,152 @@ class datapro_v3(util.utility_base):
                 ["", row["Output_Header_Name"] + '\n'],
                 ["", row["Output_Header_Measurment_Type"] + '\n']]
                 
-    def process_col(self, row):
-        self.process_data(row)
+    #~ def process_col(self, row):
+        #~ self.process_data(row)
+        #~ 
+    #~ 
+                #~ 
+    #~ def process_data(self, row):
+        #~ col = []
+        #~ for item in self.data_file[:]:
+            #~ if self.key_file["array_id"] == "-9999" or \
+               #~ self.key_file["array_id"] == item[0]:
+                #~ try:
+                    #~ pass
+                    #~ col.append(item[int(row["Input_Array_Pos"])])
+                #~ except IndexError:
+                    #~ continue
+        #~ print col
+
+
+    def function_to_loop_over_params_that_need_outputing(self):
+        rows = self.param_file.params
+        for index in range(len(rows)):
+            row = rows[index]
+            if row["Data_Type"] == "ignore" or row["Data_Type"] == "datey" or \
+               row["Data_Type"] == "dated" or row["Data_Type"] == "dateh" or \
+               row["Data_Type"] == "tmstmpcol":
+                   continue
+                   
+            out_name = row["d_element"] + ".csv"
+            #~ print self.key_file["output_dir"] + out_name
+            out_file = csvf.CsvFile(self.key_file["output_dir"] + out_name)
+            out_exists = out_file.exists()
+            if out_exists:
+                last_date = out_file[0][-1]
+            else:
+                last_date = datetime.datetime(1000,1,1)
+            param_to_process = {"name" : out_name,
+                                               "file" : out_file,
+                                               "exists" : out_exists,
+                                               #~ "element" : row["d_element"],
+                                               "index" : index,
+                                               "date" : last_date}#,
+                                        #~ "Input_Col" : row["Input_Array_Pos"],
+                                            #~ "type" : row["Data_Type"]}
+            self.function_to_handle_each_param(param_to_process)
+            
         
-    
-                
-    def process_data(self, row):
+    def function_to_handle_each_param(self, param):
+        self.function_to_do_data_processing(param["index"], param["date"] )
+        self.function_to_do_qc()
+        self.function_to_save_an_output()
+        
+    def function_to_do_data_processing(self, index, final_date):
         col = []
-        for item in self.data_file[:]:
+        ddx = len(self.date_col) - 1 # date index 
+        array_input_pos = int(self.param_file.params[index]["Input_Array_Pos"])
+        #~ print self.param_file.params[index]["Data_Type"]
+        #~ print self.param_file.params[index]["Coef_3"]
+        ws_index = int(float(self.param_file.params[index]["Coef_3"]))
+        for item in reversed(self.data_file[:]):
+            if self.date_col[ddx] <= final_date:
+                break
             if self.key_file["array_id"] == "-9999" or \
                self.key_file["array_id"] == item[0]:
+                
+                if ws_index != 0:
+                    windspeed = item[ws_index]
+                else:
+                    windspeed = 0
+                    
                 try:
-                    pass
-                    col.append(item[int(row["Input_Array_Pos"])])
+                    
+                    temp = self.process_data_point(item[array_input_pos], index,
+                                                    windspeed)
+                    col.insert(0, temp)
                 except IndexError:
                     continue
-        print col
+        #~ print col[-10:]
+        
+    def process_data_point_therm(self, data_point, therm_type):
+        pass
+        
+    def process_data_point(self, data_point, index, windspeed):
+        try:
+            data_point = float(data_point)
+        except ValueError:
+            return float(self.key_file["bad_data_val"])
+        param = self.param_file.params[index]
+        d_type = param["Data_Type"]
+        
+        if d_type == "num" or d_type == "net" or d_type == "precip":
+            return data_point
+        
+        elif d_type == "therm" or d_type == "thermF":
+            value = eq.thermistor(data_point, param["Coef_1"], param["Coef_2"],
+                                  param["Coef_3"], param["Coef_4"],
+                                  self.key_file["bad_data_val"]).result
+            if value != float(self.key_file["bad_data_val"]) and \
+                                                    d_tpye == "thermF":
+                value = value * 9.0 / 5.0 + 32
+            return value
+            
+        elif d_type == "poly":
+            return eq.poly(data_point, param.coefs, 
+                           self.key_file["bad_data_val"]).result
+            
+        elif d_type == "flux":
+            return eq.flux(data_point, param["Coef_1"], param["Coef_2"],
+                                    self.key_file["bad_data_val"]).result
+        
+        elif d_type == "netrad":
+            if param["Coef_3"] != 0:
+                return eq.netrad(data_point, windspeed, 
+                                 param["Coef_1"], param["Coef_2"],
+                                 self.key_file["bad_data_val"]).result
+            else:
+                if data_point > 0:
+                    constant = 1.045
+                else:
+                    constant = 1 
+                return cosntatnt * eq.flux(data_point, 
+                                    param["Coef_1"], param["Coef_2"],
+                                    self.key_file["bad_data_val"]).result
+        
+        elif d_type == "rt_sensor":
+            return eq.rt_sensor(data_point, param["Coef_1"], param["Coef_2"],
+                                param["Coef_3"], 
+                                self.key_file["bad_data_val"]).result
+        
+        else:
+            return float(self.key_file["bad_data_val"]) 
+        
+    
+    def function_to_do_qc(self):
+        pass
+        
+        
+    def function_to_save_an_output(self):
+        pass
+
 
 
 
 if __name__ == "__main__":
-    time_code = "no"
-    if time_code == "ave":
-        import time
-        total = 0 
-        tries = 10
-        for idx in range(tries):
-            start = time.time()
-            datapro = datapro_v3()
-            datapro.run()
-            end = time.time()
-            total += (end - start)
-        print total/tries
-    elif time_code == "once":
-        import time
-        start = time.time()
-        datapro = datapro_v3()
-        datapro.run()
-        end = time.time()
-        print (end - start)
-    else:
-        datapro = datapro_v3()
-        datapro.run()
+
+    datapro = datapro_v3()
+    datapro.run()
         
     #~ print datapro.output_directory
     #~ print datapro.date_col
