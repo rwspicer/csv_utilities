@@ -308,25 +308,12 @@ class datapro_v3(util.utility_base):
                 ["", row["Output_Header_Name"] + '\n'],
                 ["", row["Output_Header_Measurment_Type"] + '\n']]
                 
-    #~ def process_col(self, row):
-        #~ self.process_data(row)
-        #~ 
-    #~ 
-                #~ 
-    #~ def process_data(self, row):
-        #~ col = []
-        #~ for item in self.data_file[:]:
-            #~ if self.key_file["array_id"] == "-9999" or \
-               #~ self.key_file["array_id"] == item[0]:
-                #~ try:
-                    #~ pass
-                    #~ col.append(item[int(row["Input_Array_Pos"])])
-                #~ except IndexError:
-                    #~ continue
-        #~ print col
-
 
     def function_to_loop_over_params_that_need_outputing(self):
+        """
+            this function loops over the paramaters that need to be written to
+        output files and sets up the file and data processing
+        """
         rows = self.param_file.params
         for index in range(len(rows)):
             row = rows[index]
@@ -355,11 +342,26 @@ class datapro_v3(util.utility_base):
             
         
     def function_to_handle_each_param(self, param):
+        """
+            this function handles a parameter by processing, QC checking and
+        saving the file
+        
+        arguments:
+            param:      (param libary) info on the param to process
+        """
         self.function_to_do_data_processing(param["index"], param["date"] )
         self.function_to_do_qc()
         self.function_to_save_an_output()
         
     def function_to_do_data_processing(self, index, final_date):
+        """
+            processes a paramater of data turning it into a column that 
+        can be outputted
+        
+        argumetns:
+            index:      (int) index to the param array
+            final_date: (datetime) date to process to
+        """
         col = []
         ddx = len(self.date_col) - 1 # date index 
         array_input_pos = int(self.param_file.params[index]["Input_Array_Pos"])
@@ -385,11 +387,53 @@ class datapro_v3(util.utility_base):
                 except IndexError:
                     continue
         #~ print col[-10:]
+        return col # maybe do this differently
         
-    def process_data_point_therm(self, data_point, therm_type):
-        pass
         
+    def process_data_point_therm(self, data_point, index):
+        """
+            process data if it uses a therm file
+            
+        arguments:
+            data_point:     (float|string) the data to process
+            index:          (int) index to the param array
+        """
+        try:
+            data_point = float(data_point)
+        except ValueError:
+            return float(self.key_file["bad_data_val"])
+        
+        
+        param = self.param_file.params[index]
+        d_type = param["Data_Type"]
+        
+        if d_type == "therm_1":
+            therm_file = self.therm1
+        elif d_type == "therm_2":
+            d_file = self.therm2
+        elif d_type == "therm_3":
+            therm_file = self.therm3
+        else:
+            return float(self.key_file["bad_data_val"])
+            
+        therm_idx = therm_file.bin_search(data_point)
+        therm_vals = therm_file[therm_idx]
+        
+        value = eq.thermistor(data_point, therm_vals.A, therm_vals.B,
+                                          therm_vals.C, param["Coeff_4"],
+                                          self.ket_file["bad_data_val"])
+        return value
+        
+
     def process_data_point(self, data_point, index, windspeed):
+        """
+            process the data
+            
+        arguments:
+            data_point:     (float|string) the data to process
+            index:          (int) index to the param array
+            windspeed:      (float) windspeed for netrad
+        """
         try:
             data_point = float(data_point)
         except ValueError:
@@ -435,12 +479,17 @@ class datapro_v3(util.utility_base):
             return eq.rt_sensor(data_point, param["Coef_1"], param["Coef_2"],
                                 param["Coef_3"], 
                                 self.key_file["bad_data_val"]).result
+        elif d_type == "therm_1" or d_type == "therm_2" or d_type == "therm_3":
+            return process_data_point_therm(data_point, index) 
         
         else:
             return float(self.key_file["bad_data_val"]) 
         
     
     def function_to_do_qc(self):
+        """
+            check a column
+        """
         pass
         
         
