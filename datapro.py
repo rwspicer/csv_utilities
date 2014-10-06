@@ -349,9 +349,9 @@ class datapro_v3(util.utility_base):
         arguments:
             param:      (param libary) info on the param to process
         """
-        self.function_to_do_data_processing(param["index"], param["date"] )
-        self.function_to_do_qc()
-        self.function_to_save_an_output()
+        col = self.function_to_do_data_processing(param["index"], param["date"] )
+        col = self.function_to_do_qc(col, param["index"], param["date"])
+        self.function_to_save_an_output(col)
         
     def function_to_do_data_processing(self, index, final_date):
         """
@@ -371,6 +371,7 @@ class datapro_v3(util.utility_base):
         for item in reversed(self.data_file[:]):
             if self.date_col[ddx] <= final_date:
                 break
+            ddx -= 1
             if self.key_file["array_id"] == "-9999" or \
                self.key_file["array_id"] == item[0]:
                 
@@ -384,6 +385,7 @@ class datapro_v3(util.utility_base):
                     temp = self.process_data_point(item[array_input_pos], index,
                                                     windspeed)
                     col.insert(0, temp)
+                    
                 except IndexError:
                     continue
         #~ print col[-10:]
@@ -486,14 +488,70 @@ class datapro_v3(util.utility_base):
             return float(self.key_file["bad_data_val"]) 
         
     
-    def function_to_do_qc(self):
+    def function_to_do_qc(self, data, index):
         """
             check a column
         """
-        pass
+        param = self.param_file.params[index]
+        qc_high = float(param['Qc_Param_High'])
+        qc_low = float(param['Qc_Param_Low']) 
+        qc_step = float(param['Qc_Param_Step']) 
+        bad_val = float(self.key_file["bad_data_val"])
+        d_element = param["d_element"]
+        date_base = len(self.date_col) - len(data)
+        error_log = []
+        
+        for index in range(len(data)):
+            date = self.date_col[date_base + index]
+            if data[index] == bad_val:
+                error_log.append(str(date) + ",bad at logger,default," + \
+                                    str(val))
+                continue
+            
+            if data[index] > qc_high:
+                data[index] = bad_val
+                error_log.append(str(date) + "qc_high_violation,limit =" \
+                                  + str(qc_high) + ',RawDataValue ' + \
+                                    str(data[index]))
+                                    
+            if data[index] < qc_low:
+                data[index] = bad_val
+                error_log.append(str(date) + "qc_high_violation,limit =" \
+                                  + str(qc_low) + ',RawDataValue ' + \
+                                    str(data[index]))
+            
+            
+            if qc_step != 0:
+                data[index] = bad_val
+                # this tests for the index > 0 first, so if  index == 0
+                # the first test will evaulate to false and the test will 
+                # fail automaticly 
+                if index > 0 and bad_val != data[index - 1] and \
+                   abs(data[index] - data[index - 1]) > qc_step:
+                    error_log.append( \
+                        str(date) + ",qc_step error,MaxStepDiff " + \
+                        str(qc_step) + ",diff " + \
+                        str(abs(data[index] - data[index - 1])) +\
+                        ',RawDataValue ' + str(data[index]))
+                        
+        filename = self.key_file["qc_log_dir"].rstrip() + d_element + \
+                   '_qaqc_log.csv'
+                   
+        # are there any errors to write
+        if len(error_log) == 0:
+            return
+            
+        qc_file = open(filename, 'a')
+        
+        for rows in error_log:
+            qc_file.write(rows)
+            qc_file.write("\n")
+            
+                       
         
         
-    def function_to_save_an_output(self):
+        
+    def function_to_save_an_output(self, data):
         pass
 
 
