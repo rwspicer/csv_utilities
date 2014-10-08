@@ -7,9 +7,13 @@ IARC data processing project
 
 rawser spicer
 created: 2014/08/21
-modified: 2014/08/21
+modified: 2014/10/08
 
 based on datapro v 0.2 by Bob Busey
+
+    version 2014.10.8:  (testing version 1)
+        all functionaliy is written and should work, full run bug testing to be
+    continued.
 
 """
 import csv_lib.utility as util
@@ -233,6 +237,7 @@ class datapro_v3(util.utility_base):
         """
             preforms setup steps required for data processing
         """
+        print "pre_process_data"
         self.setup_output_files()
         rows = self.param_file.params
         for row in rows:
@@ -247,6 +252,7 @@ class datapro_v3(util.utility_base):
         """
             sets up the out put files 
         """
+        print "setup_output_files"
         self.setup_output_directory()
         for key in self.output_directory.keys():
             curr_file = self.output_directory[key]
@@ -260,6 +266,7 @@ class datapro_v3(util.utility_base):
             sets up a directory of output files needing to be writted or 
         modified
         """
+        print "setup_output_files"
         rows = self.param_file.params
         for index in range(len(rows)):
             row = rows[index]
@@ -282,6 +289,7 @@ class datapro_v3(util.utility_base):
         """
             save the output files
         """
+        print "save_output_files"
         for key in self.output_directory.keys():
             print key
             if not self.output_directory[key]["exists"]:
@@ -330,6 +338,7 @@ class datapro_v3(util.utility_base):
                 last_date = out_file[0][-1]
             else:
                 last_date = datetime.datetime(1000,1,1)
+                out_file.set_header(self.generate_output_header(index))
             param_to_process = {"name" : out_name,
                                                "file" : out_file,
                                                "exists" : out_exists,
@@ -349,9 +358,12 @@ class datapro_v3(util.utility_base):
         arguments:
             param:      (param libary) info on the param to process
         """
-        col = self.function_to_do_data_processing(param["index"], param["date"] )
-        col = self.function_to_do_qc(col, param["index"], param["date"])
+        col = self.function_to_do_data_processing(param["index"], param["date"])
+        if len(col) == 0:
+            return  # no data processed no need to do QC or save
+        col = self.function_to_do_qc(col, param["index"])
         self.function_to_save_an_output(param["file"], col)
+        #~ print get_rid_of_this_bad_line_of_code
         
     def function_to_do_data_processing(self, index, final_date):
         """
@@ -369,7 +381,12 @@ class datapro_v3(util.utility_base):
         #~ print self.param_file.params[index]["Coef_3"]
         ws_index = int(float(self.param_file.params[index]["Coef_3"]))
         for item in reversed(self.data_file[:]):
-            if self.date_col[ddx] <= final_date:
+            #~ print item
+            #~ print ddx
+            #~ print final_date
+            #~ print self.date_col[ddx]
+            if not final_date == datetime.datetime(1000,1,1) \
+                                and self.date_col[ddx] <= final_date:
                 break
             ddx -= 1
             if self.key_file["array_id"] == "-9999" or \
@@ -388,7 +405,6 @@ class datapro_v3(util.utility_base):
                     
                 except IndexError:
                     continue
-        #~ print col[-10:]
         return col # maybe do this differently
         
         
@@ -505,50 +521,54 @@ class datapro_v3(util.utility_base):
             date = self.date_col[date_base + index]
             if data[index] == bad_val:
                 error_log.append(str(date) + ",bad at logger,default," + \
-                                    str(val))
+                                    str(data[index]))
                 continue
             
-            if data[index] > qc_high:
-                data[index] = bad_val
+            if not qc_high == 0.0 and data[index] > qc_high:
+                
                 error_log.append(str(date) + "qc_high_violation,limit =" \
                                   + str(qc_high) + ',RawDataValue ' + \
                                     str(data[index]))
-                                    
-            if data[index] < qc_low:
                 data[index] = bad_val
+            if not qc_low == 0.0 and data[index] < qc_low:
+                
                 error_log.append(str(date) + "qc_high_violation,limit =" \
                                   + str(qc_low) + ',RawDataValue ' + \
                                     str(data[index]))
+                data[index] = bad_val
             
             
             if qc_step != 0:
-                data[index] = bad_val
+                
                 # this tests for the index > 0 first, so if  index == 0
                 # the first test will evaulate to false and the test will 
                 # fail automaticly 
                 if index > 0 and bad_val != data[index - 1] and \
-                   abs(data[index] - data[index - 1]) > qc_step:
+                    abs(data[index] - data[index - 1]) > qc_step:
                     error_log.append( \
                         str(date) + ",qc_step error,MaxStepDiff " + \
                         str(qc_step) + ",diff " + \
                         str(abs(data[index] - data[index - 1])) +\
                         ',RawDataValue ' + str(data[index]))
+                    data[index] = bad_val
                         
         filename = self.key_file["qc_log_dir"].rstrip() + d_element + \
                    '_qaqc_log.csv'
                    
         # are there any errors to write
-        if len(error_log) == 0:
-            return
+        if not len(error_log) == 0:
+            qc_file = open(filename, 'a')
             
-        qc_file = open(filename, 'a')
+            for rows in error_log:
+                qc_file.write(rows)
+                qc_file.write("\n")
         
-        for rows in error_log:
-            qc_file.write(rows)
-            qc_file.write("\n")
+        return data
             
     def function_to_save_an_output(self, out_file, data):
-        
+        """
+        this functions saves a proccessed param to a .csv file
+        """
         idx = -1 * len(data)
         
         
