@@ -351,7 +351,7 @@ class datapro_v3(util.utility_base):
         """
         col = self.function_to_do_data_processing(param["index"], param["date"] )
         col = self.function_to_do_qc(col, param["index"], param["date"])
-        self.function_to_save_an_output(col)
+        self.function_to_save_an_output(param["file"], col)
         
     def function_to_do_data_processing(self, index, final_date):
         """
@@ -547,12 +547,16 @@ class datapro_v3(util.utility_base):
             qc_file.write(rows)
             qc_file.write("\n")
             
-                       
+    def function_to_save_an_output(self, out_file, data):
+        
+        idx = -1 * len(data)
         
         
+        out_file.add_dates(self.date_col[idx:])
+        out_file.add_data(1,data)
         
-    def function_to_save_an_output(self, data):
-        pass
+        out_file.append()
+        
 
 
 

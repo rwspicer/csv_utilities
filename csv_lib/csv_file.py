@@ -492,7 +492,7 @@ class CsvFile:
 
         arguments:
             col:            (int) the column number
-            new_data:       ((any type)list) list of the dates
+            new_data:       ((any type)list) list of data
         """
 
         self.m_datacols[col] = np.append(self.m_datacols[col], new_data)
