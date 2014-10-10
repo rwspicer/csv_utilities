@@ -1,5 +1,4 @@
 #!/usr/bin/python -tt
-
 """
 datapro 3
 
@@ -7,11 +6,14 @@ IARC data processing project
 
 rawser spicer
 created: 2014/08/21
-modified: 2014/10/08
+modified: 2014/10/10
 
 based on datapro v 0.2 by Bob Busey
 
-    version 2014.10.8:  (testing version 1)
+    version 2014.10.10.1:
+        commented out un used code, added minor optimization
+
+    version 2014.10.8.1:  (testing version 1)
         all functionaliy is written and should work, full run bug testing to be
     continued.
 
@@ -54,13 +56,13 @@ class datapro_v3(util.utility_base):
         """
         main body of datapro_v3
         """
-        import time
         self.load_files()
         self.evaluate_errors()
         self.check_directories()
         self.process_dates()
         self.evaluate_errors()
         self.function_to_loop_over_params_that_need_outputing()
+
         
         
 
@@ -248,55 +250,55 @@ class datapro_v3(util.utility_base):
             self.process_data(row)
             
         
-    def setup_output_files(self):
-        """
-            sets up the out put files 
-        """
-        print "setup_output_files"
-        self.setup_output_directory()
-        for key in self.output_directory.keys():
-            curr_file = self.output_directory[key]
-            if not curr_file["exists"]:
-                header = self.generate_output_header(curr_file["index"])
-                curr_file["file"].set_header(header)
-                
-
-    def setup_output_directory(self):
-        """
-            sets up a directory of output files needing to be writted or 
-        modified
-        """
-        print "setup_output_files"
-        rows = self.param_file.params
-        for index in range(len(rows)):
-            row = rows[index]
-            if row["Data_Type"] == "ignore" or row["Data_Type"] == "datey" or \
-               row["Data_Type"] == "dated" or row["Data_Type"] == "dateh" or \
-               row["Data_Type"] == "tmstmpcol":
-                   continue
-            out_name = row["d_element"] + ".csv"
-            out_file = csvf.CsvFile(self.key_file["output_dir"] + out_name)
-            out_exists = out_file.exists()
-            
-            self.output_directory[out_name] = {"name" : out_name,
-                                               "file" : out_file,
-                                               "exists" : out_exists,
-                                               "element" : row["d_element"],
-                                               "index" : index}
-                                               
-                                               
-    def save_output_files(self):
-        """
-            save the output files
-        """
-        print "save_output_files"
-        for key in self.output_directory.keys():
-            print key
-            if not self.output_directory[key]["exists"]:
-                print "creating"
-                self.output_directory[key]["file"].save()
-            else:
-                print "appending"
+    #~ def setup_output_files(self):
+        #~ """
+            #~ sets up the out put files 
+        #~ """
+        #~ print "setup_output_files"
+        #~ self.setup_output_directory()
+        #~ for key in self.output_directory.keys():
+            #~ curr_file = self.output_directory[key]
+            #~ if not curr_file["exists"]:
+                #~ header = self.generate_output_header(curr_file["index"])
+                #~ curr_file["file"].set_header(header)
+                #~ 
+#~ 
+    #~ def setup_output_directory(self):
+        #~ """
+            #~ sets up a directory of output files needing to be writted or 
+        #~ modified
+        #~ """
+        #~ print "setup_output_files"
+        #~ rows = self.param_file.params
+        #~ for index in range(len(rows)):
+            #~ row = rows[index]
+            #~ if row["Data_Type"] == "ignore" or row["Data_Type"] == "datey" or \
+               #~ row["Data_Type"] == "dated" or row["Data_Type"] == "dateh" or \
+               #~ row["Data_Type"] == "tmstmpcol":
+                   #~ continue
+            #~ out_name = row["d_element"] + ".csv"
+            #~ out_file = csvf.CsvFile(self.key_file["output_dir"] + out_name)
+            #~ out_exists = out_file.exists()
+            #~ 
+            #~ self.output_directory[out_name] = {"name" : out_name,
+                                               #~ "file" : out_file,
+                                               #~ "exists" : out_exists,
+                                               #~ "element" : row["d_element"],
+                                               #~ "index" : index}
+                                               #~ 
+                                               #~ 
+    #~ def save_output_files(self):
+        #~ """
+            #~ save the output files
+        #~ """
+        #~ print "save_output_files"
+        #~ for key in self.output_directory.keys():
+            #~ print key
+            #~ if not self.output_directory[key]["exists"]:
+                #~ print "creating"
+                #~ self.output_directory[key]["file"].save()
+            #~ else:
+                #~ print "appending"
         
     def generate_output_header(self, idx):
         """
@@ -336,6 +338,9 @@ class datapro_v3(util.utility_base):
             out_exists = out_file.exists()
             if out_exists:
                 last_date = out_file[0][-1]
+                if last_date == self.date_col[-1]:
+                    print "no data to process"
+                    continue 
             else:
                 last_date = datetime.datetime(1000,1,1)
                 out_file.set_header(self.generate_output_header(index))
@@ -347,6 +352,7 @@ class datapro_v3(util.utility_base):
                                                "date" : last_date}#,
                                         #~ "Input_Col" : row["Input_Array_Pos"],
                                             #~ "type" : row["Data_Type"]}
+
             self.function_to_handle_each_param(param_to_process)
             
         
@@ -582,9 +588,9 @@ class datapro_v3(util.utility_base):
 
 
 if __name__ == "__main__":
-
     datapro = datapro_v3()
     datapro.run()
+
         
     #~ print datapro.output_directory
     #~ print datapro.date_col
