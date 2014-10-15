@@ -6,9 +6,12 @@ IARC data processing project
 
 rawser spicer
 created: 2014/08/21
-modified: 2014/10/10
+modified: 2014/10/15
 
 based on datapro v 0.2 by Bob Busey
+
+    version 2014.10.15.1:
+        optimized the loading of of output files that exist
 
     version 2014.10.10.1:
         commented out un used code, added minor optimization
@@ -61,8 +64,10 @@ class datapro_v3(util.utility_base):
         self.check_directories()
         self.process_dates()
         self.evaluate_errors()
+        #~ import time 
+        #~ begin = time.time()
         self.function_to_loop_over_params_that_need_outputing()
-
+        #~ print time.time() - begin
         
         
 
@@ -235,20 +240,20 @@ class datapro_v3(util.utility_base):
         for rows in self.data_file[:]:
             self.date_col.append(csvd.string_to_datetime(rows[i_pos]))
 
-    def pre_process_data(self):
-        """
-            preforms setup steps required for data processing
-        """
-        print "pre_process_data"
-        self.setup_output_files()
-        rows = self.param_file.params
-        for row in rows:
-            if row["Data_Type"] == "ignore" or row["Data_Type"] == "datey" or \
-               row["Data_Type"] == "dated" or row["Data_Type"] == "dateh" or \
-               row["Data_Type"] == "tmstmpcol":
-                   continue 
-            self.process_data(row)
-            
+    #~ def pre_process_data(self):
+        #~ """
+            #~ preforms setup steps required for data processing
+        #~ """
+        #~ print "pre_process_data"
+        #~ self.setup_output_files()
+        #~ rows = self.param_file.params
+        #~ for row in rows:
+            #~ if row["Data_Type"] == "ignore" or row["Data_Type"] == "datey" or \
+               #~ row["Data_Type"] == "dated" or row["Data_Type"] == "dateh" or \
+               #~ row["Data_Type"] == "tmstmpcol":
+                   #~ continue 
+            #~ self.process_data(row)
+            #~ 
         
     #~ def setup_output_files(self):
         #~ """
@@ -334,12 +339,13 @@ class datapro_v3(util.utility_base):
                    
             out_name = row["d_element"] + ".csv"
             #~ print self.key_file["output_dir"] + out_name
-            out_file = csvf.CsvFile(self.key_file["output_dir"] + out_name)
+            out_file = csvf.CsvFile(self.key_file["output_dir"] + out_name
+                                                                , opti = True)
             out_exists = out_file.exists()
             if out_exists:
                 last_date = out_file[0][-1]
                 if last_date == self.date_col[-1]:
-                    print "no data to process"
+                    #print "no data to process"
                     continue 
             else:
                 last_date = datetime.datetime(1000,1,1)

@@ -169,11 +169,14 @@ class CsvFile:
         """
         a faster load file
         """
+        for idx in range(self.m_numcols):
+            self.m_datacols.append([])
+            
         f_stream = open(self.m_name, "rb")
         f_stream.seek(-2,2)
         while f_stream.read(1) != "\n":
             f_stream.seek(-2,1)
-        line = f.readline()
+        line = f_stream.readline()
         if line == "":
             return
         cells = line.split(",")
@@ -182,6 +185,7 @@ class CsvFile:
                 self.m_datacols[col].append(csvd.string_to_datetime(cells[col]))
             else:
                 self.m_datacols[col].append(float(cells[col]))
+        f_stream.close()
         
     def create(self, f_name, header = "title,\ncol 1,col 2\n"):
         """
