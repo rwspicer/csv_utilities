@@ -94,7 +94,7 @@ class Param(object):
             return self.coefs[6]
         if key == "Qc_Param_High":
             return self.Qc_high
-        if key == "Qc_Param_low":
+        if key == "Qc_Param_Low":
             return self.Qc_low
         if key == "Qc_Param_Step":
             return self.Qc_step
