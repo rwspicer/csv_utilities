@@ -3,9 +3,13 @@ CSV Utilities file Module
 csv_file.py
 Rawser Spicer
 created 2014/03/05
-modifyed 2014/09/12
+modifyed 2014/10/15
 
     Implements a class to handle the file IO of .csv files.
+
+    version 2014.10.15.1
+        added an optimized load mode that will olny load the last line of the 
+    csv file in to the object.
 
     version 2014.9.12.1
         added new functionailty to load data    
@@ -72,7 +76,7 @@ class CsvFile:
     format (ie."title,\ncol 1,col 2\n" ) and some functions will take either
     type as an argumet.
     """
-    def __init__(self, f_name, must_exist = False):
+    def __init__(self, f_name, must_exist = False, opti = False):
         """
             constructor
             if a file name is provided it will be loaded into the object if it
@@ -92,6 +96,7 @@ class CsvFile:
         self.m_header = []
         self.m_datacols = []
         self.m_exists = False
+        self.m_opti = opti
 
         if os.path.isfile(f_name):
             self.open_csv(f_name)
@@ -116,8 +121,11 @@ class CsvFile:
             self.m_name = f_name
             self.m_numcols,  self.m_headlen, self.m_header = \
                                                         load_info(self.m_name)
-                     
-            self.load_csv_file()            
+                
+            if self.m_opti == True:
+                self.load_csv_file_opti()
+            else:    
+                self.load_csv_file()            
         
             #self.m_datacols = csvu.load_file_new(self.m_name, self.m_headlen,
             #                                                 self.m_numcols)[:]
@@ -157,7 +165,23 @@ class CsvFile:
                 else:
                     self.m_datacols[col].append(float(cells[col]))
                     
-                        
+    def load_csv_file_opti(self):
+        """
+        a faster load file
+        """
+        f_stream = open(self.m_name, "rb")
+        f_stream.seek(-2,2)
+        while f_stream.read(1) != "\n":
+            f_stream.seek(-2,1)
+        line = f.readline()
+        if line == "":
+            return
+        cells = line.split(",")
+        for col in range(len(cells)):
+            if col == 0:
+                self.m_datacols[col].append(csvd.string_to_datetime(cells[col]))
+            else:
+                self.m_datacols[col].append(float(cells[col]))
         
     def create(self, f_name, header = "title,\ncol 1,col 2\n"):
         """
@@ -396,6 +420,7 @@ class CsvFile:
             name = self.m_name
         else:
             self.m_name = name
+        
         f_stream = open (name, 'w')
 
         f_stream.write(self.header_to_string())
