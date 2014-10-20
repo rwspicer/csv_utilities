@@ -2,12 +2,15 @@
 utility.py
 Rawser Spicer
 created: 2014/08/01
-modified: 2014/09/08
+modified: 2014/10/20
 
         this fill contains classes to help implement a base utility class. The 
     class should be used as a base class for new utilities. The class will hadle
     the internal runnings of a utility
 
+    version 2014.10.20.1:
+        updated error messages
+    
     version 2014.9.8.1:
         added evaluate_error to handle error checking and and reduce code 
     dupilcation during error check phase 
@@ -47,7 +50,8 @@ class error_instance(object):
         """
         if self.other == "":
             return self.error + ": " + self.msg
-        return self.error + ": " + self.msg + " (" + self.other + ")"
+        return self.error + ": " + self.msg + "\n\t(" + self.other + ")" \
+                + " [try <--help> for info on running utility]"
 
 
 
@@ -131,9 +135,9 @@ class utility_base(object):
             if str(error_message) == "the help string was requested":
                 self.help_bool = True
             elif str(error_message)[:2] == " <":
-                self.errors.set_error_state("invalid flag", 
-                                            "a set flag is not recognized",
-                             str(error_message)[2:str(error_message).find(">")])
+                self.errors.set_error_state("INVALID FLAG:",
+                        "The utility does not support a given flag.",
+        "FLAG: " + str(error_message)[2:str(error_message).find(">")]) 
             else:
                 self.errors.set_error_state("unknown", "unknown")
             return
