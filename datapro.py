@@ -6,9 +6,12 @@ IARC data processing project
 
 rawser spicer
 created: 2014/08/21
-modified: 2014/10/15
+modified: 2014/10/20
 
 based on datapro v 0.2 by Bob Busey
+
+    version 2014.10.20.1:
+        add the help
 
     version 2014.10.15.1:
         optimized the loading of of output files that exist
@@ -32,7 +35,27 @@ import csv_lib.equations as eq
 import datetime
 import os
 
+HELP_STRING = """
+Datapro 3 
+help updated: 2014/10/20 
 
+        Datapro 3 is a replacemnt for Datapro v2 by Bob Busey. Datapro will 
+    process data for a site specified by the key file into two column .csv files
+    based on each of the measurements for the site. Datapro is capable of 
+    creating new .csv files or appending to existing ones.  
+    
+    example usage:
+        python datapro.py --key_file=<path_to_key_file>
+        
+    flag info:
+        
+        --key_file:         <<path_to_file>.txt>
+                the key file with information on the data processing directory
+       
+        --alt_data_file:    <<path_to_file>.dat> (optional)
+                the path to an alternate data file no given in key file
+        
+              """
 
 class datapro_v3(util.utility_base):
     """
@@ -43,7 +66,7 @@ class datapro_v3(util.utility_base):
             sets up datapro
         """
         super(datapro_v3, self).__init__(" Datapro 3.0 " ,
-                    ("--key_file",) ,("--alt_data_file",), "help")
+                    ("--key_file",) ,("--alt_data_file",), HELP_STRING)
         self.key_file = "not ready"
         self.param_file = "not ready"
         self.data_file = "not ready"
