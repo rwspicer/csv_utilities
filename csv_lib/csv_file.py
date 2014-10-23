@@ -3,9 +3,16 @@ CSV Utilities file Module
 csv_file.py
 Rawser Spicer
 created 2014/03/05
-modifyed 2014/10/15
+modified 2014/10/22
 
     Implements a class to handle the file IO of .csv files.
+    
+    version 2014.10.22.2:
+        fixed issues in the append and optimized load functions where a heard 
+    with no data caused issues 
+
+    version 2014.10.22.1:
+        read/writen data can now be in string or float format
 
     version 2014.10.15.1
         added an optimized load mode that will olny load the last line of the 
@@ -29,7 +36,7 @@ import os
 import csv_lib.csv_utilities as csvu
 import csv_lib.csv_date as csvd
 import numpy as np
-#import datetime
+import datetime
 
 def load_info(f_name):
     """
@@ -163,8 +170,11 @@ class CsvFile:
                     self.m_datacols[col].\
                         append(csvd.string_to_datetime(cells[col]))
                 else:
-                    self.m_datacols[col].append(float(cells[col]))
-                    
+                    try:
+                        self.m_datacols[col].append(float(cells[col]))
+                    except ValueError:
+                        self.m_datacols[col].append(str(cells[col]))
+                        
     def load_csv_file_opti(self):
         """
         a faster load file
@@ -177,8 +187,10 @@ class CsvFile:
         while f_stream.read(1) != "\n":
             f_stream.seek(-2,1)
         line = f_stream.readline()
-        if line == "":
+        if line.strip() == "":
             return
+        if line[:line.find(',')] == self.m_header[-1][0]:
+            return    
         cells = line.split(",")
         for col in range(len(cells)):
             if col == 0:
@@ -356,6 +368,8 @@ class CsvFile:
             for values in self.m_datacols[1:]:
                 try:
                     data_str += ',' + ("%.2f" % values[index])
+                except TypeError:
+                    data_str += ',' + str(values[index])
                 except IndexError:
                     break
             data_str += '\n'
@@ -453,7 +467,7 @@ class CsvFile:
 
         temp = CsvFile(name, True)
         last_date = temp[0][-1]
-
+        
         if self[0][-1] <= last_date:
             return False
         index = len(temp[0])
@@ -464,7 +478,10 @@ class CsvFile:
             w_str += str(self[0][index])
             col = 1
             while col < self.m_numcols:
-                w_str += ',' + ("%.2f" % self[col][index])
+                try:
+                    w_str += ',' + ("%.2f" % self[col][index])
+                except TypeError:
+                    w_str += ',' + str(self[col][index])
                 col += 1
             index += 1
             w_str += "\n"

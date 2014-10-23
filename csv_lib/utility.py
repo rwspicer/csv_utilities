@@ -2,11 +2,14 @@
 utility.py
 Rawser Spicer
 created: 2014/08/01
-modified: 2014/10/20
+modified: 2014/10/22
 
         this fill contains classes to help implement a base utility class. The 
     class should be used as a base class for new utilities. The class will hadle
     the internal runnings of a utility
+
+    version 2014.10.22.1:
+        added feature to time main utilitys main function
 
     version 2014.10.20.1:
         updated error messages
@@ -23,6 +26,8 @@ modified: 2014/10/20
 """
 import csv_args as csva
 import sys
+import datetime as dt
+from csv_file import CsvFile #for saving timing
 
 class error_instance(object):
     """
@@ -103,7 +108,7 @@ class utility_base(object):
     """
         Base class for utilities. Derived classes should over write main()
     """
-    def __init__(self, title, req_flags, opt_flags, help):
+    def __init__(self, title, req_flags, opt_flags, help_str):
         """
             initlizes the utility
             
@@ -111,14 +116,20 @@ class utility_base(object):
             title:      (string) the utilities title
             req_flags:  ((string) list) a list of required flags
             opt_flags:  ((string) list) a list of optional flags
-            help:       (string) the help information
+            help_str:       (string) the help information
         """
         self.title = title
         self.success = "utitily has run sucessfully"
         self.errors = error_log()
-        self.help = help
+        self.help_str = help_str
         self.help_bool = False
         self.commands = "unset"
+        # --- timing features --- v2014.10.22.1
+        self.timing_bool = False
+        self.timing_path = ""
+        self.start_time = "usnet"
+        self.runtime = "unset"
+        # ------------------------
         self.set_up_commands(req_flags, opt_flags)        
         
     def set_up_commands(self, r_flags, o_flags):
@@ -130,7 +141,7 @@ class utility_base(object):
             o_flags:  ((string) list) a list of optional flags
         """
         try:
-            self.commands = csva.ArgClass(r_flags, o_flags, self.help, False)
+            self.commands = csva.ArgClass(r_flags, o_flags, self.help_str, False)
         except RuntimeError, (error_message):
             if str(error_message) == "the help string was requested":
                 self.help_bool = True
@@ -199,13 +210,20 @@ class utility_base(object):
         """
         self.print_center(self.title, '-')
         if self.help_bool:
-            print self.help
+            print self.help_str
+            self.print_center(" Help has been displayed, exiting ",'-')
             sys.exit(0)  
         self.evaluate_errors()
-        #~ if self.errors.get_error_state():
-            #~ self.errors.print_errors()
-            #~ self.exit()
-        self.main()
+
+        # --- timing features --- v2014.10.22.1
+        if self.timing_bool == True:
+            self.start_time = dt.datetime.now()
+            self.main()
+            self.runtime = dt.datetime.now() - self.start_time
+            self.save_timing()
+        # -----------------------
+        else:
+            self.main()
         self.print_center(self.success,'-')
         
     def main(self):
@@ -221,3 +239,25 @@ class utility_base(object):
         if self.errors.get_error_state():
             self.errors.print_errors()
             self.exit()
+            
+    def save_timing(self):
+        """
+        this functions save the timing to a specified output file
+        
+        pre-conditions:
+            self.timing_path:       (string) a filename/path; cannot be ""
+        """
+        if self.timing_path == "":
+            return
+        timing_file = CsvFile(self.timing_path)
+        if not timing_file.exists():
+            timing_file.set_header([["Utility Runtime Log", self.title + "\n"],
+                                    ["timestamp", "runtime\n"]])
+        timing_file.add_dates(self.start_time)
+        timing_file.add_data(1,self.runtime.total_seconds())
+        timing_file.append()
+        
+        
+        
+        
+        
