@@ -9,7 +9,7 @@ modified: 2014/10/22
     the internal runnings of a utility
 
     version 2014.10.22.1:
-        added feature to time main utilitys main function
+        added feature to time main utilities main function
 
     version 2014.10.20.1:
         updated error messages

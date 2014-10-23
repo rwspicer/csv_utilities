@@ -12,6 +12,7 @@ based on datapro v 0.2 by Bob Busey
 
     version 2014.10.22.1:
         cleaned up code a bit removing old commented out functions and features
+        and added timing features
     
     version 2014.10.20.1:
         add the help

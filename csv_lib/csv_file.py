@@ -3,12 +3,15 @@ CSV Utilities file Module
 csv_file.py
 Rawser Spicer
 created 2014/03/05
-modified 2014/10/22
+modified 2014/10/23
 
     Implements a class to handle the file IO of .csv files.
     
+    version 2014.10.23.1:
+        added append_new function -- should replace appened after testing
+    
     version 2014.10.22.2:
-        fixed issues in the append and optimized load functions where a heard 
+        fixed issues in the append and optimized load functions where a header 
     with no data caused issues 
 
     version 2014.10.22.1:
@@ -104,6 +107,10 @@ class CsvFile:
         self.m_datacols = []
         self.m_exists = False
         self.m_opti = opti
+        self.m_last_init_date = datetime.datetime(1,1,1) # first date possible
+                                                    # will allow append to work
+                                                    # if all data needs to be
+                                                    # written
 
         if os.path.isfile(f_name):
             self.open_csv(f_name)
@@ -174,6 +181,8 @@ class CsvFile:
                         self.m_datacols[col].append(float(cells[col]))
                     except ValueError:
                         self.m_datacols[col].append(str(cells[col]))
+        #store last date in the file
+        self.m_last_init_date = self.m_datacols[0][-1]
                         
     def load_csv_file_opti(self):
         """
@@ -198,6 +207,8 @@ class CsvFile:
             else:
                 self.m_datacols[col].append(float(cells[col]))
         f_stream.close()
+        #store last date in the file
+        self.m_last_init_date = self.m_datacols[0][-1]
         
     def create(self, f_name, header = "title,\ncol 1,col 2\n"):
         """
@@ -355,7 +366,7 @@ class CsvFile:
         self.m_header = header
 
 
-    def data_to_string(self):
+    def data_to_string(self, which = "all"):
         """
             Converts the internal data to a string
 
@@ -363,16 +374,31 @@ class CsvFile:
             the data as a string
         """
         data_str = ""
-        for index, date in enumerate(self.m_datacols[0]):
-            data_str += str(date)
-            for values in self.m_datacols[1:]:
-                try:
-                    data_str += ',' + ("%.2f" % values[index])
-                except TypeError:
-                    data_str += ',' + str(values[index])
-                except IndexError:
-                    break
-            data_str += '\n'
+        if which == "new"
+            index = -1
+            while self[0][index] != m_last_init_date:
+                temp_str = str(self[0][index])
+                for col in range(1,self.m_numcols):
+                    try:
+                        temp_str += ',' + ("%.2f" % self[col][index])
+                    except TypeError:
+                        temp_str += ',' + str(self[col][index])
+                temp_str += '\n'
+                data_str = temp_str + data_str
+                
+        elif which == "all":
+            for index, date in enumerate(self.m_datacols[0]):
+                data_str += str(date)
+                for values in self.m_datacols[1:]:
+                    try:
+                        data_str += ',' + ("%.2f" % values[index])
+                    except TypeError:
+                        data_str += ',' + str(values[index])
+                    except IndexError:
+                        break
+                data_str += '\n'
+        else:
+            raise RuntimeError, "argument <" + str(which) + "> is not supported"  
         return data_str
 
 
@@ -487,6 +513,36 @@ class CsvFile:
             w_str += "\n"
         f_stream.write(w_str)
 
+        f_stream.close()
+        self.m_exists = True
+        return True
+
+
+    def append_new(self, name = ""):
+        """
+            will append data to the end of a file
+
+        arguments:
+            name:       <*.csv> (string) filename to use if internal name is
+                    different
+                    
+        returns:
+            true if data is appeneded
+        """
+        if name == "" :
+            name = self.m_name
+        else:
+            self.m_name = name
+
+        if not os.path.exists(name):
+            self.save(name)
+            return True
+        
+        if self[0][-1] == self.m_last_init_date:
+            return False
+
+        f_stream = open (name, 'a')        
+        f_stream.write(self.data_to_string("new"))
         f_stream.close()
         self.m_exists = True
         return True
