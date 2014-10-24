@@ -249,7 +249,7 @@ class utility_base(object):
         """
         if self.timing_path == "":
             return
-        timing_file = CsvFile(self.timing_path)
+        timing_file = CsvFile(self.timing_path, opti = True)
         if not timing_file.exists():
             timing_file.set_header([["Utility Runtime Log", self.title + "\n"],
                                     ["timestamp", "runtime\n"]])

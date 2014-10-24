@@ -3,10 +3,15 @@ CSV Utilities file Module
 csv_file.py
 Rawser Spicer
 created 2014/03/05
-modified 2014/10/23
+modified 2014/10/24
 
     Implements a class to handle the file IO of .csv files.
-    
+ 
+    version 2014.10.24.1:
+        changed over the apped_new function to append. removed old append 
+    function. fixed error where header folowed by a blank line would cause 
+    crashes
+
     version 2014.10.23.1:
         added append_new function -- should replace appened after testing
     
@@ -60,7 +65,7 @@ def load_info(f_name):
     header = []
     while True:
         line = f_stream.readline()
-        if line == "":
+        if line == "" or line == "\n":
             break
         segs = line.split(',')
         try:
@@ -182,8 +187,11 @@ class CsvFile:
                     except ValueError:
                         self.m_datacols[col].append(str(cells[col]))
         #store last date in the file
-        self.m_last_init_date = self.m_datacols[0][-1]
-                        
+        try:
+            self.m_last_init_date = self.m_datacols[0][-1]
+        except IndexError:
+            pass
+            
     def load_csv_file_opti(self):
         """
         a faster load file
@@ -208,7 +216,10 @@ class CsvFile:
                 self.m_datacols[col].append(float(cells[col]))
         f_stream.close()
         #store last date in the file
-        self.m_last_init_date = self.m_datacols[0][-1]
+        try:
+            self.m_last_init_date = self.m_datacols[0][-1]
+        except IndexError:
+            pass
         
     def create(self, f_name, header = "title,\ncol 1,col 2\n"):
         """
@@ -374,9 +385,10 @@ class CsvFile:
             the data as a string
         """
         data_str = ""
-        if which == "new"
+        if which == "new":
             index = -1
-            while self[0][index] != m_last_init_date:
+            while (index + len(self[0]))  >= 0 and \
+                  self[0][index] != self.m_last_init_date:
                 temp_str = str(self[0][index])
                 for col in range(1,self.m_numcols):
                     try:
@@ -385,6 +397,7 @@ class CsvFile:
                         temp_str += ',' + str(self[col][index])
                 temp_str += '\n'
                 data_str = temp_str + data_str
+                index -= 1 
                 
         elif which == "all":
             for index, date in enumerate(self.m_datacols[0]):
@@ -474,51 +487,51 @@ class CsvFile:
         self.m_exists = True
 
 
+    #~ def append(self, name = ""):
+        #~ """
+            #~ will append data to the end of a file
+#~ 
+        #~ arguments:
+            #~ name:       <*.csv> (string) filename to use if internal name is
+                    #~ different
+        #~ """
+        #~ if name == "" :
+            #~ name = self.m_name
+        #~ else:
+            #~ self.m_name = name
+#~ 
+        #~ if not os.path.exists(name):
+            #~ self.save(name)
+            #~ return True
+#~ 
+        #~ temp = CsvFile(name, True)
+        #~ last_date = temp[0][-1]
+        #~ 
+        #~ if self[0][-1] <= last_date:
+            #~ return False
+        #~ index = len(temp[0])
+        #~ del temp
+        #~ f_stream = open (name, 'a')
+        #~ w_str = ""
+        #~ while (index < len(self[0])):
+            #~ w_str += str(self[0][index])
+            #~ col = 1
+            #~ while col < self.m_numcols:
+                #~ try:
+                    #~ w_str += ',' + ("%.2f" % self[col][index])
+                #~ except TypeError:
+                    #~ w_str += ',' + str(self[col][index])
+                #~ col += 1
+            #~ index += 1
+            #~ w_str += "\n"
+        #~ f_stream.write(w_str)
+#~ 
+        #~ f_stream.close()
+        #~ self.m_exists = True
+        #~ return True
+
+
     def append(self, name = ""):
-        """
-            will append data to the end of a file
-
-        arguments:
-            name:       <*.csv> (string) filename to use if internal name is
-                    different
-        """
-        if name == "" :
-            name = self.m_name
-        else:
-            self.m_name = name
-
-        if not os.path.exists(name):
-            self.save(name)
-            return True
-
-        temp = CsvFile(name, True)
-        last_date = temp[0][-1]
-        
-        if self[0][-1] <= last_date:
-            return False
-        index = len(temp[0])
-        del temp
-        f_stream = open (name, 'a')
-        w_str = ""
-        while (index < len(self[0])):
-            w_str += str(self[0][index])
-            col = 1
-            while col < self.m_numcols:
-                try:
-                    w_str += ',' + ("%.2f" % self[col][index])
-                except TypeError:
-                    w_str += ',' + str(self[col][index])
-                col += 1
-            index += 1
-            w_str += "\n"
-        f_stream.write(w_str)
-
-        f_stream.close()
-        self.m_exists = True
-        return True
-
-
-    def append_new(self, name = ""):
         """
             will append data to the end of a file
 
@@ -534,7 +547,8 @@ class CsvFile:
         else:
             self.m_name = name
 
-        if not os.path.exists(name):
+        if not os.path.exists(name) or \
+            self.m_last_init_date == datetime.datetime(1,1,1):
             self.save(name)
             return True
         
