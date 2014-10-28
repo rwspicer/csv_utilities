@@ -2,10 +2,13 @@
 csv_args.py
 raswer spicer
 created 2014/03/10
-modified 2014/08/01
+modified 2014/10/28
 
         this is a class for storing and accessing varibles and data from the
     command line
+    
+    version 2014.10.28.1:
+        added string ify as defauld for get command value
     
     version 2014.8.1.2:
         fixed bug were help would not register as a valid flag if no flags 
@@ -22,6 +25,15 @@ modified 2014/08/01
 
 """
 import sys
+
+def strignify(value):
+    """
+        returns vales string represrntation
+    
+    pre-conditions:
+        value: must have a __str__ defined
+    """
+    return str(value)
 
 class ArgClass:
     """ 
@@ -136,7 +148,8 @@ class ArgClass:
                     # self.m_bad_flags.append(item)
      
 
-    def get_command_value(self, key , func):
+
+    def get_command_value(self, key , func = strignify):
         """
             gets the value that is associated with a command
 
