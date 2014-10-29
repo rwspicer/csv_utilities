@@ -8,6 +8,9 @@ modified: 2014/10/29
     www.ncdc.noaa.gov. the data is saved in montly files and a full total
     time period file.
     
+    version 2014.10.29.2:
+        fixed minor bug in formatting of output and removed a rogue return 
+    statement used in testing.
 
     version 2014.10.29.1:
         fixed flag features, Flags cannot be called before __init__ has been 
@@ -148,7 +151,7 @@ class Barrow_Fetcher(util.utility_base):
         p_mon = self.f_mon
         
         print "Messege: getting data from www.ncdc.noaa.gov" + \
-              "and it may take some time"
+              " and it may take some time"
         while True:
             if p_year == todays_year and p_mon == todays_mon:
                 break
@@ -197,13 +200,16 @@ class Barrow_Fetcher(util.utility_base):
             write_data = year_mon_str + write_data
             write_data = write_data.replace('\n', '\n'+year_mon_str)
             write_data += '\n'
+            for num in range (1,10):
+                tbr = "-" + str(num) + "," # to be replaced
+                rpl = "-" + str(num).zfill(2) + "," # replace
+                write_data.replace(tbr, rpl)
             f_stream.write(write_data)
             
         f_stream.close()
     
         
     def p_func(self, year, month):
-        return
         """
         this function processes a month
         
