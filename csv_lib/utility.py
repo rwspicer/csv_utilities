@@ -2,12 +2,15 @@
 utility.py
 Rawser Spicer
 created: 2014/08/01
-modified: 2014/10/22
+modified: 2014/10/29
 
         this fill contains classes to help implement a base utility class. The 
     class should be used as a base class for new utilities. The class will hadle
     the internal runnings of a utility
 
+    version 2014.10.29.1:
+        refromated error messeges
+    
     version 2014.10.22.1:
         added feature to time main utilities main function
 
@@ -53,9 +56,23 @@ class error_instance(object):
         returns:
             a string 
         """
+        tab = "        "
+        tmp_msg = self.error + ": " +  self.msg
+        if len(tmp_msg) > 80:
+            tmp_msg = self.error +":\n"
+            temp = tab+self.msg
+            while True:
+                if len(temp) > 80:
+                    idx = temp[:80].rfind(" ")
+                    half1 = temp[:idx]
+                    temp = tab+ temp[idx:].lstrip()
+                    tmp_msg += half1 + '\n' 
+                else:
+                    tmp_msg += temp
+                    break
         if self.other == "":
-            return self.error + ": " + self.msg
-        return self.error + ": " + self.msg + "\n\t(" + self.other + ")" \
+            return tmp_msg
+        return tmp_msg + "\n\t(" + self.other + ")" \
                 + " [try <--help> for info on running utility]"
 
 
