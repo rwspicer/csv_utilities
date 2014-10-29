@@ -2,8 +2,20 @@
 noaa_monthly.py
 rawser spicer
 created: 2014/10/27
-modified: 2014/10/28
+modified: 2014/10/29
 
+        this utility gets the data from the barrow 4 ENE site on 
+    www.ncdc.noaa.gov. the data is saved in montly files and a full total
+    time period file.
+    
+
+    version 2014.10.29.1:
+        fixed flag features, Flags cannot be called before __init__ has been 
+    fully executed, so a function to process flags was added and is called in 
+    main
+
+    version 2014.10.28.1:
+        first version, flag features not working
  
     
 """
@@ -59,7 +71,7 @@ class NCDCCsv(object):
         outfile.close()
         
 HELP_STRING = """
-    this utility can get the .csv data for the barrow site 
+        this utility can get the .csv data for the barrow site 
     from the noaa web site form feb 2008 to now. 
     
     example usage:
@@ -74,7 +86,7 @@ HELP_STRING = """
         --start_month:      (int)<mon> a montin to star at
               """
 
-class barrow_monthly(util.utility_base):
+class Barrow_Fetcher(util.utility_base):
     """
     this utility can get the .csv data for the barrow site 
     from the noaa web site form feb 2008 to now.
@@ -90,16 +102,19 @@ class barrow_monthly(util.utility_base):
         post-conditions:
             the utility is ready to run
         """
-        super(barrow_monthly, self).__init__(" Barrow monthly data fetcher " ,
-                ("--out_path",) ,("--start_year","--start_month"), HELP_STRING)
+        super(Barrow_Fetcher, self).__init__(" Barrow monthly data fetcher " ,
+                ("--out_path",), ("--start_year","--start_month"), HELP_STRING)
         self.f_year = 2008
         self.f_mon = 2
         
+        
+    def process_commands(self):
         self.s_dir = self.commands["--out_path"]
         if len(self.commands) == 2:
             self.errors.set_error_state("Optional Flag Error", 
-                    "--start_year and --start_month must both be set if one is")
-        self.evaluate_errors()
+                    "--start_year and --start_month must both be set" + \
+                    " if one is set")
+        
         if len(self.commands) == 3:
             cmd_year = int(self.commands["--start_year"])
             cmd_mon =  int(self.commands["--start_month"])
@@ -124,6 +139,8 @@ class barrow_monthly(util.utility_base):
             f_mon nees to be a vaild month for the site (>2)
             
         """
+        self.process_commands()
+        self.evaluate_errors()
         todays_year = date.today().year
         todays_mon = date.today().month
         
@@ -186,6 +203,7 @@ class barrow_monthly(util.utility_base):
     
         
     def p_func(self, year, month):
+        return
         """
         this function processes a month
         
@@ -201,7 +219,7 @@ class barrow_monthly(util.utility_base):
         
         
 if __name__ == "__main__":
-    the_utility = barrow_monthly()
+    the_utility = Barrow_Fetcher()
     the_utility.run()
         
         
