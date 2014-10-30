@@ -1,18 +1,24 @@
 #!/usr/bin/python -tt
 """
-datapro 3
+datapro 3.0
 
 IARC data processing project
 
 rawser spicer
 created: 2014/08/21
-modified: 2014/10/22
+modified: 2014/10/30
+
+        Datapro is a program to proceess the data from a logger site into files
+    for each measurement from the site. 
 
 based on datapro v 0.2 by Bob Busey
 
+    version 2014.10.30.1:
+        changed some function names
+    
     version 2014.10.22.1:
         cleaned up code a bit removing old commented out functions and features
-        and added timing features
+    and added timing features
     
     version 2014.10.20.1:
         add the help
@@ -40,7 +46,7 @@ import datetime
 import os
 
 HELP_STRING = """
-Datapro 3
+Datapro 3.0
 help updated: 2014/10/20
 
         Datapro 3 is a replacemnt for Datapro v2 by Bob Busey. Datapro will
@@ -96,7 +102,7 @@ class datapro_v3(util.utility_base):
         self.check_directories()
         self.process_dates()
         self.evaluate_errors()
-        self.function_to_loop_over_params_that_need_outputing()
+        self.initlize_params()
 
 
 
@@ -289,7 +295,7 @@ class datapro_v3(util.utility_base):
                 ["", row["Output_Header_Measurment_Type"] + '\n']]
 
 
-    def function_to_loop_over_params_that_need_outputing(self):
+    def initlize_params(self):
         """
             this function loops over the paramaters that need to be written to
         output files and sets up the file and data processing
@@ -333,10 +339,10 @@ class datapro_v3(util.utility_base):
                                         #~ "Input_Col" : row["Input_Array_Pos"],
                                             #~ "type" : row["Data_Type"]}
 
-            self.function_to_handle_each_param(param_to_process)
+            self.process_param(param_to_process)
 
 
-    def function_to_handle_each_param(self, param):
+    def process_param(self, param):
         """
             this function handles a parameter by processing, QC checking and
         saving the file
@@ -344,14 +350,15 @@ class datapro_v3(util.utility_base):
         arguments:
             param:      (param libary) info on the param to process
         """
-        col = self.function_to_do_data_processing(param["index"], param["date"])
+        col = self.process_param_data(param["index"], param["date"])
         if len(col) == 0:
             return  # no data processed no need to do QC or save
-        col = self.function_to_do_qc(col, param["index"])
-        self.function_to_save_an_output(param["file"], col)
+        col = self.process_param_qc(col, param["index"])
+        self.process_param_save(param["file"], col)
         #~ print get_rid_of_this_bad_line_of_code
 
-    def function_to_do_data_processing(self, index, final_date):
+
+    def process_param_data(self, index, final_date):
         """
             processes a paramater of data turning it into a column that
         can be outputted
@@ -485,7 +492,7 @@ class datapro_v3(util.utility_base):
             return float(self.key_file["bad_data_val"])
 
 
-    def function_to_do_qc(self, data, index):
+    def process_param_qc(self, data, index):
         """
             check a column
         """
@@ -546,7 +553,7 @@ class datapro_v3(util.utility_base):
 
         return data
 
-    def function_to_save_an_output(self, out_file, data):
+    def process_param_save(self, out_file, data):
         """
         this functions saves a proccessed param to a .csv file
         """
