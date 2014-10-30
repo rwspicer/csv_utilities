@@ -2,15 +2,17 @@
 noaa_monthly.py
 rawser spicer
 created: 2014/10/27
-modified: 2014/10/29
+modified: 2014/10/30
 
         this utility gets the data from the barrow 4 ENE site on 
     www.ncdc.noaa.gov. the data is saved in montly files and a full total
     time period file.
     
+    version 2014.10.30.1:
+        fixed minor bug in formatting of output
+    
     version 2014.10.29.2:
-        fixed minor bug in formatting of output and removed a rogue return 
-    statement used in testing.
+        removed a rogue return statement used in testing.
 
     version 2014.10.29.1:
         fixed flag features, Flags cannot be called before __init__ has been 
@@ -203,7 +205,7 @@ class Barrow_Fetcher(util.utility_base):
             for num in range (1,10):
                 tbr = "-" + str(num) + "," # to be replaced
                 rpl = "-" + str(num).zfill(2) + "," # replace
-                write_data.replace(tbr, rpl)
+                write_data = write_data.replace(tbr, rpl)
             f_stream.write(write_data)
             
         f_stream.close()
