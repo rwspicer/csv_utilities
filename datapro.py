@@ -12,9 +12,14 @@ modified: 2014/10/31
     for each measurement from the site. 
 
 based on datapro v 0.2 by Bob Busey
+    
+    version 2014.10.31.2:
+        updated error messege where last date coud not be read to be more 
+    helpful and fixed a bug where if the first file failed to load the last 
+    date the program would crash
 
     version 2014.10.31.1:
-        fixed error in processing parital data files?
+        fixed error in processing parital data files
         
     version 2014.10.30.1:
         changed some function names
@@ -321,13 +326,14 @@ class datapro_v3(util.utility_base):
                 except IndexError:
                     file_errors = \
                     datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + \
-                    ",file: " + self.key_file["output_dir"] + \
-                    ", cannot read last date\n" 
-                    error_file = open(self.key_file["error_log_dir"]+\
+                    ",file: " + self.key_file["output_dir"] + out_name + \
+                    ", cannot read last date" + \
+                    " (perhaps there is an extra new line)\n" 
+                    error_file = open(self.key_file["error_log_dir"] + \
                                     "I0_read_erros.csv", 'a')
                     error_file.write(file_errors)
                     error_file.close()
-                    
+                    continue
                 if last_date == self.date_col[-1]:
                     continue
             else:

@@ -270,7 +270,7 @@ class utility_base(object):
         if not timing_file.exists():
             timing_file.set_header([["Utility Runtime Log", self.title + "\n"],
                                     ["timestamp", "runtime\n"]])
-        timing_file.add_dates(self.start_time)
+        timing_file.add_dates(self.start_time.replace(microsecond=0))
         timing_file.add_data(1,self.runtime.total_seconds())
         timing_file.append()
         
