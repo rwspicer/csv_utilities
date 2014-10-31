@@ -6,13 +6,16 @@ IARC data processing project
 
 rawser spicer
 created: 2014/08/21
-modified: 2014/10/30
+modified: 2014/10/31
 
         Datapro is a program to proceess the data from a logger site into files
     for each measurement from the site. 
 
 based on datapro v 0.2 by Bob Busey
 
+    version 2014.10.31.1:
+        fixed error in processing parital data files?
+        
     version 2014.10.30.1:
         changed some function names
     
@@ -376,10 +379,11 @@ class datapro_v3(util.utility_base):
             if not final_date == datetime.datetime(1000,1,1) \
                                 and self.date_col[ddx] <= final_date:
                 break
-            ddx -= 1
+            # ddx -= 1 # for array based data files this will decrement to often 
+                       # if left here  mof inside next if statment
             if self.key_file["array_id"] == "-9999" or \
                self.key_file["array_id"] == item[0]:
-
+                ddx -= 1 
                 if ws_index != 0:
                     windspeed = item[ws_index]
                 else:
