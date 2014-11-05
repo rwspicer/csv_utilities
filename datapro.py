@@ -6,12 +6,17 @@ IARC data processing project
 
 rawser spicer
 created: 2014/08/21
-modified: 2014/10/31
+modified: 2014/11/05
 
         Datapro is a program to proceess the data from a logger site into files
     for each measurement from the site. 
 
 based on datapro v 0.2 by Bob Busey
+
+    version 2014.11.05.1:
+        updated load_data_file to work with the new csv_args __getitem__ method,
+    the try except block has been removed, which is what the change was designed
+    to avoid anyway.
     
     version 2014.10.31.2:
         updated error messege where last date coud not be read to be more 
@@ -165,11 +170,11 @@ class datapro_v3(util.utility_base):
         """
         loads the data file
         """
-        try:
-            f_name = self.commands["--alt_data_file"]
-        except KeyError:
+        
+        f_name = self.commands["--alt_data_file"]
+        if f_name == "":
             f_name = self.key_file["input_data_file"].replace("file:","")
-
+        
         try:
             self.data_file = DatFile(f_name)
         except IOError:
