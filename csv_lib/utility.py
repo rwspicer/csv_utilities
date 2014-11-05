@@ -2,11 +2,14 @@
 utility.py
 Rawser Spicer
 created: 2014/08/01
-modified: 2014/10/29
+modified: 2014/11/05
 
         this fill contains classes to help implement a base utility class. The 
     class should be used as a base class for new utilities. The class will hadle
     the internal runnings of a utility
+
+    version 2014.11.05.1:
+        updated dummy main function
 
     version 2014.10.29.1:
         refromated error messeges
@@ -247,7 +250,8 @@ class utility_base(object):
         """
             the body of the utility. should be overwritten
         """
-        self.print_center("child classes should overwrite this")
+        self.print_center("This is an example main function, & ")
+        self.print_center("child classes should overwrite this.")
     
     def evaluate_errors(self):
         """

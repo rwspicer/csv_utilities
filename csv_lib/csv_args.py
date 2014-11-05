@@ -2,10 +2,19 @@
 csv_args.py
 raswer spicer
 created 2014/03/10
-modified 2014/10/28
+modified 2014/11/05
 
         this is a class for storing and accessing varibles and data from the
     command line
+    
+    version 2014.11.05.1:
+        added self.return_func as a new way to set the function for 
+    self.get_command_value, and also chanfe the __getitem__ function to use 
+    self.get_coomand_value so that seting self.return_func to a function that 
+    can process optional values will optional flags to be passed directly to
+    __getitem__. added intify, floatify and moved stringify so that they are 
+    member functions that can be set as retun_func. stringify is still 
+    the default
     
     version 2014.10.28.1:
         added string ify as defauld for get command value
@@ -26,14 +35,7 @@ modified 2014/10/28
 """
 import sys
 
-def strignify(value):
-    """
-        returns vales string represrntation
-    
-    pre-conditions:
-        value: must have a __str__ defined
-    """
-    return str(value)
+
 
 class ArgClass:
     """ 
@@ -59,6 +61,7 @@ class ArgClass:
         self.read_args()
         self.m_flags_not_found = []
         self.check_flags(req_flags)
+        self.return_func = self.stringify
 
 
     def __getitem__(self, key):
@@ -69,9 +72,9 @@ class ArgClass:
             key:    (string) a key
 
         returns:
-            the value at key        
+            the value at key, returns the value processe by current return func      
         """
-        return self.m_commands[key]
+        return self.get_command_value(key)
 
 
     def __setitem__(self, key, value):
@@ -108,7 +111,6 @@ class ArgClass:
             number of items in the command list
         """
         return len(self.m_commands)
-
 
     def read_args(self):
         """
@@ -149,7 +151,7 @@ class ArgClass:
      
 
 
-    def get_command_value(self, key , func = strignify):
+    def get_command_value(self, key , func = "use_set_func"):
         """
             gets the value that is associated with a command
 
@@ -161,6 +163,8 @@ class ArgClass:
         returns: 
             a value
         """
+        if "use_set_func" == func:
+            func = self.return_func
         try:
             value = self.m_commands[key]
         except KeyError:
@@ -216,3 +220,31 @@ class ArgClass:
             a list of missing flags
         """
         return self.m_flags_not_found    
+        
+    def floatify(self, value):
+        """
+            returns values float represrntation
+        
+        pre-conditions:
+            value: must have a __float__ defined
+        """
+        return float(value)
+        
+    def intify(self, value):
+        """
+            returns values int represrntation
+        
+        pre-conditions:
+            value: must have a __int__ defined
+        """
+        return int(value)
+        
+    def stringify(self, value):
+        """
+            returns values string represrntation
+        
+        pre-conditions:
+            value: must have a __str__ defined
+        """
+        return str(value)
+    
