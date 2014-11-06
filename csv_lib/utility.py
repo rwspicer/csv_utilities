@@ -8,6 +8,9 @@ modified: 2014/11/05
     class should be used as a base class for new utilities. The class will hadle
     the internal runnings of a utility
 
+    version 2014.11.05.2:
+        fixed typo in exit messege
+ 
     version 2014.11.05.1:
         updated dummy main function
 
@@ -139,7 +142,7 @@ class utility_base(object):
             help_str:       (string) the help information
         """
         self.title = title
-        self.success = "utitily has run sucessfully"
+        self.success = "utility has run successfully"
         self.errors = error_log()
         self.help_str = help_str
         self.help_bool = False
