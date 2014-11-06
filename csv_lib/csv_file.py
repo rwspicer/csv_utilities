@@ -3,10 +3,13 @@ CSV Utilities file Module
 csv_file.py
 Rawser Spicer
 created 2014/03/05
-modified 2014/10/24
+modified 2014/11/06
 
     Implements a class to handle the file IO of .csv files.
  
+    version 2014.11.6.1:
+        updated output format of dates
+    
     version 2014.10.24.1:
         changed over the apped_new function to append. removed old append 
     function. fixed error where header folowed by a blank line would cause 
@@ -389,7 +392,7 @@ class CsvFile:
             index = -1
             while (index + len(self[0]))  >= 0 and \
                   self[0][index] != self.m_last_init_date:
-                temp_str = str(self[0][index])
+                temp_str = '"' + str(self[0][index]) + '"'
                 for col in range(1,self.m_numcols):
                     try:
                         temp_str += ',' + ("%.2f" % self[col][index])
@@ -401,7 +404,7 @@ class CsvFile:
                 
         elif which == "all":
             for index, date in enumerate(self.m_datacols[0]):
-                data_str += str(date)
+                data_str += '"' + str(date) + '"'
                 for values in self.m_datacols[1:]:
                     try:
                         data_str += ',' + ("%.2f" % values[index])
