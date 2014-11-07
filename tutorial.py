@@ -32,6 +32,7 @@ class TutorialUtility(util.utility_base):
             #~ print key + " = " + self.commands[key]
         
         num = randint(0,99)
+        num = 10
         print "the random # is " + str(num)
         
         
@@ -48,13 +49,18 @@ class TutorialUtility(util.utility_base):
         ans = self.commands["--mult_1"] * (num ** self.commands["--pow_1"])
         
         # update equation for optional arguments
+        #~ self.commands.return_func = self.commands.stringify # we need default 
+                                                               # values
         self.commands.return_func = self.my_stringify
         eq += " + " + self.commands["--mult_2"] + "(" + str(num) + "^" + \
-             self.commands["--pow_2"] + ") + " + self.commands["--constant"] 
+             self.commands["--pow_2"] + ") + " + self.commands["--const"] 
         
+        
+        #~ self.commands.return_func = self.commands.intify # we need default 
+                                                            # values
         self.commands.return_func = self.my_intify
         ans += self.commands["--mult_2"] * (num ** self.commands["--pow_2"]) +\
-               self.commands["--constant"] 
+               self.commands["--const"] 
         
         print  eq + " = " + str(ans)
         
