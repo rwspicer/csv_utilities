@@ -2,11 +2,14 @@
 key_file.py
 rawser spicer
 created: 2014/08/25
-modified: 2014/09/16
+modified: 2014/11/14
 
 Part of DataPro Version 3
 
     this file presnts classes that represent a key file as a dictionary
+    
+    version 2014.11.14.1
+        extra trailing whitespace will be removed from values
     
     version 2014.9.16.1
         extra leading whitespace will be removed from values
@@ -36,7 +39,7 @@ class KeyFile(object):
                 continue
             if line[0] == '#':
                 continue
-            self.lib[line.split(' = ')[0]] = line.split(' = ')[1].lstrip(" ")
+            self.lib[line.split(' = ')[0]] = line.split(' = ')[1].strip(" ")
             
     def __getitem__(self, key):
         """
