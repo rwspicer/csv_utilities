@@ -8,6 +8,17 @@ Modified: 2014/17/11
         this utility is for taking an array based param file for datapro and 
     generating a key file if the key file is missing. It requires that the Key
     file be in the format  <station name>_params_<array ID>-<arrays>.csv
+    
+    
+    version 2014.11.17.2:
+        fixed --out_dir flag
+    
+    version 2014.11.17.2:
+        fixed error with array_id
+    
+    version 2014.11.17.1:
+        initial version
+    
 """
 import csv_lib.utility as util
 
@@ -16,8 +27,8 @@ HELP_STRING = """
     param file for datapro 3.0. 
     
     example usage:
-        python arraykeygen.py --param_file=<path_to_file> --datapro_root=<path_
-    to_directory> --data_file=<path_to_data_file>
+        python arraykeygen.py --param_file=<path_to_file> --datapro_output_root=
+        <path_to_directory> --data_file=<path_to_data_file>
     
     NOTE: absolute paths will have best results
     
@@ -82,7 +93,7 @@ class ArrayKenGen(util.utility_base):
         out_str +=  "station_name = " + self.site_name.replace("_", " -- ") + nl
         out_str += "logger_type = array" + nl
         out_str += "arrays = " + self.arrays + nl
-        out_str += "arrayId = " + self.array_ID + nl
+        out_str += "array_id = " + self.array_ID + nl
         out_str += nl
         out_str += "# input file info" + nl
         out_str += "input_data_file = " + self.commands["--data_file"] + nl
@@ -104,15 +115,19 @@ class ArrayKenGen(util.utility_base):
         self.commands.return_func = self.bv_rtn
         out_str += "bad_data_val = " + self.commands["--bv"] + nl
         
+        self.commands.return_func = self.commands.stringify
         out_dir = self.commands["--out_dir"]
+        
         if out_dir == "":
             out_dir = "./"
+        
             
         p_file = self.param_file[self.param_file.rfind("/")+1:]
-        outfile = open (p_file.replace("params", "key"). \
+        outfile = open (out_dir + p_file.replace("params", "key"). \
                         replace(".csv", ".txt"), 'w')
         outfile.write(out_str)
         outfile.close()
+        print "key file: " + out_dir + p_file 
         
     def therm_rtn(self, value):
         if value == "":
