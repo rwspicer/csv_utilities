@@ -266,6 +266,7 @@ class datapro_v3(util.utility_base):
             return
 
         for item in self.data_file[:]:
+            print self.key_file.lib
             if int(item[0]) == int(self.key_file["array_id"]):
                 if year_col == -1:
                     year = datetime.datetime.now().year

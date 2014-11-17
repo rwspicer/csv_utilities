@@ -3,7 +3,7 @@ CSV Utilities Date Module
 csv_date.py
 Rawser Spicer
 created: 2014/02/06
-modified: 2014/08/08
+modified: 2014/11/17
 
         This module handles datetime objects for the csv_lib library. It       
     includes the following functions:
@@ -12,6 +12,9 @@ modified: 2014/08/08
         get_last_date           -- get the last date in a file  
         make_interval           -- makes a date time interval tuple
         is_in_interval          -- checks if a date is in an interval
+
+    version 2013.11.17.1:
+        there was extra 1 being added to the julian day, its not anymore
 
     version 2014.9.8.1:
         added support for string or int arguments to julian to datetime
@@ -166,5 +169,5 @@ def julian_to_datetime(year, day, hhmm):
         
     basedate = datetime.datetime(int(year), 1, 1,
                                  int(hhmm[:2]), int(hhmm[2:]))
-    return basedate + datetime.timedelta(int(day))
+    return basedate + datetime.timedelta(int(day) - 1) 
 
