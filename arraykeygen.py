@@ -81,7 +81,7 @@ class ArrayKenGen(util.utility_base):
         
         
     def parse_param_file_name(self):
-        p_file = self.param_file[self.param_file.rfind("/")+1:]
+        p_file = self.param_file[self.param_file.rfind("/")+1:].strip()
         pidx = p_file.find("_params_")
         pidx_offset = pidx + len("_params_")
         didx = p_file.rfind("-")
