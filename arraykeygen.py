@@ -2,14 +2,16 @@
 """
 arraykeygen.py
 Rawser Spicer
-Created: 2014/17/11
-Modified: 2014/17/11
+Created: 2014/11/17
+Modified: 2014/11/18
 
         this utility is for taking an array based param file for datapro and 
     generating a key file if the key file is missing. It requires that the Key
     file be in the format  <station name>_params_<array ID>-<arrays>.csv
-    
-    
+
+    version 2014.11.18.1:
+        find changed to rfind in one case  
+        
     version 2014.11.17.2:
         fixed --out_dir flag
     
@@ -82,7 +84,7 @@ class ArrayKenGen(util.utility_base):
         p_file = self.param_file[self.param_file.rfind("/")+1:]
         pidx = p_file.find("_params_")
         pidx_offset = pidx + len("_params_")
-        didx = p_file.find("-")
+        didx = p_file.rfind("-")
         self.site_name = p_file[:pidx].replace("_array","")
         self.array_ID = p_file[pidx_offset:didx]
         self.arrays = p_file[didx + 1:p_file.find(".")]
@@ -90,7 +92,7 @@ class ArrayKenGen(util.utility_base):
     def write_key_file(self):
         nl = "\n"
         out_str = "# key file generated from param file" + nl
-        out_str +=  "station_name = " + self.site_name.replace("_", " -- ") + nl
+        out_str += "station_name = " + self.site_name.replace("_", " -- ") + nl
         out_str += "logger_type = array" + nl
         out_str += "arrays = " + self.arrays + nl
         out_str += "array_id = " + self.array_ID + nl
