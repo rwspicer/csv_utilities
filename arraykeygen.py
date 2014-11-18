@@ -125,8 +125,8 @@ class ArrayKenGen(util.utility_base):
         
             
         p_file = self.param_file[self.param_file.rfind("/")+1:]
-        outfile = open (out_dir + p_file.replace("params", "key"). \
-                        replace(".csv", ".txt"), 'w')
+        outfile = open ((out_dir + p_file.replace("params", "key"). \
+                        replace(".csv", ".txt")).replace("\n",""), 'w')
         outfile.write(out_str)
         outfile.close()
         print "key file: " + out_dir + p_file 
