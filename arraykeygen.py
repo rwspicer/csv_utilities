@@ -118,7 +118,7 @@ class ArrayKenGen(util.utility_base):
         out_str += "bad_data_val = " + self.commands["--bv"] + nl
         
         self.commands.return_func = self.commands.stringify
-        out_dir = self.commands["--out_dir"]
+        out_dir = self.commands["--out_dir"].rstrip()
         
         if out_dir == "":
             out_dir = "./"
@@ -126,7 +126,7 @@ class ArrayKenGen(util.utility_base):
             
         p_file = self.param_file[self.param_file.rfind("/")+1:]
         outfile = open ((out_dir + p_file.replace("params", "key"). \
-                        replace(".csv", ".txt")).replace("\n",""), 'w')
+                        replace(".csv", ".txt")), 'w')
         outfile.write(out_str)
         outfile.close()
         print "key file: " + out_dir + p_file 
