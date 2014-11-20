@@ -470,7 +470,7 @@ class datapro_v3(util.utility_base):
                                   param["Coef_3"], param["Coef_4"],
                                   self.key_file["bad_data_val"]).result
             if value != float(self.key_file["bad_data_val"]) and \
-                                                    d_tpye == "thermF":
+                                                    d_type == "thermF":
                 value = value * 9.0 / 5.0 + 32
             return value
 
