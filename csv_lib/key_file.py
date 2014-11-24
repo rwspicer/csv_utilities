@@ -2,12 +2,15 @@
 key_file.py
 rawser spicer
 created: 2014/08/25
-modified: 2014/11/14
+modified: 2014/11/24
 
 Part of DataPro Version 3
 
     this file presnts classes that represent a key file as a dictionary
     
+    version 2014.11.24.1
+        added set_working_root function 
+        
     version 2014.11.14.1
         extra trailing whitespace will be removed from values
     
@@ -52,4 +55,16 @@ class KeyFile(object):
             the keys value
         """
         return self.lib[key]
+        
+    def set_working_root(self, path):
+        """
+            allows the working root to be changed for the output,qc, and error
+        directories
+        
+        arguments:
+            path:       (string) a path
+        """
+        self.lib["output_dir"] = (path + "/outputs/").replace("//","/")
+        self.lib["qc_log_dir"] = (path + "/qc/").replace("//","/")
+        self.lib["error_log_dir"] = (path + "/error/").replace("//","/")
         

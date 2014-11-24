@@ -6,12 +6,17 @@ IARC data processing project
 
 rawser spicer
 created: 2014/08/21
-modified: 2014/11/05
+modified: 2014/11/24
 
         Datapro is a program to proceess the data from a logger site into files
     for each measurement from the site. 
 
 based on datapro v 0.2 by Bob Busey
+    
+    version 2014.11.24.1:
+        added command line option "--working_root" to change the output working
+    root. changed the key file report to set report, and its in its own function
+    now.
 
     version 2014.11.05.1:
         updated load_data_file to work with the new csv_args __getitem__ method,
@@ -77,6 +82,9 @@ help updated: 2014/10/20
 
         --alt_data_file:    <<path_to_file>.dat> (optional)
                 the path to an alternate data file no given in key file
+                
+        --working_root:     <path> (optional)
+                overwrites the working dorectory for the outputs
 
               """
 
@@ -89,7 +97,9 @@ class datapro_v3(util.utility_base):
             sets up datapro
         """
         super(datapro_v3, self).__init__(" Datapro 3.0 " ,
-                    ("--key_file",) ,("--alt_data_file",), HELP_STRING)
+                    ("--key_file",) ,
+                    ("--alt_data_file", "--working_root"),
+                    HELP_STRING)
         self.key_file = "not ready"
         self.param_file = "not ready"
         self.data_file = "not ready"
@@ -125,6 +135,8 @@ class datapro_v3(util.utility_base):
         loads the input files
         """
         self.load_key_file()
+        self.check_working_root()
+        self.print_report()
         self.logger_type = self.key_file["logger_type"].upper()
         if "CR10X" == self.logger_type:
             self.logger_type = "ARRAY"
@@ -143,13 +155,31 @@ class datapro_v3(util.utility_base):
         except IOError:
             self.errors.set_error_state("I/O Error", "Key File not found")
             return
-        self.print_center(" Key File Report ", "=")
+    
+    def check_working_root(self):
+        if "" != self.commands["--working_root"]:
+            print self.commands["--working_root"] + "<-"
+            self.key_file.set_working_root(self.commands["--working_root"])
+    
+    
+    def print_report(self):
+        self.print_center(" Setup Report ", "=")
         print("Station Name:    " + self.key_file["station_name"])
         print("logger type:     " + self.key_file["logger_type"])
-        print("input file:      " + self.key_file["input_data_file"])
-        print("output dir:      " + self.key_file["output_dir"])
-        print("qc log dir:      " + self.key_file["qc_log_dir"])
-        print("error log dir:   " + self.key_file["error_log_dir"])
+        # the value for the next items modifed for output if it is too long
+        ddd = lambda s:(lambda:"", lambda:"...")[len(s)>53]() 
+        
+        print("param file:      " + \
+                           ddd(self.key_file["array_based_params_key_file"]) + \
+                             self.key_file["array_based_params_key_file"][-50:])
+        print("input file:      " + ddd(self.key_file["input_data_file"]) + \
+                                         self.key_file["input_data_file"][-50:])
+        print("output dir:      " + ddd(self.key_file["output_dir"]) + \
+                                              self.key_file["output_dir"][-50:])
+        print("qc log dir:      " + ddd(self.key_file["qc_log_dir"]) + \
+                                              self.key_file["qc_log_dir"][-50:])
+        print("error log dir:   " + ddd(self.key_file["error_log_dir"]) + \
+                                           self.key_file["error_log_dir"][-50:])
         self.print_center("==", "=")
         print ""
         print ""
