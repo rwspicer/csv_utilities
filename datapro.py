@@ -12,6 +12,10 @@ modified: 2014/11/24
     for each measurement from the site. 
 
 based on datapro v 0.2 by Bob Busey
+
+    version 2014.11.25.1:
+        added support for new param file errors. added a temporay fix
+    for last date error on files with simalr names. 
     
     version 2014.11.24.1:
         added command line option "--working_root" to change the output working
@@ -192,15 +196,24 @@ class datapro_v3(util.utility_base):
         try:
             self.param_file = \
                         ParamFile( self.key_file["array_based_params_key_file"])
-        except IOError:
-            self.errors.set_error_state("I/O Error",
+        except IOError, msg:
+            msg = str(msg)
+            if msg[0] == "1":
+                self.errors.set_error_state("I/O Error",
                                 "Param (config) File not found")
+            elif msg[0] == "2":
+                self.errors.set_error_state("I/O Error",
+                                "Param (config) File read error",
+                                "at line" + msg[msg.rfind(" "):])
+            else:
+                self.errors.set_error_state("I/O Error", 
+                        "Param (config) File unknown error", msg)
+        
 
     def load_data_file(self):
         """
         loads the data file
         """
-        
         f_name = self.commands["--alt_data_file"]
         if f_name == "":
             f_name = self.key_file["input_data_file"].replace("file:","")
@@ -351,7 +364,13 @@ class datapro_v3(util.utility_base):
                row["Data_Type"] == "tmstmpcol":
                    continue
 
-            out_name = row["d_element"] + ".csv"
+            # is it an array file
+            f_str = "" + self.key_file["array_id"] + '-' +\
+                          self.key_file["arrays"] + '-'
+            aot = lambda s:(lambda: "", 
+                                lambda: f_str)[self.logger_type == "ARRAY"]()
+            
+            out_name =  aot(self.logger_type) + row["d_element"] + ".csv"
             out_file = csvf.CsvFile(self.key_file["output_dir"] + out_name
                                                                 , opti = True)
             out_exists = out_file.exists()
@@ -604,7 +623,7 @@ class datapro_v3(util.utility_base):
         """
         idx = -1 * len(data)
 
-
+        
         out_file.add_dates(self.date_col[idx:])
         out_file.add_data(1,data)
 
