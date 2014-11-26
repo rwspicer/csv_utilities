@@ -6,12 +6,16 @@ IARC data processing project
 
 rawser spicer
 created: 2014/08/21
-modified: 2014/11/24
+modified: 2014/11/26
 
         Datapro is a program to proceess the data from a logger site into files
     for each measurement from the site. 
 
 based on datapro v 0.2 by Bob Busey
+
+    version 2014.11.26.1:
+        added support for the new dat_file set of array_ids and removed temp fix
+    fixed table logger so it work with no -9999 array id values
 
     version 2014.11.25.1:
         added support for new param file errors. added a temporay fix
@@ -357,20 +361,19 @@ class datapro_v3(util.utility_base):
         output files and sets up the file and data processing
         """
         rows = self.param_file.params
+        if self.logger_type == "ARRAY" and\
+           not self.key_file["array_id"] in self.data_file.array_ids:
+            print "Array ID " + self.key_file["array_id"] + \
+                     " has no records in data file. No data to process."
+            return 
         for index in range(len(rows)):
             row = rows[index]
             if row["Data_Type"] == "ignore" or row["Data_Type"] == "datey" or \
                row["Data_Type"] == "dated" or row["Data_Type"] == "dateh" or \
                row["Data_Type"] == "tmstmpcol":
                    continue
-
-            # is it an array file
-            f_str = "" + self.key_file["array_id"] + '-' +\
-                          self.key_file["arrays"] + '-'
-            aot = lambda s:(lambda: "", 
-                                lambda: f_str)[self.logger_type == "ARRAY"]()
             
-            out_name =  aot(self.logger_type) + row["d_element"] + ".csv"
+            out_name = row["d_element"] + ".csv"
             out_file = csvf.CsvFile(self.key_file["output_dir"] + out_name
                                                                 , opti = True)
             out_exists = out_file.exists()
@@ -435,14 +438,18 @@ class datapro_v3(util.utility_base):
         array_input_pos = int(self.param_file.params[index]["Input_Array_Pos"])
 
         ws_index = int(float(self.param_file.params[index]["Coef_3"]))
+        
         for item in reversed(self.data_file[:]):
             if not final_date == datetime.datetime(1000,1,1) \
                                 and self.date_col[ddx] <= final_date:
                 break
+                
             # ddx -= 1 # for array based data files this will decrement to often 
                        # if left here  mof inside next if statment
-            if self.key_file["array_id"] == "-9999" or \
-               self.key_file["array_id"] == item[0]:
+                       
+              # array id for tables should be -9999 but is somtimes < 0     
+            if int(self.key_file["array_id"]) < 0 or \
+                                           self.key_file["array_id"] == item[0]:
                 ddx -= 1 
                 if ws_index != 0:
                     windspeed = item[ws_index]
