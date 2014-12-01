@@ -3,10 +3,13 @@ CSV Utilities file Module
 csv_file.py
 Rawser Spicer
 created 2014/03/05
-modified 2014/11/06
+modified 2014/12/01
 
     Implements a class to handle the file IO of .csv files.
- 
+
+    version 2014.12.1.1:
+        updated load_info for updated csv_date.string_to_datetime function
+
     version 2014.11.6.1:
         updated output format of dates
     
@@ -74,7 +77,7 @@ def load_info(f_name):
         try:
             csvd.string_to_datetime(segs[0])
             break
-        except AttributeError:
+        except (ValueError, AttributeError):
             header.append(segs)
         h_len += 1
     n_cols = len(header[-1])
