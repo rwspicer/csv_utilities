@@ -13,6 +13,10 @@ modified: 2014/12/01
         make_interval           -- makes a date time interval tuple
         is_in_interval          -- checks if a date is in an interval
 
+    version 2014.12.1.2:
+        updated the make interval excptions for the new string_to_datetime 
+    method
+   
     version 2014.12.1.1:
         updated string_to_datetime to use strptime in stead of re
    
@@ -136,14 +140,14 @@ def make_interval(start, end):
     """
     try:
         start = string_to_datetime(start)
-    except AttributeError:
+    except ValueError:
         start = datetime.datetime.min
     except TypeError:
         start = start
 
     try:
         end = string_to_datetime(end)
-    except AttributeError:
+    except ValueError:
         end = datetime.datetime.max
     except TypeError:
         end = end
