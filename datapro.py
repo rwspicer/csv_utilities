@@ -6,12 +6,15 @@ IARC data processing project
 
 rawser spicer
 created: 2014/08/21
-modified: 2014/12/01
+modified: 2014/12/02
 
         Datapro is a program to proceess the data from a logger site into files
     for each measurement from the site. 
 
 based on datapro v 0.2 by Bob Busey
+
+    version 2014.12.02.1:
+        updated the how errors are reported for the data files 
 
     version 2014.12.01.1:
         updated errors and fixed bug with bad lines in data file
@@ -221,13 +224,24 @@ class datapro_v3(util.utility_base):
                         "Param (config) File unknown error", msg)
         
 
-    def load_data_file(self):
+    
+    def get_data_file_path(self):
         """
-        loads the data file
+        this function gets the data file being used
+        
+        returns:
+            (string) path to data file being used
         """
         f_name = self.commands["--alt_data_file"]
         if f_name == "":
             f_name = self.key_file["input_data_file"].replace("file:","")
+        return f_name
+    
+    def load_data_file(self):
+        """
+        loads the data file
+        """
+        f_name = self.get_data_file_path()
         
         try:
             self.data_file = DatFile(f_name)
@@ -318,25 +332,20 @@ class datapro_v3(util.utility_base):
             self.errors.set_error_state("Runtime Error", "date column error")
             #~ print day_col, hour_col
             return
-
+        file_errors = ""
         for idx in range(len(self.data_file[:])):
             item = self.data_file[idx]
             
             if int(item[0]) == int(self.key_file["array_id"]):
-                
-                
                 if len(item) != int(self.key_file["arrays"]):
                     # log errors if the line has the wrong number of elements
-                    file_errors = \
-                    datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + \
-                    ", Data Error, at line " + str(idx + 1) + \
-                    " wrong number of elements for array ID\n" 
-                    error_file = open(self.key_file["error_log_dir"] + \
-                                    "Ignored_data_file_lines.csv", 'a')
-                    error_file.write(file_errors)
-                    error_file.close()
+                    file_errors += \
+                       datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + \
+                                     ", Data Error, at line " + str(idx + 1) + \
+                                      " wrong number of elements for array ID\n" 
                     self.error_files = True
                     continue
+                    
                 if year_col == -1:
                     year = datetime.datetime.now().year
                 else:
@@ -344,6 +353,16 @@ class datapro_v3(util.utility_base):
             
                 self.date_col.append(csvd.julian_to_datetime(year,
                                         item[day_col], item[hour_col]))
+        
+        #write an bad lines to the error file
+        if self.error_files == True:
+            dat_name = self.get_data_file_path()
+            dat_name = dat_name[dat_name.rfind("/")+1:dat_name.rfind(".")]
+            
+            error_file = open(self.key_file["error_log_dir"] + \
+                                     "dat_file_errors_"+ dat_name +".csv", 'w')
+            error_file.write(file_errors)
+            error_file.close()
                     
 
     def process_dates_table(self):
