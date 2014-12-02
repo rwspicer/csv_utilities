@@ -2,7 +2,7 @@
 csv_args.py
 raswer spicer
 created 2014/03/10
-modified 2014/11/05
+modified 2014/12/02
 
         this is a class for storing and accessing varibles and data from the
     command line
@@ -15,6 +15,9 @@ modified 2014/11/05
     __getitem__. added intify, floatify and moved stringify so that they are 
     member functions that can be set as retun_func. stringify is still 
     the default
+    
+    version 2014.12.2.1:
+        expanded the legacy system 
     
     version 2014.10.28.1:
         added string ify as defauld for get command value
@@ -74,7 +77,10 @@ class ArgClass:
         returns:
             the value at key, returns the value processe by current return func      
         """
-        return self.get_command_value(key)
+        val = self.get_command_value(key)
+        if self.legacy == True and val == "":
+            raise KeyError, key + " not found"
+        return val
 
 
     def __setitem__(self, key, value):
@@ -168,7 +174,7 @@ class ArgClass:
         try:
             value = self.m_commands[key]
         except KeyError:
-           value = ""
+            value = ""
         return func(value)     
  
     # bad flag list feature to be added ?            
@@ -247,4 +253,7 @@ class ArgClass:
             value: must have a __str__ defined
         """
         return str(value)
-    
+        
+
+            
+

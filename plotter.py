@@ -4,10 +4,14 @@ csv plotter
 csv_plot.py
 Rawser Spicer
 created: 2014/02/03
-modified: 2014/12/01
+modified: 2014/12/02
 
         This utility is designed to plot csv files. It can plot up to 10 
     files at a time, or 1 file with an arbitary number of columns of data
+
+    version 2014.12.2.1:
+        undid changes in chec_files, becuase the bug causing the problem was 
+    found in csv_lib/csv_args
 
     version 2014.12.1.1:
         fixed the check_files function, which stoped working at an unknown time
@@ -157,8 +161,8 @@ def check_files(cmds, file_keys):
     files = []
     for key in file_keys:
         try:
-            if cmds[key] == "" and key != "--data_0":
-                continue
+            #~ if cmds[key] == "" and key != "--data_0":
+                #~ continue
             if not (check_file(cmds[key])):
                 print_center("ERROR: invalid data_file, " + cmds[key])
                 exit_on_failure()

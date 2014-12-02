@@ -17,7 +17,7 @@ class my_utility(util.utility_base):
         
         try:
             self.b = int(self.commands["--b"])
-        except KeyError:
+        except ValueError: #<-- int() wont work on '' which is bing returned
             self.b = 0
         
         self.my_addition()
