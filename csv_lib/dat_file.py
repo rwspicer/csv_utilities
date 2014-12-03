@@ -2,7 +2,7 @@
 dat_file.py
 rawser spicer
 created: 2014/08/27
-modified: 2014/11/25
+modified: 2014/12/03
 
 Part of DataPro Version 3
 
@@ -10,12 +10,15 @@ Part of DataPro Version 3
 It stores each data row in an array, as an array of each value in each row. 
 Access is acheived via the [] operator
 
+    version 2014.12.3.1:
+        blank lines in data file are ignored when reading file now
+
     version 2014.11.25.1:
         added a set containg the array ids in an array data file or the empty
     set for a table data file
 
     version 2014.9.8.1:
-        added suppoer for "#" type comments in the data files
+        added support for "#" type comments in the data files
 
 """
 
@@ -39,7 +42,8 @@ class DatFile(object):
         data = []
         array_ids = [] # for optimizing array files actions 
         for item in raw_data.strip().replace('\r','').split('\n'):
-            if item[0] == "#":
+            #is it a blank line or comment
+            if len(item) == 0 or item[0] == "#":
                 continue
             temp = item.split(',')
             data.append(temp)
