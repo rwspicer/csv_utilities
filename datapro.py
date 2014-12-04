@@ -6,14 +6,18 @@ IARC data processing project
 
 rawser spicer
 created: 2014/08/21
-modified: 2014/12/02
+modified: 2014/12/04
 
         Datapro is a program to proceess the data from a logger site into files
     for each measurement from the site. 
 
 based on datapro v 0.2 by Bob Busey
 
-    version 2014.12.02.1:
+    version 2014.12.04.2:
+        for array data files, lines that do not start witn integers(an array id)
+    are ignored but logged to the error file
+    
+    version 2014.12.04.1:
         updated the errors message for the paramfiles
     
     version 2014.12.02.1:
@@ -339,6 +343,16 @@ class datapro_v3(util.utility_base):
         file_errors = ""
         for idx in range(len(self.data_file[:])):
             item = self.data_file[idx]
+            try: 
+                int(item[0])
+            except ValueError:
+                # log errors if the line has the wrong number of elements
+                file_errors += \
+                       datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + \
+                                     ", Data Error, at line " + str(idx + 1) + \
+                                      " array ID is not an integer"
+                self.error_files = True
+                continue
             
             if int(item[0]) == int(self.key_file["array_id"]):
                 if len(item) != int(self.key_file["arrays"]):
@@ -346,7 +360,7 @@ class datapro_v3(util.utility_base):
                     file_errors += \
                        datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + \
                                      ", Data Error, at line " + str(idx + 1) + \
-                                      " wrong number of elements for array ID\n" 
+                                      " wrong number of elements for array ID\n"
                     self.error_files = True
                     continue
                     
