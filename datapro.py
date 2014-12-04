@@ -14,6 +14,9 @@ modified: 2014/12/02
 based on datapro v 0.2 by Bob Busey
 
     version 2014.12.02.1:
+        updated the errors message for the paramfiles
+    
+    version 2014.12.02.1:
         updated the how errors are reported for the data files 
 
     version 2014.12.01.1:
@@ -217,8 +220,9 @@ class datapro_v3(util.utility_base):
                                 "Param (config) File not found")
             elif msg[0] == "2":
                 self.errors.set_error_state("I/O Error",
-                                "Param (config) File read error",
-                                "at line" + msg[msg.rfind(" "):])
+                                "Param (config) File read error at line" + \
+                                msg[msg.rfind(" "):], 
+                                "perhaps the line has the wrong # of fields")
             else:
                 self.errors.set_error_state("I/O Error", 
                         "Param (config) File unknown error", msg)

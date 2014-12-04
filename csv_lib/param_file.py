@@ -2,11 +2,14 @@
 param_file.py
 rawser spicer
 created: 2014/08/22
-modified: 2014/11/25
+modified: 2014/12/04
 
 Part of DataPro Version 3
 
     this file presnts classes that represent a param file
+    
+    version 2014.12.04.1:
+        updated error to give right line #
     
     version 2014.11.25.1:
         updated exception errors
@@ -141,7 +144,7 @@ class ParamFile(object):
         except IOError:
             raise IOError, "1: Param File not found"
         p_file.readline()
-        idx =  0
+        idx = 1
         for rows in p_file.read().strip().replace('"',""). \
                                                 replace("\r","").split('\n'):
             idx += 1
