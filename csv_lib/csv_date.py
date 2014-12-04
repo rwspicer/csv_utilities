@@ -190,7 +190,7 @@ def julian_to_datetime(year, day, hhmm):
     if int(hhmm[:2]) == 24:
         hhmm = "00" +  hhmm[2:]
         day = int(day) + 1
-    print hhmm
+
     basedate = datetime.datetime(int(year), 1, 1,
                                  int(hhmm[:2]), int(hhmm[2:]))
     return basedate + datetime.timedelta(int(day) - 1) 
