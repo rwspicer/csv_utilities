@@ -46,6 +46,7 @@ def get_list_vars(my_vars):
     return lists
 
 
+
 def get_times(my_vars):
     """
         get the times from the cdf file( gets every hour)
@@ -57,7 +58,11 @@ def get_times(my_vars):
         times of vars
     """
     base_time = my_vars['base_time'].getValue()
-    times=my_vars['time']
+    try:
+        times=my_vars['time']
+    except KeyError:
+        times = my_vars['time_offset']
+    
     ts = []
     for time in times:
         temp = datetime.utcfromtimestamp(base_time+time)
@@ -129,7 +134,7 @@ def main():
         my_file = netcdf.netcdf_file(path+f_name,'r')
     
         my_vars = my_file.variables
-  
+        
         times =  get_times(my_vars)
         
         lists = get_list_vars(my_vars)
