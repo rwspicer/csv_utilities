@@ -9,7 +9,10 @@ modified: 2014/08/08
         this utility is designed to create links to upload data to weather
     underground. the format is specified here:
             http://wiki.wunderground.com/index.php/PWS_-_Upload_Protocol
-            
+    
+    version 2015.1.5.1:
+        added example usage        
+    
     version 2014.8.8.1:
         updated documentation
 
@@ -147,6 +150,13 @@ REQ_FLAGS = ("--ID", "--password", "--ref_file")
 HELP_STRING = """
         This Utility is intended to generate an send a url containing
     information about different measurments to weather underground.
+
+    example usage:
+        python wunder_formatter.py --ID=[ID as registered by wunderground.com]
+        --password=[PASSWORD registered with this ID, case sensative]
+        --ref_file=[a text file with a comma seperated list of measurments, 
+                    their units, and csv file locations assoiated with the 
+                    measurments]
 
     flags:
         --ID=[ID as registered by wunderground.com]

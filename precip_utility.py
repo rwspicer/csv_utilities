@@ -8,6 +8,9 @@ modified: 2013/08/08
          This utility checks to see if the recorded precipitation lies with in 
     given paramaters or not.
     
+    version 2015.1.5.1:
+        added example usage
+    
     version 2014.8.8.1:
         updated docs
     
@@ -132,6 +135,11 @@ REQ_FLAGS = ("--precip_infile", "--precip_outfile", "--at_file")
 OPT_FLAGS = ("--startdate", "--enddate", "--cutoff")
 
 HELP_STRING = """
+
+    example usage:
+        python precip_utility.py --precip_infile=infile.csv 
+        --precip_outfile=outfile.csv --at_file=airtemp.csv 
+        
         --precip_infile: the path to the precipitation in file
         --pricip_outfile: path to pricipitation out file
         --at_file: the air temp file

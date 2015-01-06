@@ -32,6 +32,9 @@ modified: 2014/07/31
         the bsic class has been compleated. Work will now begin on making a 
     useful appilcation
     
+    version 2014.01.05.1:
+        added exmaple usage
+    
 """
 from httplib2 import Http
 from bs4 import BeautifulSoup as bes
@@ -221,7 +224,11 @@ HELP_STRING = """
         This Utility gets the teperature or precipitation data from a NOAA 
     website.
     
-        --time = <"day"|"yesterday"|"yyyy/mm/dd">
+    example usage:
+        python noaa_data.py --time=yesterday --filenmae=<output>.csv 
+                            --id=1007 --value=temp
+    
+        --time = <"now"|"yesterday"|"yyyy/mm/dd">
                     the time and day you want the utility to get, can be "now", 
                 "yesterday", or a date in the YYYY-MM-DD formant
         

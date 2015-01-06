@@ -4,10 +4,13 @@ csv plotter
 csv_plot.py
 Rawser Spicer
 created: 2014/02/03
-modified: 2014/12/02
+modified: 2015/01/05
 
         This utility is designed to plot csv files. It can plot up to 10 
     files at a time, or 1 file with an arbitary number of columns of data
+    
+    version 2015.1.5.1:
+        added example usage
 
     version 2014.12.2.1:
         undid changes in chec_files, becuase the bug causing the problem was 
@@ -56,7 +59,7 @@ modified: 2014/12/02
 
     version 2014.2.3.1:
         plots a csv file
-
+        
 """
 import csv_lib.csv_args as csva
 from csv_lib.csv_utilities import print_center, check_file, \
@@ -221,6 +224,11 @@ REQ_FLAGS = (FILES[0],)
 
     
 HELP_STRING = """
+    example usage:
+        python plotter.py --data_0=data.csv --output_png=graph.png
+                          --year=2014 --title=graph --x_label=time 
+                          --y_label=precip
+
     --data_0: the csv file to plot
     --data_[1-9]: other csv fils to plot (optional)
     --output_png: name of the .png file to save the plot to

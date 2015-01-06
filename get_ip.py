@@ -17,6 +17,9 @@ modified: 2014/07/31
 
     version 2014.2.13.1:
         adds documentation and support for interface
+        
+    version 2015.1.6.1:
+        added outputs for inactive interfaces and example usage
 
 
 """
@@ -42,6 +45,10 @@ UTILITY_TITLE = " ip adderess locator "
 HELP = """
         this utility can be used to get an ip adderess from the saved output of
     an ifconfig run
+    
+    example usage:
+        python get_ip.py --infile=<saved output from ifconfig> 
+                         --outfile=<output file> 
     
         --infile:       the input text from ifconfig
         --outfile:      where to write the ip adderss to
@@ -82,13 +89,21 @@ def get_ip():
     while (True):
         line = f_stream.readline()
         line = line.split()
-        seg = line[1].split(':')
+        try:
+            seg = line[1].split(':')
+        except IndexError:
+            f_stream.close()
+            f_stream = open(inputs['--outfile'], 'w')
+            f_stream.write("interface not active")
+            break
     
         if (seg[0] == 'addr'):
             f_stream.close()
             f_stream = open(inputs['--outfile'], 'w')
             f_stream.write(seg[1])
             break
+            
+    f_stream.close()
     exit_on_success()    
 
 if __name__ == "__main__":

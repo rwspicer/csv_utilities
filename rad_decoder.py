@@ -4,6 +4,9 @@ rawser spicer
 created 2014/03/03
 modified 2014/08/08
 
+    version 2015.1.5.1:
+        added example usage
+
     version 2014.8.8.2
     
     version 2014.2.13.1:
@@ -29,6 +32,7 @@ import sys
 def get_list_vars(my_vars):
     """
         makes a list of varibles that are data lists
+        
     
     argumrnts:
         my_vars:    (list)the set of variables from a cdf file
@@ -106,7 +110,11 @@ HELP_STR = """
         This utility can be use to extract the data from a directory of 
     .cdf files. it will cread a csv file for ecah data array in the 
     provided cdf files.
-        
+    
+      example usage:
+            python rad_decoder.py --in_directory=<a path> 
+            --out_directory=<a path> --sitename=barrow
+    
     flags:
         --in_directory:     the directory containg the input
         --out_directory:    the directory to save the out put

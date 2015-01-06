@@ -9,6 +9,9 @@ modified: 2014/07/31
         This utility applys a step function to processed data
     to allow for corrections to be applyed to said data
     
+    version 2015.1.5.1:
+        added example usage
+    
     version 2014.8.8.1:
         added a class for the utility
     
@@ -48,6 +51,10 @@ FLAGS = ("--infile", "--outfile", "--stepfile")
 HELP_STRING = """
         This utility can be used to correct values in a csve file by applying a 
     correction value over time periods specified in an second file
+        
+    exapmle usage:
+        python step_function_utility.py --infile=file --stepfile=file
+        --outfile=file
         
         --infile:   <<path>/*.csv>
                 the file with the initial values

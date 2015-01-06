@@ -8,6 +8,9 @@ modified: 2014/03/10
         this utility allows for the conversion between the UTC-0 and UTC-9(AKST) 
     time zones  
 
+    version 2015.1.5.1:
+        added example usage
+
     version 2014.8.8.1:
         updated documentation
 
@@ -26,6 +29,9 @@ HELP_STRING = """
     This utility allows for the conversion between the UTC-0 and UTC-9(AKST)
     time zones in czv files where items in the first column can be read as a
     datetime object
+    
+    example usage
+        python tz_shift.py --in_file=file --out_file=file --timezone=toAK
 
     --in_file:      the input file <path/filename>
     --out_file:     the output file <path/filename>
