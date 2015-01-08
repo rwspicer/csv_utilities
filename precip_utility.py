@@ -3,11 +3,14 @@ preciptation utility
 precip_utility.py
 Rawser Spicer
 created: 2014/01/24
-modified: 2013/08/08
+modified: 2015/01/08
 
          This utility checks to see if the recorded precipitation lies with in 
     given paramaters or not.
-    
+   
+    version 2015.1.8.1:
+        added example usage
+   
     version 2015.1.5.1:
         added example usage
     
@@ -135,6 +138,10 @@ REQ_FLAGS = ("--precip_infile", "--precip_outfile", "--at_file")
 OPT_FLAGS = ("--startdate", "--enddate", "--cutoff")
 
 HELP_STRING = """
+
+        this utility checks preciptation data to see that it lies within 
+    a given range of dates and temperature. temperatures are written to an 
+    updated teperature file.
 
     example usage:
         python precip_utility.py --precip_infile=infile.csv 

@@ -3,7 +3,10 @@ relative humidity calulator
 rh_calculator.py
 Rawser Spicer
 created: 2014/01/24
-modified: 2014/08/14
+modified: 2015/01/08
+    
+    version 2015.1.8.1:
+        updated help
 
     version 2014.8.14.1:
         now uses the utility class
@@ -78,6 +81,14 @@ def calc_rh(at_date, at_val, dp_date, dp_val):
 UTILITY_TITLE = "Realative Humidity Calculator"
 FLAGS = ("--at_file", "--dp_file", "--rh_file")
 HELP_STR = """
+        this utility takes air tempture and dew point data as input and 
+    calculates the relative humidity for each time step 
+
+    flags:
+        --at_file:      <file> the input air tempeature csv file
+        --dp_file:      <file> the input dewpoint csv file
+        --rh_file:      <file> the out put relative humidity file
+        
     To correctly use this python utility:
         $ python track_delay.py --at_file=<path>/filename.csv
         --dp_file=<path>/filename.csv --rh_file=<path>/filename.csv
