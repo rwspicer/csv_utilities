@@ -365,6 +365,10 @@ class datapro_v3(util.utility_base):
                     continue
                     
                 if year_col == -1:
+                    # fix date error here
+                    # reverse loop @ line 325
+                    # create a counter to keep track of # year switches
+                    # subtract counter here
                     year = datetime.datetime.now().year
                 else:
                     year = item[year_col]
