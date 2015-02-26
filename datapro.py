@@ -322,7 +322,8 @@ class datapro_v3(util.utility_base):
         year_col = -1
         day_col = -1
         hour_col = -1
-        for elems in self.param_file.params:
+        d_last = -1
+        for elems in self.param_file.params[::-1]:
             if count == 3:
                 break
 
@@ -363,18 +364,18 @@ class datapro_v3(util.utility_base):
                                       " wrong number of elements for array ID\n"
                     self.error_files = True
                     continue
-                    
+                
+                year_count = 0
                 if year_col == -1:
-                    # fix date error here
-                    # reverse loop @ line 325
-                    # create a counter to keep track of # year switches
-                    # subtract counter here
                     year = datetime.datetime.now().year
+                    if d_last > day_col:
+                        year_count += 1
+                    year -= year_count
                 else:
                     year = item[year_col]
             
-                self.date_col.append(csvd.julian_to_datetime(year,
-                                        item[day_col], item[hour_col]))
+                self.date_col.insert(csvd.julian_to_datetime(year,
+                                        item[day_col], item[hour_col]),0)
         
         #write an bad lines to the error file
         if self.error_files == True:
