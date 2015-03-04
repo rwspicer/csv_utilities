@@ -323,7 +323,7 @@ class datapro_v3(util.utility_base):
         day_col = -1
         hour_col = -1
         d_last = -1
-        for elems in self.param_file.params[::-1]:
+        for elems in self.param_file.params[]:
             if count == 3:
                 break
 
@@ -342,7 +342,7 @@ class datapro_v3(util.utility_base):
             #~ print day_col, hour_col
             return
         file_errors = ""
-        for idx in range(len(self.data_file[:])):
+        for idx in range(len(self.data_file[:]),0,-1):
             item = self.data_file[idx]
             try: 
                 int(item[0])
