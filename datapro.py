@@ -322,8 +322,7 @@ class datapro_v3(util.utility_base):
         year_col = -1
         day_col = -1
         hour_col = -1
-        d_last = -1
-        for elems in self.param_file.params[]:
+        for elems in self.param_file.params:
             if count == 3:
                 break
 
@@ -342,8 +341,16 @@ class datapro_v3(util.utility_base):
             #~ print day_col, hour_col
             return
         file_errors = ""
+        year_count = 0
+        d_last = -1
+        year = 0
+        if year_col == -1:
+            year = datetime.datetime.now().year
+        else:
+            year = item[year_col]
+        
         for idx in range(len(self.data_file[:]),0,-1):
-            item = self.data_file[idx]
+            item = self.data_file[idx-1]
             try: 
                 int(item[0])
             except ValueError:
@@ -353,7 +360,7 @@ class datapro_v3(util.utility_base):
                                      ", Data Error, at line " + str(idx + 1) + \
                                       " array ID is not an integer"
                 self.error_files = True
-                continue
+                continues
             
             if int(item[0]) == int(self.key_file["array_id"]):
                 if len(item) != int(self.key_file["arrays"]):
@@ -364,19 +371,15 @@ class datapro_v3(util.utility_base):
                                       " wrong number of elements for array ID\n"
                     self.error_files = True
                     continue
+                d_num = int(item[day_col])
+                if  (d_num == 365 or d_num == 366) and d_last == 1:
+                    print item[day_col]
+                    year -= 1
                 
-                year_count = 0
-                if year_col == -1:
-                    year = datetime.datetime.now().year
-                    if d_last > day_col:
-                        year_count += 1
-                    year -= year_count
-                else:
-                    year = item[year_col]
             
                 self.date_col.insert(0,csvd.julian_to_datetime(year,
                                         item[day_col], item[hour_col]))
-        
+                d_last = int(item[day_col])
         #write an bad lines to the error file
         if self.error_files == True:
             dat_name = self.get_data_file_path()
