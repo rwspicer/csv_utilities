@@ -360,7 +360,7 @@ class datapro_v3(util.utility_base):
                                      ", Data Error, at line " + str(idx + 1) + \
                                       " array ID is not an integer"
                 self.error_files = True
-                continues
+                continue
             
             if int(item[0]) == int(self.key_file["array_id"]):
                 if len(item) != int(self.key_file["arrays"]):
@@ -371,15 +371,16 @@ class datapro_v3(util.utility_base):
                                       " wrong number of elements for array ID\n"
                     self.error_files = True
                     continue
+                    
                 d_num = int(item[day_col])
                 if  (d_num == 365 or d_num == 366) and d_last == 1:
                     print item[day_col]
                     year -= 1
                 
-            
-                self.date_col.insert(0,csvd.julian_to_datetime(year,
+				self.date_col.insert(0,csvd.julian_to_datetime(year,
                                         item[day_col], item[hour_col]))
                 d_last = int(item[day_col])
+        
         #write an bad lines to the error file
         if self.error_files == True:
             dat_name = self.get_data_file_path()
