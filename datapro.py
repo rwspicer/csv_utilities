@@ -374,8 +374,8 @@ class datapro_v3(util.utility_base):
                 else:
                     year = item[year_col]
             
-                self.date_col.insert(csvd.julian_to_datetime(year,
-                                        item[day_col], item[hour_col]),0)
+                self.date_col.insert(0,csvd.julian_to_datetime(year,
+                                        item[day_col], item[hour_col]))
         
         #write an bad lines to the error file
         if self.error_files == True:
