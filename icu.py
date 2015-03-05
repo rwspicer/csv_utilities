@@ -17,4 +17,8 @@ entries that do not lie on a standard interval provided as input.
 
 class ICU(util.utility_base):
 	def __init__(self):
-		pass
+		super(datapro_v3, self).__init__(" Datapro 3.0 " ,
+                    ("--infile", --"interval") ,
+                    (),
+                    "help tdb")
+		print self.key_file
