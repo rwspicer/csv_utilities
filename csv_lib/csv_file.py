@@ -447,6 +447,15 @@ class CsvFile:
             new_date_col:       ((datetime.datetime)list) the new dates
         """
         self[0] = new_date_col
+        
+    def set_data(self, col, new_col):
+        """
+            sets the dates column
+
+        arguments:
+            new_date_col:       ((datetime.datetime)list) the new dates
+        """
+        self[col] = new_col
 
 
     def get_header(self):
