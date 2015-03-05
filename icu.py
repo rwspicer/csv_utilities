@@ -18,12 +18,22 @@ import csv_lib.csv_file as csvf
 import datetime as dt
 
 
+HELP = """
+	This utility can check for items on on a given interval for the file and
+remove them
+
+	flags:
+		--infile  	<>.csv :file containg input, also output is written here
+		--interval	<HH:MM>	: a stirng of the interval in HH:MM format
+"""
+
+
 class ICU(util.utility_base):
 	def __init__(self):
 		super(ICU, self).__init__(" Datapro 3.0 " ,
                     ("--infile", "--interval") ,
                     ("--first",),
-                    "help tdb")
+                    HELP)
 		self.infile = "not open"
 		self.first = 0
 
