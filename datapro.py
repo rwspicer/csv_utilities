@@ -151,7 +151,7 @@ class datapro_v3(util.utility_base):
         self.initlize_params()
         # --- errors ---
         if self.error_files == True:
-            print "Error files updated with non critical errors. See " + \
+            print "Error files updated with noncritical errors. See " + \
             self.key_file["error_log_dir"] + " for more information." 
 
 
@@ -374,10 +374,10 @@ class datapro_v3(util.utility_base):
                     
                 d_num = int(item[day_col])
                 if  (d_num == 365 or d_num == 366) and d_last == 1:
-                    print item[day_col]
+                    #~ print item[day_col]
                     year -= 1
                 
-				self.date_col.insert(0,csvd.julian_to_datetime(year,
+                self.date_col.insert(0,csvd.julian_to_datetime(year,
                                         item[day_col], item[hour_col]))
                 d_last = int(item[day_col])
         
