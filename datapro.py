@@ -1,6 +1,6 @@
 #!/usr/bin/python -tt
 """
-datapro 3.0
+datapro 3.1
 
 IARC data processing project
 
@@ -13,6 +13,9 @@ modified: 2015/03/18
 
 based on datapro v 0.2 by Bob Busey
 
+    version 2014.03.26.1:
+        this is full working version datapro 3.1
+   
     version 2015.03.18.1:
         the date processing for array type data has been updated this includes 
     a few othe updates that were not reported.
