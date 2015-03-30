@@ -92,7 +92,7 @@ import datetime
 import os
 
 HELP_STRING = """
-Datapro 3.0
+Datapro 3.1
 help updated: 2014/10/20
 
         Datapro 3 is a replacemnt for Datapro v2 by Bob Busey. Datapro will
