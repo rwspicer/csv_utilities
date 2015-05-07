@@ -20,4 +20,5 @@ threaded_datapro.py
 fileex.py
 eqex.py
 timingtest.sh
-
+/datapro_tests/*
+datpro_test.sh

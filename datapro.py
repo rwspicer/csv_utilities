@@ -1,17 +1,24 @@
 #!/usr/bin/python -tt
 """
-datapro 3.0
+datapro 3.1
 
 IARC data processing project
 
 rawser spicer
 created: 2014/08/21
-modified: 2014/12/04
+modified: 2015/03/18
 
         Datapro is a program to proceess the data from a logger site into files
     for each measurement from the site. 
 
 based on datapro v 0.2 by Bob Busey
+
+    version 2014.03.26.1:
+        this is full working version datapro 3.1
+   
+    version 2015.03.18.1:
+        the date processing for array type data has been updated this includes 
+    a few othe updates that were not reported.
 
     version 2014.12.04.2:
         for array data files, lines that do not start witn integers(an array id)
@@ -85,7 +92,7 @@ import datetime
 import os
 
 HELP_STRING = """
-Datapro 3.0
+Datapro 3.1
 help updated: 2014/10/20
 
         Datapro 3 is a replacemnt for Datapro v2 by Bob Busey. Datapro will
@@ -151,7 +158,7 @@ class datapro_v3(util.utility_base):
         self.initlize_params()
         # --- errors ---
         if self.error_files == True:
-            print "Error files updated with non critical errors. See " + \
+            print "Error files updated with noncritical errors. See " + \
             self.key_file["error_log_dir"] + " for more information." 
 
 
@@ -341,13 +348,13 @@ class datapro_v3(util.utility_base):
             #~ print day_col, hour_col
             return
         file_errors = ""
-        year_count = 0
+        #~ year_count = 0
+        
+        # set up stuff if the year does not exist
         d_last = -1
         year = 0
         if year_col == -1:
             year = datetime.datetime.now().year
-        else:
-            year = item[year_col]
         
         for idx in range(len(self.data_file[:]),0,-1):
             item = self.data_file[idx-1]
@@ -358,7 +365,7 @@ class datapro_v3(util.utility_base):
                 file_errors += \
                        datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + \
                                      ", Data Error, at line " + str(idx + 1) + \
-                                      " array ID is not an integer"
+                                      " array ID is not an integer\n"
                 self.error_files = True
                 continue
             
@@ -371,15 +378,20 @@ class datapro_v3(util.utility_base):
                                       " wrong number of elements for array ID\n"
                     self.error_files = True
                     continue
-                    
-                d_num = int(item[day_col])
-                if  (d_num == 365 or d_num == 366) and d_last == 1:
-                    print item[day_col]
-                    year -= 1
                 
-				self.date_col.insert(0,csvd.julian_to_datetime(year,
+                # check to see if year col is there 
+                if not year_col == -1: 
+                    year = item[year_col]
+                else:
+                    d_num = int(item[day_col])
+                    if  (d_num == 365 or d_num == 366) and d_last == 1:
+                        #~ print item[day_col]
+                        year -= 1
+                        d_last = int(item[day_col])
+                
+                self.date_col.insert(0,csvd.julian_to_datetime(year,
                                         item[day_col], item[hour_col]))
-                d_last = int(item[day_col])
+                
         
         #write an bad lines to the error file
         if self.error_files == True:
