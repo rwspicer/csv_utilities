@@ -2,7 +2,7 @@
 csv_args.py
 raswer spicer
 created 2014/03/10
-modified 2014/12/02
+modified 2015/05/07
 
         this is a class for storing and accessing varibles and data from the
     command line
@@ -15,6 +15,9 @@ modified 2014/12/02
     __getitem__. added intify, floatify and moved stringify so that they are 
     member functions that can be set as retun_func. stringify is still 
     the default
+    
+    2015.05.07.1:
+        added a function to raise exceptions on empty strings
     
     version 2014.12.2.1:
         expanded the legacy system 
@@ -253,6 +256,18 @@ class ArgClass:
             value: must have a __str__ defined
         """
         return str(value)
+    
+    def raise_error_on_empty_str(self, value):
+        """
+            returns values string represrntation
+        
+        pre-conditions:
+            value: must have a __str__ defined
+        """
+        if str(value) == "":
+            raise ValueError, "flag not found"
+        else:
+            return str(value)
         
 
             

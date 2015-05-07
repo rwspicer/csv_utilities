@@ -2,11 +2,14 @@
 LoggerLink.py 
 Rawser Spicer -- rwspicer@alaska.edu
 Created: 2014/05/23
-modified: 2014/07/31
+modified: 2014/05/07
 
         this appilcation and class are used for communicating with the 
     cr1000 datalogers. the commuincation wiht the logger uses the pakbus 
     package avaible at http://sourceforge.net/projects/pypak/files/ 
+    
+    version 2015.5.7.1:
+        <<<USE CRLink.py IT IS A NEWER VERSION OF THIS PROGRAM>>>
     
     version 2014.7.31.1:
         updates to documentation
@@ -47,6 +50,9 @@ OPT_FLAGS = ("--port", "--host", "--filename", "--loggername", "--dir")
 REQ_FLAGS = ("--action",)
 
 HELP_STRING = """
+
+        <<<USE CRLink.py IT IS A NEWER VERSION OF THIS PROGRAM>>>
+
         This utility is for communication with a datalogger. it can be 
     used for uploading and downloading programs, downloading data, and 
     veiwing the general status of the datalogger. 
@@ -494,6 +500,8 @@ class LoggerLink(object):
 
 def main():
     """ the utility """
+    print "<<<USE CRLink.py IT IS A NEWER VERSION OF THIS PROGRAM>>>"
+    return
     print_center(UTILITY_TITLE, '-')
     try: 
         commands = csva.ArgClass(REQ_FLAGS, OPT_FLAGS, HELP_STRING)
