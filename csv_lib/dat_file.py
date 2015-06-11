@@ -62,8 +62,13 @@ class DatFile(object):
         elif logger_type == "array":
             self.logger_type = "array"
             self.data = data
-            self.array_ids = set(array_ids) #set of array ids in data file
-
+            self.array_ids = set(array_ids) #set of array ids in data fil
+        else:
+            self.logger_type = "other"
+            self.data = data[int(logger_type):]
+            self.array_ids = set() #empty set
+ 
+ 
     def __getitem__(self, idx):
         """
             overlaods the __getitem__ function
@@ -76,5 +81,22 @@ class DatFile(object):
         """
         return self.data[idx]
     
-    
+    def getColumn(self, num):
+        """
+            gets a column from the .dat file
+            
+        arguments:
+            num:    (int) the column number
+        
+        returns:
+            the column
+        """
+        try:
+            self.data[0][num]
+        except IndexError:
+            raise IndexError, "Column does not exist"
+        col = []
+        for row in self.data:
+            col.append(row[num])
+        return col
         
