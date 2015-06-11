@@ -54,7 +54,7 @@ class CalcK(utility_base):
             first_line[1] += "\n"
             out_file.set_header([ first_line,
                                   ("timestamp","k\n"), 
-                                  ("","w/m^2k\n"),
+                                  ("","w/mk\n"),
                                   ("","smp\n")])
         else:
             last_date = out_file[0][-1]
