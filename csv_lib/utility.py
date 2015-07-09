@@ -2,12 +2,15 @@
 utility.py
 Rawser Spicer
 created: 2014/08/01
-modified: 2014/11/05
+modified: 2014/06/26
 
         this fill contains classes to help implement a base utility class. The 
     class should be used as a base class for new utilities. The class will hadle
     the internal runnings of a utility
 
+    v. 2015.6.26.1:
+        updated the print center function to change with the window size
+  
     version 2014.11.05.2:
         fixed typo in exit messege
  
@@ -192,13 +195,21 @@ class utility_base(object):
             size        (int) size of the terminal
         """
         str_len = len(msg)
+        import fcntl, termios, struct
+        size = struct.unpack('HHHH', fcntl.ioctl(0, termios.TIOCGWINSZ,
+                                            struct.pack('HHHH', 0, 0, 0, 0)))[1]
+   
         space = (size - str_len) / 2
-        if (str_len % 2 == 0):
-            print self.generate_rep(space, fill) + msg + \
+        #~ print size, str_len, space
+        if (str_len % 2 == 1) and (size % 2 == 0):
+            print self.generate_rep(space + 1, fill) + msg + \
                                                 self.generate_rep(space, fill)
+        elif (str_len % 2 == 0) and (size % 2 == 1):    
+            print self.generate_rep(space + 1, fill) + msg + \
+                                                self.generate_rep(space , fill)
         else:    
-            print self.generate_rep(space + 1 , fill) + msg + \
-                                                self.generate_rep(space, fill)
+            print self.generate_rep(space, fill) + msg + \
+                                                self.generate_rep(space , fill)
     
     def generate_rep(self, length, fill = ' '):
         """

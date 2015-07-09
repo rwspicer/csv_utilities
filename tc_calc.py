@@ -15,23 +15,59 @@ from csv_lib.utility import utility_base
 from csv_lib.csv_file import CsvFile
 from datetime import datetime
 
+HELP = """
+    calculates thermal conductivity from a .dat file
+    
+    example usage:
+    >> python tc_calc.py --inFile=<.dat file> --outFile=<.csv file>
+    --timeCol=<#> --tempCol=<#>
+
+    flags:
+    --inFile
+        the input .dat file
+    
+    --outFile
+        the output .csv file
+
+    --timeCol
+        0 based index to the time column 
+        
+    --tempCol
+        0 based index to the trise temperature column 
+        
+    --powerCol
+        0 based index to the power column 
+    
+"""
+
+
 class CalcK(utility_base):
     """
         a utility to calcualte the thermal conductivity 
     """
     def __init__(self):
         """
-            set up utility
+             Sets up utility
+
+        Preconditions:
+            none
+        Postconditions:
+            utility is ready to be run
         """
         super(CalcK, self).__init__(" CalcK " ,
                     ("--inFile", "--outFile", "--timeCol", "--tempCol") ,
                     ("--powerCol", ),
-                    "HELP")
+                    HELP)
 
 
     def main(self):
         """
-            main function
+        main body of utiliy. 
+        
+        Preconditions:
+            utility setup
+        Postconditions:
+            utility is run
         """
         # set up 
         data = DatFile(self.commands["--inFile"],"4")

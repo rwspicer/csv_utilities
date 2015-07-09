@@ -8,7 +8,12 @@ Part of DataPro Version 3
 
     This class represents the data files used in datapro, table or array types.
 It stores each data row in an array, as an array of each value in each row. 
-Access is acheived via the [] operator
+Access is achieved via the [] operator
+
+    version 2015.7.9.1:
+        added a tram file option to the setup step
+        added the option to set a arbitrary number of header lines in the other
+    setupoption
 
     version 2014.12.3.1:
         blank lines in data file are ignored when reading file now
@@ -33,8 +38,10 @@ class DatFile(object):
             
         arguments:
             file_name:      (string) the file name
-            logger_type:    <"auto"|"table"|"array"> the type of the logger.
-                            "auto" will guess and is set by default
+            logger_type:    <"auto"|"table"|"array"|"tram"|#> 
+                        the type of the logger. "auto" will guess and is set by
+                        default. if a # is set it should be in number of lines
+                        in the header
         """
         data_file = open(file_name, 'r')
         raw_data = data_file.read()
@@ -49,12 +56,14 @@ class DatFile(object):
             data.append(temp)
             array_ids.append(temp[0])
             
+        
         if (logger_type == "auto"):
             if not data[0][0].isdigit():
                 logger_type = "table"
             else:
                 logger_type = "array"
-                
+        
+        self.col_names = [] 
         if logger_type == "table":
             self.logger_type = "table"
             self.data = data[4:]
@@ -63,6 +72,11 @@ class DatFile(object):
             self.logger_type = "array"
             self.data = data
             self.array_ids = set(array_ids) #set of array ids in data fil
+        elif logger_type == "tram":
+            self.logger_type = "tram"
+            self.data = data[4:]
+            self.array_ids = set() #empty set
+            self.col_names = data[1]
         else:
             self.logger_type = "other"
             self.data = data[int(logger_type):]
