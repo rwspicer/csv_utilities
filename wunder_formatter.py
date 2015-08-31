@@ -10,6 +10,9 @@ modified: 2015/08/31
     underground. the format is specified here:
             http://wiki.wunderground.com/index.php/PWS_-_Upload_Protocol
   
+    v. 2015.8.31.3:
+        fixed timezone issue
+    
     v. 2015.8.31.2:
         add mm to in conversion 
    
@@ -40,6 +43,7 @@ from csv_lib.csv_utilities import print_center, exit_on_success, exit_on_failure
 import csv_lib.csv_args as csva
 import csv_lib.csv_file as csvf
 import httplib2
+from datetime import datetime 
 
 def from_si(value, unit):
     """
@@ -204,11 +208,11 @@ def main():
         if first_date.minute == 0 and first_date.second == 0:
             break
         idx -= 1
-
+    tz = int(round((datetime.now() - datetime.utcnow()).total_seconds()))/60**2
     my_url.add_item("dateutc", str(first_date.year) + '-' + \
                                str(first_date.month).zfill(2) + '-' + \
                                str(first_date.day).zfill(2) + '+' + \
-                               str(first_date.hour).zfill(2) + "%3A" + \
+                               str(first_date.hour + tz).zfill(2) + "%3A" + \
                                str(first_date.minute).zfill(2) + "%3A" + \
                                str(first_date.second).zfill(2))
 
