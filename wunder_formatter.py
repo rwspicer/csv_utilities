@@ -212,7 +212,7 @@ def main():
     my_url.add_item("dateutc", str(first_date.year) + '-' + \
                                str(first_date.month).zfill(2) + '-' + \
                                str(first_date.day).zfill(2) + '+' + \
-                               str(first_date.hour + tz).zfill(2) + "%3A" + \
+                               str(first_date.hour + -1*tz).zfill(2) + "%3A" + \
                                str(first_date.minute).zfill(2) + "%3A" + \
                                str(first_date.second).zfill(2))
 
