@@ -9,7 +9,10 @@ modified: 2015/08/31
         this utility is designed to create links to upload data to weather
     underground. the format is specified here:
             http://wiki.wunderground.com/index.php/PWS_-_Upload_Protocol
-    
+  
+    v. 2015.8.31.2:
+        add mm to in conversion 
+   
     v. 2015.8.31.1:
         weather underground's upload protocol changed to allow '.' 
     (decimal point) in values and the %252E double-URL-encoded string used 
@@ -59,6 +62,8 @@ def from_si(value, unit):
             return value - 180
         else:
             return value + 180
+    if unit = "mm":
+        return value * 0.039370
     return value
 
 class WUURL(object):
