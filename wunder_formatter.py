@@ -4,11 +4,16 @@ weather underground data formatting utility
 wunder_fromatter.py
 Rawser Spicer
 created: 2014/04/16
-modified: 2014/08/08
+modified: 2015/08/31
 
         this utility is designed to create links to upload data to weather
     underground. the format is specified here:
             http://wiki.wunderground.com/index.php/PWS_-_Upload_Protocol
+    
+    v. 2015.8.31.1:
+        weather underground's upload protocol changed to allow '.' 
+    (decimal point) in values and the %252E double-URL-encoded string used 
+    before no longer works. The code has been changed to reflect this. 
     
     version 2015.1.5.1:
         added example usage        
@@ -83,9 +88,7 @@ class WUURL(object):
         """
         r_str = self.base_url + '?'
         for key in self.url_items.keys():
-            r_str += key + '=' + \
-                  self.url_items[key].replace(".", "%2E").replace("%", "%25") \
-                  + '&'
+            r_str += key + '=' + self.url_items[key] + '&'
         return r_str[:-1]
 
     def add_item(self, key, value):
