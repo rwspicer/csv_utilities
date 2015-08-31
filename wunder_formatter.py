@@ -66,7 +66,7 @@ def from_si(value, unit):
             return value - 180
         else:
             return value + 180
-    if unit = "mm":
+    if unit == "mm":
         return value * 0.039370
     return value
 
