@@ -10,6 +10,9 @@ modified: 2015/08/31
     underground. the format is specified here:
             http://wiki.wunderground.com/index.php/PWS_-_Upload_Protocol
   
+    v. 2015.8.31.4:
+        fixed timezone issue(the data is in akst)
+    
     v. 2015.8.31.3:
         fixed timezone issue
     
@@ -208,7 +211,8 @@ def main():
         if first_date.minute == 0 and first_date.second == 0:
             break
         idx -= 1
-    tz = int(round((datetime.now() - datetime.utcnow()).total_seconds()))/60**2
+    #~ tz = int(round((datetime.now() - datetime.utcnow()).total_seconds()))/60**2
+    tz = -9 #akst
     my_url.add_item("dateutc", str(first_date.year) + '-' + \
                                str(first_date.month).zfill(2) + '-' + \
                                str(first_date.day).zfill(2) + '+' + \
