@@ -3,8 +3,11 @@ relative humidity calulator
 rh_calculator.py
 Rawser Spicer
 created: 2014/01/24
-modified: 2015/01/08
+modified: 2015/09/01
     
+    version 2015.9.1.1:
+        removed some extra spaces
+
     version 2015.1.8.1:
         updated help
 
@@ -63,7 +66,7 @@ def calc_rh(at_date, at_val, dp_date, dp_val):
         rh_val = comp_val
         if not(at_date[index] == dp_date[index]):
             print_center("ERROR: dates do not match for air temp and dew point",
-                            "*")
+                         "*")
             exit_on_failure()
             # how to handle this?
         if (at_val[index] != comp_val and  dp_val[index] != comp_val):
@@ -207,7 +210,7 @@ class rh_util(util.utility_base):
                 dew_points[index] != comp_val):
                 denominator = 0.611 * math.exp((17.3 * air_temps[index])
                                  / (air_temps[index] + 237.3))
-                numerator = 0.611 * math.exp((17.3 *  dew_points[index]) 
+                numerator = 0.611 * math.exp((17.3 * dew_points[index]) 
                                 / ( dew_points[index] + 237.3))
                 rh_val = numerator / denominator * 100    
             self.rh_vals.insert(index, rh_val)
