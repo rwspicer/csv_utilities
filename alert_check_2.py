@@ -8,7 +8,8 @@ modified: 2015/09/03
     current, and sends emails based on that state. based on alert check script
     by Amy Jacobs.
     
-    v 2015.9.3.2
+    v 2015.9.3.2r2
+        now its really fixed
         fixed --check_file flag bug: changed from incrrect --check_url
 
     v. 2015.9.3.1
@@ -82,6 +83,7 @@ class AlertCalc(object):
         self.url = url
         self.alert_time = alert_time
         self.tag = url[url.rfind('/')+1:url.rfind('.')]
+        print self.url
         self.last_data_time = None
         self.s_dir = status_dir
         
@@ -245,7 +247,7 @@ class AlertCheck2(util.utility_base):
         """
         
         
-        alert = AlertCalc(self.commands["--check_url"],
+        alert = AlertCalc(self.commands["--check_file"],
                           int(self.commands["--alert_time"]))
         
         state = alert.calc_alert()
