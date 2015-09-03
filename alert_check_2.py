@@ -7,6 +7,9 @@ modified: 2015/09/03
         Alert check checks if the data from a data(table type) logger is
     current, and sends emails based on that state. based on alert check script
     by Amy Jacobs.
+    
+    v 2015.9.3.2
+        fixed --check_file flag bug: changed from incrrect --check_url
 
     v. 2015.9.3.1
         version 1. All functionality works as tested. 
@@ -220,7 +223,7 @@ class AlertCheck2(util.utility_base):
         """
         super(AlertCheck2, self).__init__(" Alert Check 2.0 " ,
             ['--site',
-             '--check_url', 
+             '--check_file', 
              '--alert_time', 
              '--recipients', 
              '--sender',
