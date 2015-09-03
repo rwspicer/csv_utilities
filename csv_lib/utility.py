@@ -2,11 +2,14 @@
 utility.py
 Rawser Spicer
 created: 2014/08/01
-modified: 2014/06/26
+modified: 2014/09/03
 
         this fill contains classes to help implement a base utility class. The 
     class should be used as a base class for new utilities. The class will hadle
     the internal runnings of a utility
+    
+    v. 2015.9.3.1:
+        bug fix for utilities not run with active terminal
 
     v. 2015.6.26.1:
         updated the print center function to change with the window size
@@ -196,9 +199,12 @@ class utility_base(object):
         """
         str_len = len(msg)
         import fcntl, termios, struct
-        size = struct.unpack('HHHH', fcntl.ioctl(0, termios.TIOCGWINSZ,
+        try:
+            size = struct.unpack('HHHH', fcntl.ioctl(0, termios.TIOCGWINSZ,
                                             struct.pack('HHHH', 0, 0, 0, 0)))[1]
-   
+        except IOError:
+            size = 80
+            
         space = (size - str_len) / 2
         #~ print size, str_len, space
         if (str_len % 2 == 1) and (size % 2 == 0):

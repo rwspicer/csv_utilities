@@ -22,3 +22,7 @@ eqex.py
 timingtest.sh
 /datapro_tests/*
 datpro_test.sh
+XTEST.py
+*.pckl
+*.data
+
