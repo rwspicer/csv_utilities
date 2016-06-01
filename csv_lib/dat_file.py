@@ -50,7 +50,7 @@ class DatFile(object):
         array_ids = [] # for optimizing array files actions 
         for item in raw_data.strip().replace('\r','').split('\n'):
             #is it a blank line or comment
-            if len(item) == 0 or item[0] == "#" or item[0] = ',':
+            if len(item) == 0 or item[0] == "#" or item[0] == ',':
                 continue
             temp = item.split(',')
             data.append(temp)
