@@ -168,7 +168,7 @@ class datapro_v3(util.utility_base):
         """
         self.load_key_file()
         self.check_working_root()
-        self.print_report()
+        #~ self.print_report()
         self.logger_type = self.key_file["logger_type"].upper()
         if "CR10X" == self.logger_type:
             self.logger_type = "ARRAY"
@@ -176,6 +176,7 @@ class datapro_v3(util.utility_base):
         self.load_param_file()
         self.load_data_file()
         self.load_therm_files()
+        self.print_report()
 
 
     def load_key_file(self):
