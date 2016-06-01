@@ -168,6 +168,7 @@ class datapro_v3(util.utility_base):
         """
         self.load_key_file()
         self.check_working_root()
+        self.evaluate_errors()
         #~ self.print_report()
         self.logger_type = self.key_file["logger_type"].upper()
         if "CR10X" == self.logger_type:
