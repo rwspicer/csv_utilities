@@ -25,4 +25,4 @@ datpro_test.sh
 XTEST.py
 *.pckl
 *.data
-
+*.DS_Store
