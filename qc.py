@@ -37,7 +37,7 @@ def fetch_excel_data(file_name):
     wb = xlrd.open_workbook(file_name)
     sheet = wb.sheet_by_index(0)
     n_rows = sheet.nrows
-    n_cols = sheet.ncols
+    n_cols = 2#sheet.ncols
     o_val = [[],[]]
     for c_index in range(n_cols):
         for r_index in range(n_rows):
