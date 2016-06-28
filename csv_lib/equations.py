@@ -240,3 +240,60 @@ class rt_sensor(equation):
             return
     
         self.result = ((self.variable / self.div) + self.offset) / self.mult
+        
+
+class rh(equation):
+    """ 
+        This class corrects relative humidity data to 100% during highly saturated conditions.
+    """
+    
+    def __init__ (self, var, bad_val = 6999):
+        """ 
+        Class initializer
+        
+        Arguments:
+            var:            (convertible to float)  the domain value            
+            bad_val:        (convertible to int) the value to indicate a 
+                        bad data item  
+        """
+        super(rh, self).__init__(var, bad_val)
+        
+    def calc(self):
+        """
+        Calculates the polynomial function value
+        """
+        if abs(self.variable) >= 6999:
+            self.result = self.bad_value
+            return
+        elif self.variable > 100 and self.variable < 108 :
+            self.result = 100
+            return
+        self.result = self.variable
+        
+class sw(equation):
+    """ 
+        This class corrects shortwave radiation data to 0 at night when it just a bit below 0 and should read 0.
+    """
+    
+    def __init__ (self, var, bad_val = 6999):
+        """ 
+        Class initializer
+        
+        Arguments:
+            var:            (convertible to float)  the domain value            
+            bad_val:        (convertible to int) the value to indicate a 
+                        bad data item  
+        """
+        super(sw, self).__init__(var, bad_val)
+        
+    def calc(self):
+        """
+        Calculates the polynomial function value
+        """
+        if abs(self.variable) >= 6999:
+            self.result = self.bad_value
+            return
+        elif self.variable < 0 and self.variable > -20 :
+            self.result = 0
+            return
+        self.result = self.variable
