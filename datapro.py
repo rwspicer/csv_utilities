@@ -633,7 +633,7 @@ class datapro_v3(util.utility_base):
                     constant = 1.045
                 else:
                     constant = 1
-                return cosntatnt * eq.flux(data_point,
+                return constant * eq.flux(data_point,
                                     param["Coef_1"], param["Coef_2"],
                                     self.key_file["bad_data_val"]).result
 
@@ -644,6 +644,10 @@ class datapro_v3(util.utility_base):
         elif d_type == "therm_1" or d_type == "therm_2" or d_type == "therm_3":
             return process_data_point_therm(data_point, index)
 
+        elif d_type == "rh" :
+            return eq.rh(data_point, self.key_file["bad_data_val"]).result
+        elif d_type == "swrad" :
+            return eq.sw(data_point, self.key_file["bad_data_val"]).result
         else:
             return float(self.key_file["bad_data_val"])
 
