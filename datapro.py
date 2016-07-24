@@ -346,7 +346,7 @@ class datapro_v3(util.utility_base):
                 count += 1
 
         if day_col == -1 or hour_col == -1:
-            self.errors.set_error_state("Runtime Error", "date column error")
+            self.errors.set_error_state("Runtime Error", "missing date column error")
             #~ print day_col, hour_col
             return
         file_errors = ""
@@ -387,7 +387,6 @@ class datapro_v3(util.utility_base):
                 else:
                     d_num = int(item[day_col])
                     if  (d_num == 365 or d_num == 366) and d_last == 1:
-                        #~ print item[day_col]
                         year -= 1
                         d_last = int(item[day_col])
                 
@@ -417,7 +416,14 @@ class datapro_v3(util.utility_base):
                 break
 
         for rows in self.data_file[:]:
-            self.date_col.append(csvd.string_to_datetime(rows[i_pos]))
+            try:
+                curdate = csvd.string_to_datetime(rows[i_pos])
+                if curdate == "NAN" :
+                    pass
+                else:
+                    self.date_col.append(curdate)
+            except:
+                pass    
 
 
     def generate_output_header(self, idx):
