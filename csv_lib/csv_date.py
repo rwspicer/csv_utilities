@@ -74,8 +74,10 @@ def string_to_datetime(string):
         try:
             temp = strptime(string, "%Y-%m-%d %H:%M:%S")
         except ValueError:
+            try:
                 temp = strptime(string, "%Y-%m-%d")
-   
+            except ValueError:
+                    temp = strptime(string, "%Y-%m-%d %H:%M")
    
    
     #~ reg_exp = r'^"*(\d+)-(\d+)-(\d+) *(\d+)*:*(\d+)*:*(\d+)*.(\d+)*"*$'
