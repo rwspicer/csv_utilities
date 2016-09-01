@@ -53,6 +53,7 @@ class DatFile(object):
             if len(item) == 0 or item[0] == "#" or item[0] == ',':
                 continue
             temp = item.split(',')
+            
             data.append(temp)
             array_ids.append(temp[0])
             

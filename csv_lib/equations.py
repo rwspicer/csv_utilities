@@ -33,6 +33,7 @@ class   equation(object):
         """
         self.variable = float(variable)
         self.bad_value = int(bad_data_val)
+        self.bad_val = int(bad_data_val)
         self.result = "not calculated"
         self.calc()
         
@@ -45,7 +46,7 @@ class   equation(object):
         
     def __float__(self):
         """
-            Overloads the flaot type converter to return the result of the 
+            Overloads the float type converter to return the result of the 
         calculation.
         """
         return self.result
@@ -183,28 +184,31 @@ class netrad(equation):
         self.negical = float(negical)
         self.windspeed = float(windspeed)
         super(netrad, self).__init__(var, bad_val)
-                    
+      
     def calc(self):
         """
         calcualts the netrad in to the result memver
         """
-        if abs(self.variable) >= self.bad_value:
-            self.result = self.bad_value
+        
+        if abs(self.variable) >= self.bad_val :
+            self.result = self.bad_val
             return
-            
+
         if(abs(self.windspeed) >= .3):
             pos_correction = 1 + (.066 * .2 * self.windspeed)/ \
-                                (.066 + (.2 * self.windspped))
+                                (.066 + (.2 * self.windspeed))
             neg_correction = (.00174 * self.windspeed) + .99755
             uncorrected = flux(self.variable, self.posical, self.negical,
-                                             self.badvalue).result
+                                             self.bad_val).result
             if uncorrected >= 0:
-                self.result = uncorrecte * pos_correction
+                self.result = uncorrected * pos_correction
             else:
-                self.result = uncorrecte * neg_correction
+                self.result = uncorrected * neg_correction
         else:
             self.result = flux(self.variable, self.posical, self.negical,
-                                             self.badvalue).result
+                                             self.bad_val).result
+
+        
 
 
 class rt_sensor(equation):
