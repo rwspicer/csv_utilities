@@ -543,10 +543,9 @@ class datapro_v3(util.utility_base):
                                            self.key_file["array_id"] == item[0]:
                 ddx -= 1 
                 if ws_index != 0:
-                    windspeed = item[ws_index]
+                    windspeed = item[ws_index]                    
                 else:
                     windspeed = 0
-
                 try:
 
                     temp = self.process_data_point(item[array_input_pos], index,

@@ -183,21 +183,25 @@ class netrad(equation):
         self.negical = float(negical)
         self.windspeed = float(windspeed)
         super(netrad, self).__init__(var, bad_val)
-                    
+      
     def calc(self):
         """
         calcualts the netrad in to the result memver
         """
-        if abs(self.variable) >= self.bad_value:
-            self.result = self.bad_value
+        print self.windspeed
+        print self.posical
+        print self.negical
+        print self.bad_val, 'vad'
+        if abs(self.variable) >= self.bad_val:
+            self.result = self.bad_val
             return
             
         if(abs(self.windspeed) >= .3):
             pos_correction = 1 + (.066 * .2 * self.windspeed)/ \
-                                (.066 + (.2 * self.windspped))
+                                (.066 + (.2 * self.windspeed))
             neg_correction = (.00174 * self.windspeed) + .99755
             uncorrected = flux(self.variable, self.posical, self.negical,
-                                             self.badvalue).result
+                                             self.bad_val).result
             if uncorrected >= 0:
                 self.result = uncorrecte * pos_correction
             else:
