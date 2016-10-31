@@ -204,16 +204,11 @@ class datapro_v3(util.utility_base):
         ddd = lambda s:(lambda:"", lambda:"...")[len(s)>53]() 
         
         print("param file:      " + \
-                           ddd(self.key_file["array_based_params_key_file"]) + \
-                             self.key_file["array_based_params_key_file"][-50:])
-        print("input file:      " + ddd(self.key_file["input_data_file"]) + \
-                                         self.key_file["input_data_file"][-50:])
-        print("output dir:      " + ddd(self.key_file["output_dir"]) + \
-                                              self.key_file["output_dir"][-50:])
-        print("qc log dir:      " + ddd(self.key_file["qc_log_dir"]) + \
-                                              self.key_file["qc_log_dir"][-50:])
-        print("error log dir:   " + ddd(self.key_file["error_log_dir"]) + \
-                                           self.key_file["error_log_dir"][-50:])
+                           self.key_file["array_based_params_key_file"])
+        print("input file:      " + self.key_file["input_data_file"]) 
+        print("output dir:      " + self.key_file["output_dir"]) 
+        print("qc log dir:      " + self.key_file["qc_log_dir"])
+        print("error log dir:   " + self.key_file["error_log_dir"]) 
         self.print_center("==", "=")
         print ""
         print ""
