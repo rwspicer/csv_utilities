@@ -297,7 +297,7 @@ class sw(equation):
         if abs(self.variable) >= 6999:
             self.result = self.bad_value
             return
-        elif self.variable < 0 and self.variable > -20 :
+        elif self.variable < 0.0 and self.variable > -40.0 :
             self.result = 0
             return
         self.result = self.variable
