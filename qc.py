@@ -41,13 +41,18 @@ def fetch_excel_data(file_name):
     o_val = [[],[]]
     for c_index in range(n_cols):
         for r_index in range(n_rows):
-            if r_index < 4:
-                continue
-            temp = sheet.cell(r_index,c_index)
-            if c_index == 0:
-                temp.value = datetime.datetime(*xlrd.xldate_as_tuple(temp.value,
+            try:
+                temp = sheet.cell(r_index,c_index)
+                
+                if c_index == 0:
+                    temp.value = datetime.datetime(*xlrd.xldate_as_tuple(temp.value,
                                                                 wb.datemode))
-            o_val[c_index].append(temp.value)
+                if c_index == 1:
+                    # fail here if header type stuff or comments... drop to continue
+                    temp.value = float(temp.value)
+                o_val[c_index].append(temp.value)
+            except:
+                continue
     return o_val
 
 
@@ -81,7 +86,6 @@ def qc_func(in_data, xl_data, log_file):
         fixed data in [[dates],[values]] form
     """
     f_stream = open(log_file, 'a')
-
     for index, items in enumerate(in_data[0]):
         for xidx, xitm in enumerate(xl_data[0]):
             #print items, xitm
