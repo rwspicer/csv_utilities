@@ -124,6 +124,42 @@ class poly(equation):
             temp += float(self.coefs[idx]) * self.variable ** idx
         self.result = temp
         
+class sm(equation):
+    """ 
+        This class represents a polynomial function multiplied by 100% with a variable number of 
+    terms. The coefficient for each term should be passed in a tuple containing 
+    the coefficients value at the power term it will be used at. 
+    (ie. 4x^2 + 1 is (1 , 0, 4), or 5x^3 is (0, 0, 0, 5)   
+    """
+    
+    def __init__ (self, var, coefs, bad_val = 6999):
+        """ 
+        Class initializer
+        
+        Arguments:
+            var:            (convertible to float)  the domain value
+            coefs:          (tuple of numbers) the cofficents for the polynomial
+            bad_val:        (convertible to int) the value to indicate a 
+                        bad data item  
+        """
+        self.coefs = coefs
+        super(sm, self).__init__(var, bad_val)
+        
+    def calc(self):
+        """
+        Calculates the polynomial function value
+        """
+        if abs(self.variable) >= 6999:
+            self.result = self.bad_value
+            return
+        
+        temp = 0 
+        for idx in range(len(self.coefs)):
+            temp += float(self.coefs[idx]) * self.variable ** idx
+        self.result = temp * 100
+        if abs(self.result) <0:
+            self.result = self.bad_value
+            return
         
 class flux(equation):
     """ 
@@ -187,7 +223,7 @@ class netrad(equation):
       
     def calc(self):
         """
-        calcualts the netrad in to the result memver
+        calculates the netrad in to the result memver
         """
         
         if abs(self.variable) >= self.bad_val :

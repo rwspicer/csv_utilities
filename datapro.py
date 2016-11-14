@@ -619,15 +619,19 @@ class datapro_v3(util.utility_base):
             return eq.poly(data_point, param.coefs,
                            self.key_file["bad_data_val"]).result
 
+        elif d_type == "sm":
+            return eq.sm(data_point, param.coefs,
+                           self.key_file["bad_data_val"]).result
+
         elif d_type == "flux":
             return eq.flux(data_point, param["Coef_1"], param["Coef_2"],
-                                    self.key_file["bad_data_val"]).result
+                           self.key_file["bad_data_val"]).result
 
         elif d_type == "netrad":
             if param["Coef_3"] != 0:
                 return eq.netrad(data_point, windspeed,
-                                 param["Coef_1"], param["Coef_2"],
-                                 self.key_file["bad_data_val"]).result
+                           param["Coef_1"], param["Coef_2"],
+                           self.key_file["bad_data_val"]).result
             else:
                 if data_point > 0:
                     constant = 1.045
