@@ -112,7 +112,7 @@ help updated: 2014/10/20
                 the path to an alternate data file no given in key file
                 
         --working_root:     <path> (optional)
-                overwrites the working dorectory for the outputs
+                overwrites the working directory for the outputs
 
               """
 
@@ -523,6 +523,10 @@ class datapro_v3(util.utility_base):
         ddx = len(self.date_col) - 1 # date index
         array_input_pos = int(self.param_file.params[index]["Input_Array_Pos"])
 
+
+        ## I'm just looking at this ws_index deal... kind of surprised it hasn't 
+        ## created problems but maybe we've just been lucky.
+        ## something to be more choosy about at some point.
         ws_index = int(float(self.param_file.params[index]["Coef_3"]))
         
         for item in reversed(self.data_file[:]):
@@ -619,6 +623,11 @@ class datapro_v3(util.utility_base):
             return eq.poly(data_point, param.coefs,
                            self.key_file["bad_data_val"]).result
 
+        elif d_type == "mrctherm":            
+            ## in this case windspeed is the mrcexcitation from coef_3 in the input data.
+            return eq.mrctherm(data_point, windspeed, param["Coef_1"],
+                           self.key_file["bad_data_val"]).result
+                   
         elif d_type == "sm":
             return eq.sm(data_point, param.coefs,
                            self.key_file["bad_data_val"]).result

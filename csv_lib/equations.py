@@ -89,6 +89,48 @@ class thermistor(equation):
         self.result = (1 / (self.A + self.B * log(r) + self.C * log(r) ** 3)\
                         - 273.15) + self.offset
 
+class mrctherm(equation):
+    """
+        This class is for processing thermistor values using the 
+    Steinhart-Hart equation. This class takes a resistance and cofficents and
+    calculates a temperature into the resultant variable
+    """
+    def __init__(self, variable, mrcexcite, offset = 0,  bad_val = 6999):
+        """ 
+        Class initializer  
+        
+        arguments:
+            variable:        (convertible to float) the resistance variable value
+            offset:         (convertible to float) a correctional offset
+            mrcexccol:         column for the mrc excitation voltage
+            bad_val:        (convertible to int) the value to indicate a 
+                        bad data item  
+        """
+        self.mrcexcite = float(mrcexcite)
+        self.variable = float(variable)
+        self.A = 2.4886e-3
+        self.B = 2.5079e-4
+        self.C = 3.1754e-7
+        self.offset = float(offset)
+        super(mrctherm, self).__init__(variable, bad_val)
+        
+    
+    def calc(self):
+        """
+        Calculates the Steinhart-Hart conversion from millivolt output on the logger into temperature
+        
+        """
+
+        if abs(self.variable) >= 6999 or self.variable <=0:
+            self.result = self.bad_value
+            return
+        
+        mrcv0 = self.variable
+        mrcex = self.mrcexcite
+        
+        r = ( (mrcex - mrcv0)  / mrcv0)  * 20
+        self.result = (1 / (( self.A + self.B * log(r) + self.C * ( log(r) ** 3) ) ) \
+                        - 273.15) + self.offset
 
 class poly(equation):
     """ 
