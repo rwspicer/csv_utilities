@@ -437,7 +437,7 @@ class datapro_v3(util.utility_base):
                         self.key_file["logger_type"] + '\n'],
                 ["TimeStamp", row["Output_Header_Name"] + '\n'],
                 ["", row["Output_Header_Name"] + '\n'],
-                ["", row["Output_Header_Measurment_Type"] + '\n']]
+                ["Date", row["Output_Header_Measurment_Type"] + '\n']]
 
 
     def initlize_params(self):
