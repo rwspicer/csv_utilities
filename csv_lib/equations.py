@@ -342,7 +342,7 @@ class rh(equation):
         """
         Calculates the polynomial function value
         """
-        if abs(self.variable) >= 6999:
+        if abs(self.variable) >= 108:
             self.result = self.bad_value
             return
         elif self.variable > 100 and self.variable < 108 :
@@ -377,3 +377,34 @@ class sw(equation):
             self.result = 0
             return
         self.result = self.variable
+
+class battery(equation):
+    """
+        This class looks for out of range battery voltage values... usually a symptom of a data logger problem or a misclassified data element.
+    """
+
+    def __init__ (self, var, bad_val = 6999):
+        """
+        Class initializer
+
+        Arguments:
+            var:            (convertible to float)  the domain value
+            bad_val:        (convertible to int) the value to indicate a
+                        bad data item
+        """
+        super(battery, self).__init__(var, bad_val)
+
+    def calc(self):
+        """
+        Calculates the polynomial function value
+        """
+        if abs(self.variable) >= 20.0:
+            self.result = self.bad_value
+            return
+        elif self.variable < 8.0 :
+            self.result = self.bad_value
+            return
+        self.result = self.variable
+
+
+
