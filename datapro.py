@@ -365,7 +365,6 @@ class datapro_v3(util.utility_base):
                                       " array ID is not an integer\n"
                 self.error_files = True
                 continue
-            
             if int(item[0]) == int(self.key_file["array_id"]):
                 if len(item) != int(self.key_file["arrays"]):
                     # log errors if the line has the wrong number of elements
@@ -384,7 +383,7 @@ class datapro_v3(util.utility_base):
                     if  (d_num == 365 or d_num == 366) and d_last == 1:
                         year -= 1
                         d_last = int(item[day_col])
-                
+               ## print year, item[day_col], item[hour_col]
                 self.date_col.insert(0,csvd.julian_to_datetime(year,
                                         item[day_col], item[hour_col]))
                 
@@ -618,6 +617,9 @@ class datapro_v3(util.utility_base):
                                                     d_type == "thermF":
                 value = value * 9.0 / 5.0 + 32
             return value
+        elif d_type == "battery":
+            return eq.battery(data_point,
+                           self.key_file["bad_data_val"]).result
 
         elif d_type == "poly":
             return eq.poly(data_point, param.coefs,
