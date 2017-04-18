@@ -72,9 +72,9 @@ def start_date(date):
         the date as a datetime with year as 1000
     """
     if (date == ""):
-        return datetime(1000, 05, 01)
+        return datetime(1004, 05, 01)
     else: 
-        return datetime(1000, int(date[0:2]), int(date[3:5]))
+        return datetime(1004, int(date[0:2]), int(date[3:5]))
 
 
 def end_date(date):
@@ -88,9 +88,9 @@ def end_date(date):
         the date as a datetime with year as 1000
     """
     if (date == ""):
-        return datetime(1000, 10, 01)
+        return datetime(1004, 10, 01)
     else: 
-        return datetime(1000, int(date[0:2]), int(date[3:5]))
+        return datetime(1004, int(date[0:2]), int(date[3:5]))
    
     
 def precip_check(p_dates, p_vals, at_dates, at_vals, interval, cutoff):
@@ -120,7 +120,8 @@ def precip_check(p_dates, p_vals, at_dates, at_vals, interval, cutoff):
                                                                           ,'*')
             exit_on_failure()
             # how to handle this?
-        date = p_dates[index].replace(year = 1000)
+        print p_dates[index], p_vals[index], at_dates[index], at_vals[index]
+        date = p_dates[index].replace(year = 1004)
         if not(csvd.is_in_interval(date, interval)):
             o_val.insert(index, bad_val)
             

@@ -236,7 +236,7 @@ def main():
             my_url.add_item(key, str(from_si(temp[1][idx], units)))
         del temp
 
-    print my_url
+    #print my_url
     my_url.send(True)
 
     exit_on_success()
