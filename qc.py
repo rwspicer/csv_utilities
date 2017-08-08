@@ -92,7 +92,7 @@ def qc_func(in_data, xl_data, log_file):
             if items == xitm :
                 # check to see if the data has been set to bad
                 # or if it has been replaced by something else legit.
-                if is_bv(xl_data[1][xidx]) or (abs(in_data[1][index] - xl_data[1][xidx]) < 0.01 ):
+                if is_bv(xl_data[1][xidx]) or (abs(in_data[1][index] - xl_data[1][xidx]) < 0.01 ) or (is_bv(xl_data[1][xidx]) == False ):
                     f_stream.write(str(items) + ",Manual QC, Orignal:" + \
                                     str(in_data[1][index]) + " Replacment: " + \
                                     str(xl_data[1][xidx]) + "\n")

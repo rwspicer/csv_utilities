@@ -26,3 +26,5 @@ XTEST.py
 *.pckl
 *.data
 *.DS_Store
+OCS/pakbus.py
+*.save
