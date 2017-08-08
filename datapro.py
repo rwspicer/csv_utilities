@@ -555,41 +555,6 @@ class datapro_v3(util.utility_base):
         return col
 
 
-    def process_data_point_therm(self, data_point, index):
-        """
-            process data if it uses a therm file
-
-        arguments:
-            data_point:     (float|string) the data to process
-            index:          (int) index to the param array
-        """
-        try:
-            data_point = float(data_point)
-        except ValueError:
-            return float(self.key_file["bad_data_val"])
-
-
-        param = self.param_file.params[index]
-        d_type = param["Data_Type"]
-
-        if d_type == "therm_1":
-            therm_file = self.therm1
-        elif d_type == "therm_2":
-            d_file = self.therm2
-        elif d_type == "therm_3":
-            therm_file = self.therm3
-        else:
-            return float(self.key_file["bad_data_val"])
-
-        therm_idx = therm_file.bin_search(data_point)
-        therm_vals = therm_file[therm_idx]
-
-        value = eq.thermistor(data_point, therm_vals.A, therm_vals.B,
-                                          therm_vals.C, param["Coeff_4"],
-                                          self.ket_file["bad_data_val"])
-        return value
-
-
     def process_data_point(self, data_point, index, windspeed):
         """
             process the data
@@ -607,6 +572,9 @@ class datapro_v3(util.utility_base):
         d_type = param["Data_Type"]
 
         if d_type == "num" or d_type == "net" or d_type == "precip":
+            # should still be checking here if value is bad.  to convert -6999 to 6999
+            # and stray 7777 values or -9999 values etc
+            # 3/2/2017
             return data_point
 
         elif d_type == "therm" or d_type == "thermF":
@@ -657,12 +625,12 @@ class datapro_v3(util.utility_base):
                                 param["Coef_3"],
                                 self.key_file["bad_data_val"]).result
         elif d_type == "therm_1" or d_type == "therm_2" or d_type == "therm_3":
-            return process_data_point_therm(data_point, index)
+            return self.process_data_point_therm(data_point, index)
 
         elif d_type == "rh" :
             return eq.rh(data_point, self.key_file["bad_data_val"]).result
         elif d_type == "swrad" :
-            return eq.sw(data_point, self.key_file["bad_data_val"]).result
+            return eq.sw(data_point, bad_val=self.key_file["bad_data_val"], mult=param["Coef_2"]  ).result
         else:
             return float(self.key_file["bad_data_val"])
 
@@ -727,6 +695,40 @@ class datapro_v3(util.utility_base):
                 qc_file.write("\n")
 
         return data
+
+    def process_data_point_therm(self, data_point, index):
+        """
+            process data if it uses a therm file
+
+        arguments:
+            data_point:     (float|string) the data to process
+            index:          (int) index to the param array
+        """
+        try:
+            data_point = float(data_point)
+        except ValueError:
+            return float(self.key_file["bad_data_val"])
+
+
+        param = self.param_file.params[index]
+        d_type = param["Data_Type"]
+
+        if d_type == "therm_1":
+            therm_file = self.therm1
+        elif d_type == "therm_2":
+            d_file = self.therm2
+        elif d_type == "therm_3":
+            therm_file = self.therm3
+        else:
+            return float(self.key_file["bad_data_val"])
+
+        therm_idx = therm_file.bin_search(data_point)
+        therm_vals = therm_file[therm_idx]
+
+        value = eq.thermistor(data_point, therm_vals.A, therm_vals.B,
+                                          therm_vals.C, param["Coeff_4"],
+                                          self.ket_file["bad_data_val"])
+        return value
 
     def process_param_save(self, out_file, data):
         """

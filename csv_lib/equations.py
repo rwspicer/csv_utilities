@@ -355,7 +355,7 @@ class sw(equation):
         This class corrects shortwave radiation data to 0 at night when it just a bit below 0 and should read 0.
     """
 
-    def __init__ (self, var, bad_val = 6999):
+    def __init__ (self, var, bad_val = 6999, mult = 1.0):
         """
         Class initializer
 
@@ -364,19 +364,25 @@ class sw(equation):
             bad_val:        (convertible to int) the value to indicate a
                         bad data item
         """
+        if float(mult) == 0 : 
+            self.mult = 1.0
+        else:
+            self.mult = float(mult)
         super(sw, self).__init__(var, bad_val)
 
     def calc(self):
         """
         Calculates the polynomial function value
         """
+        rawval = self.variable
+        adjustedval = rawval * self.mult
         if abs(self.variable) >= 6999:
             self.result = self.bad_value
             return
-        elif self.variable < 0.0 and self.variable > -40.0 :
+        elif adjustedval < 0.0 and adjustedval > -40.0 :
             self.result = 0
             return
-        self.result = self.variable
+        self.result = adjustedval
 
 class battery(equation):
     """
