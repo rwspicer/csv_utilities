@@ -58,7 +58,7 @@ class thermistor(equation):
     Steinhart-Hart equation. This class takes a resistance and cofficents and
     calculates a temperature into the resulat variable
     """
-    def __init__(self, variable, a, b, c, offset = 0 , bad_val = 6999):
+    def __init__(self, variable, a, b, c, offset = 0.0 , bad_val = 6999):
         """
         Class initializer
 
@@ -73,7 +73,10 @@ class thermistor(equation):
         self.A = float(a)
         self.B = float(b)
         self.C = float(c)
-        self.offset = float(offset)
+        try:
+            self.offset = float(offset)
+        except:
+            self.offset = 0.0
         super(thermistor, self).__init__(variable, bad_val)
 
 

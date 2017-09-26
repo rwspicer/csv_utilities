@@ -267,14 +267,14 @@ class datapro_v3(util.utility_base):
         """
         if self.key_file['therm1'] != "null":
             try:
-                therm1 = ThermFile(self.key_file['therm1'])
+                self.therm1 = ThermFile(self.key_file['therm1'])
             except IOError:
                 self.errors.set_error_state("I/O Error",
                                             "thermistor file 1 not found")
 
         if self.key_file['therm2'] != "null":
             try:
-                therm2 = ThermFile(self.key_file['therm2'])
+                self.therm2 = ThermFile(self.key_file['therm2'])
             except IOError:
                 self.errors.set_error_state("I/O Error",
                                             "thermistor file 2 not found")
@@ -287,7 +287,7 @@ class datapro_v3(util.utility_base):
 
         if self.key_file['therm3'] != "null":
             try:
-                therm3 = ThermFile(self.key_file['therm3'])
+                self.therm3 = ThermFile(self.key_file['therm3'])
             except IOError:
                 self.errors.set_error_state("I/O Error",
                                             "thermistor file 3 not found")
@@ -716,7 +716,7 @@ class datapro_v3(util.utility_base):
         if d_type == "therm_1":
             therm_file = self.therm1
         elif d_type == "therm_2":
-            d_file = self.therm2
+            therm_file = self.therm2
         elif d_type == "therm_3":
             therm_file = self.therm3
         else:
@@ -727,7 +727,7 @@ class datapro_v3(util.utility_base):
 
         value = eq.thermistor(data_point, therm_vals.A, therm_vals.B,
                                           therm_vals.C, param["Coeff_4"],
-                                          self.ket_file["bad_data_val"])
+                                          self.key_file["bad_data_val"])
         return value
 
     def process_param_save(self, out_file, data):
