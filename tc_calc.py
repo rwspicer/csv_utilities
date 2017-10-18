@@ -19,23 +19,23 @@ HELP = """
     calculates thermal conductivity from a .dat file
     
     example usage:
-    >> python tc_calc.py --inFile=<.dat file> --outFile=<.csv file>
-    --timeCol=<#> --tempCol=<#>
+    >> python tc_calc.py --infile=<.dat file> --outfile=<.csv file>
+    --timecol=<#> --tempcol=<#>
 
     flags:
-    --inFile
+    --infile
         the input .dat file
     
-    --outFile
+    --outfile
         the output .csv file
 
-    --timeCol
+    --timecol
         0 based index to the time column 
         
-    --tempCol
+    --tempcol
         0 based index to the trise temperature column 
         
-    --powerCol
+    --powercol
         0 based index to the power column 
     
 """
@@ -55,8 +55,8 @@ class CalcK(utility_base):
             utility is ready to be run
         """
         super(CalcK, self).__init__(" CalcK " ,
-                    ("--inFile", "--outFile", "--timeCol", "--tempCol") ,
-                    ("--powerCol", ),
+                    ("--infile", "--outfile", "--timecol", "--tempcol") ,
+                    ("--powercol", ),
                     HELP)
 
 
@@ -70,10 +70,10 @@ class CalcK(utility_base):
             utility is run
         """
         # set up 
-        data = DatFile(self.commands["--inFile"],"4")
-        timeC = int(self.commands["--timeCol"])
-        tempC = int(self.commands["--tempCol"])
-        powerC = self.commands["--powerCol"]
+        data = DatFile(self.commands["--infile"],"4")
+        timeC = int(self.commands["--timecol"])
+        tempC = int(self.commands["--tempcol"])
+        powerC = self.commands["--powercol"]
         columns = [data.getColumn(0), 
                    np.array(data.getColumn(timeC)).astype(float),
                    np.array(data.getColumn(tempC)).astype(float)]
@@ -82,10 +82,10 @@ class CalcK(utility_base):
             columns.append(np.array(data.getColumn(powerC)).astype(float))
         
         # test out put
-        out_file = CsvFile(self.commands["--outFile"], opti = True)
+        out_file = CsvFile(self.commands["--outfile"], opti = True)
         last_date = datetime(1000,1,1) 
         if not out_file.exists():
-            fd = open(self.commands["--inFile"])
+            fd = open(self.commands["--infile"])
             first_line = fd.read().split(",")[0:2]
             first_line[1] += "\n"
             out_file.set_header([ first_line,
