@@ -42,7 +42,7 @@ class   equation(object):
             Placeholder calc function. This function should be overloaded to
         calcualte the result of the function being represnted.
         """
-        print "i should be overloaded"
+        print ("i should be overloaded")
 
     def __float__(self):
         """
@@ -263,6 +263,52 @@ class netrad(equation):
         self.negical = float(negical)
         self.windspeed = float(windspeed)
         super(netrad, self).__init__(var, bad_val)
+    def calc(self):
+        """
+        calculates the netrad in to the result memver
+        """
+
+        if abs(self.variable) >= self.bad_val :
+            self.result = self.bad_val
+            return
+
+        if(abs(self.windspeed) >= .3):
+            pos_correction = 1 + (.066 * .2 * self.windspeed)/ \
+                                (.066 + (.2 * self.windspeed))
+            neg_correction = (.00174 * self.windspeed) + .99755
+            uncorrected = flux(self.variable, self.posical, self.negical,
+                                             self.bad_val).result
+            if uncorrected >= 0:
+                self.result = uncorrected * pos_correction
+            else:
+                self.result = uncorrected * neg_correction
+        else:
+            self.result = flux(self.variable, self.posical, self.negical,
+                                             self.bad_val).result
+
+class albedo(equation):
+    """
+    This class represents a netrad function
+    """
+
+    def __init__ (self, var, lat, long, bad_val = 6999):
+        """
+        Class initializer
+
+        Arguments:
+            var:            (convertible to float)  the domain value
+            lat:      (convertible to float) latitude in decimal degrees
+            long:        (convertible to float) longitude in decimal degrees
+                        values
+            bad_val:        (convertible to int) the value to indicate a
+                        bad data item
+        """
+        self.lat = float(lat)
+        self.long = float(long)
+        
+        
+        super(albedo, self).__init__(var, bad_val)
+
 
     def calc(self):
         """
