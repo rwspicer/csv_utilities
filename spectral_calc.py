@@ -116,10 +116,10 @@ class CalcNDVI(utility_base):
                 idx = idx + 1
                 continue
             # this point is where the magic happens.
-            raw_index = self.calc_NDVIindex(columns[1][idx],
-                                      columns[2][idx],
-                                      columns[3][idx],
-                                      columns[4][idx],)
+            raw_index = self.calc_NDVIindex(float(columns[1][idx]),
+                                      float(columns[2][idx]),
+                                      float(columns[3][idx]),
+                                      float(columns[4][idx]),)
             isdark = self.calc_SunAngle(latitude,longitude,datetime.strptime(compVal,'"%Y-%m-%d %H:%M:%S"'))
             if isdark == 6999 :
                 spec_vals.append(6999.0)
@@ -148,8 +148,15 @@ class CalcNDVI(utility_base):
 
         Returns the NDVI value
         """
-        NDVIval =  (bottomNIR / topNIR - bottomRED / topRED ) / (bottomNIR / topNIR + bottomRED / topRED )
+        try:
+            if (topNIR <>0 and topRED) <> 0 :
+                NDVIval =  (bottomNIR / topNIR - bottomRED / topRED ) / (bottomNIR / topNIR + bottomRED / topRED )
+            else:
+                NDVIval = 6999
+        except:
+            NDVIval = 6999
         return NDVIval
+
 
 
     def calc_SunAngle(self, latitude,longitude, curdate) :
@@ -237,7 +244,7 @@ class CalcNDVI(utility_base):
 		        refractionCorrection = -20.774 / te
 	        refractionCorrection = refractionCorrection / 3600.0
 	        solarZen = zenith - refractionCorrection
-        if(solarZen < 95.0) :  #had been 108.0
+        if(solarZen < 95.0) :  #had been 108.0 on web page... lowered the value to reduce sensor noise at lower sun angles
             # Daylight
             return 1
         else :
