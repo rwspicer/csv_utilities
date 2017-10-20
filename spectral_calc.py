@@ -21,7 +21,7 @@ HELP = """
 
     example usage:
     >> python spectral_calc.py --infile=<.dat file> --outfile=<.csv file>
-    --up1pcol=<#> --up2col=<#> --down1col=<#> --down2col=<#> --title=" "
+    --up1pcol=<#> --up2col=<#> --down1col=<#> --down2col=<#> --title=" " --lat=#.# --long=#.#
 
     flags:
     --infile
@@ -43,6 +43,10 @@ HELP = """
         0 based index to the column for NDVI NIR Bottom Side in .dat
     --title
         Column Header name for data output file
+    --lat
+        latitude (north is positive) value in decimal degrees.
+    --long
+        longitude (east is positive) value in decimal degrees.
 
 """
 
@@ -61,7 +65,7 @@ class CalcNDVI(utility_base):
             utility is ready to be run
         """
         super(CalcNDVI, self).__init__(" CalcNDVI " ,
-                    ("--infile", "--outfile", "--up1col", "--up2col", "--down1col", "--down2col", "--title" ) ,
+                    ("--infile", "--outfile", "--up1col", "--up2col", "--down1col", "--down2col", "--title", "--lat", "--long") ,
                     ( ),
                     HELP)
 
@@ -82,6 +86,8 @@ class CalcNDVI(utility_base):
         down1col = int(self.commands["--down1col"])
         down2col = int(self.commands["--down2col"])
         title = str(self.commands["--title"])
+        latitude = float(self.commands["--lat"])
+        longitude = float(self.commands["--long"])
         columns = [data.getColumn(0),
                    np.array(data.getColumn(up1col)).astype(float),
                    np.array(data.getColumn(up2col)).astype(float),
@@ -114,7 +120,7 @@ class CalcNDVI(utility_base):
                                       columns[2][idx],
                                       columns[3][idx],
                                       columns[4][idx],)
-            isdark = self.calc_SunAngle(64.725314,-165.944539,datetime.strptime(compVal,'"%Y-%m-%d %H:%M:%S"'))
+            isdark = self.calc_SunAngle(latitude,longitude,datetime.strptime(compVal,'"%Y-%m-%d %H:%M:%S"'))
             if isdark == 6999 :
                 spec_vals.append(6999.0)
             else:
