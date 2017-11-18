@@ -18,6 +18,10 @@ import math as Math
 
 HELP = """
     calculates NDVI & PRI from a .dat file
+    up1col corresponds to the first value returned by an SDI-12 measurement request for the up facing NDVI/PRI sensor
+    up2col corresponds to the second value returned by an SDI-12 measurement request for the up facinv NDVI/PRI sensor
+    down1col corresponds to the first value returned by an SDI-12 measurement request for the NDVI/PRI sensor pointed at the vegetation of interest
+    down2col corresponds to the second value returned by an SDI-12 measurement request for the NDVI/PRI sensor pointed at the vegetation of interest
 
     example usage:
     >> python spectral_calc.py --infile=<.dat file> --outfile=<.csv file>
@@ -31,22 +35,23 @@ HELP = """
         the output .csv file
 
     --up1col
-        0 based index to the column for NDVI Red top side in .dat
+        0 based index to the column for NDVI Red top side or PRI 570nm top side in CSI.dat
 
     --up2col
-        0 based index to the column for NDVI NIR top side in .dat
+        0 based index to the column for NDVI NIR top side or PRI 531nm top side in CSI.dat
 
     --down1col
-        0 based index to the column for NDVI Red Bottom Side in .dat
+        0 based index to the column for NDVI Red Bottom side or PRI 570nm bottom side in CSI.dat
 
     --down2col
-        0 based index to the column for NDVI NIR Bottom Side in .dat
+        0 based index to the column for NDVI NIR Bottom side or PRI 531nm bottom side in CSI.dat
     --title
         Column Header name for data output file
     --lat
         latitude (north is positive) value in decimal degrees.
     --long
         longitude (east is positive) value in decimal degrees.
+
 
 """
 
@@ -144,9 +149,15 @@ class CalcNDVI(utility_base):
             topNIR: a float of the upper sensor's near infrared signal value
             botomRED: a float of the veg specific lower sensor's red signal value
             bottomNIR: a float of the veg specific lower sensor's near infrared signal value
-
-
         Returns the NDVI value
+
+        Arguments for PRI:
+            topRed = top570nm
+            topNIR = top531nm
+            bottomRED = bottom570nm
+            bottomNIR = bottom570nm
+
+        Returns the PRI value
         """
         try:
             if (topNIR <>0 and topRED) <> 0 :
