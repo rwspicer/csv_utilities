@@ -7,7 +7,7 @@ modified: 2014/12/03
 Part of DataPro Version 3
 
     This class represents the data files used in datapro, table or array types.
-It stores each data row in an array, as an array of each value in each row. 
+It stores each data row in an array, as an array of each value in each row.
 Access is achieved via the [] operator
 
     version 2015.7.9.1:
@@ -35,10 +35,10 @@ class DatFile(object):
     def __init__(self, file_name, logger_type = "auto"):
         """
             loads the file
-            
+
         arguments:
             file_name:      (string) the file name
-            logger_type:    <"auto"|"table"|"array"|"tram"|#> 
+            logger_type:    <"auto"|"table"|"array"|"tram"|#>
                         the type of the logger. "auto" will guess and is set by
                         default. if a # is set it should be in number of lines
                         in the header
@@ -47,24 +47,27 @@ class DatFile(object):
         raw_data = data_file.read()
         data_file.close()
         data = []
-        array_ids = [] # for optimizing array files actions 
+        array_ids = [] # for optimizing array files actions
+        badnum = '6999.0'
+        NAN = '"NAN"'
+        raw_data = raw_data.replace(NAN,badnum)   # added this not for datapro but other utilities like tc_calc & spectral calc.
+
         for item in raw_data.strip().replace('\r','').split('\n'):
             #is it a blank line or comment
             if len(item) == 0 or item[0] == "#" or item[0] == ',':
                 continue
             temp = item.split(',')
-            
             data.append(temp)
             array_ids.append(temp[0])
-            
-        
+
+
         if (logger_type == "auto"):
             if not data[0][0].isdigit():
                 logger_type = "table"
             else:
                 logger_type = "array"
-        
-        self.col_names = [] 
+
+        self.col_names = []
         if logger_type == "table":
             self.logger_type = "table"
             self.data = data[4:]
@@ -82,27 +85,27 @@ class DatFile(object):
             self.logger_type = "other"
             self.data = data[int(logger_type):]
             self.array_ids = set() #empty set
- 
- 
+
+
     def __getitem__(self, idx):
         """
             overlaods the __getitem__ function
-        
+
         arguments:
             idx:    (int) the number of the row
-        
+
         returns:
             the array reprenting the requested row
         """
         return self.data[idx]
-    
+
     def getColumn(self, num):
         """
             gets a column from the .dat file
-            
+
         arguments:
             num:    (int) the column number
-        
+
         returns:
             the column
         """
@@ -114,4 +117,4 @@ class DatFile(object):
         for row in self.data:
             col.append(row[num])
         return col
-        
+
