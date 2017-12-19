@@ -23,6 +23,16 @@ HELP = """
     down1col corresponds to the first value returned by an SDI-12 measurement request for the NDVI/PRI sensor pointed at the vegetation of interest
     down2col corresponds to the second value returned by an SDI-12 measurement request for the NDVI/PRI sensor pointed at the vegetation of interest
 
+    pNIR = VegNIR / Incident NIR
+    pRED =  VegRED / Incident RED
+    p531 = Veg531nm / Incident 531nm
+    p570 = Veg570nm / Incident 570nm
+
+    NDVI = ( pNIR - pRED) / (pNIR + pRED)
+    NDVI = (down2col / up2col - down1col ) / up1col ) / (down2col / up2col + down1col )
+    PRI = ( p531 - p570 ) / (p531 + p570)
+    PRI = (down1col / up1col - down2col / up2col ) / (down1col / up1col + down2col / up2col )
+
     example usage:
     >> python spectral_calc.py --infile=<.dat file> --outfile=<.csv file>
     --up1pcol=<#> --up2col=<#> --down1col=<#> --down2col=<#> --title=" " --lat=#.# --long=#.#
@@ -58,7 +68,7 @@ HELP = """
 
 class CalcNDVI(utility_base):
     """
-        a utility to calcualte the thermal conductivity
+        a utility to calculate NDVI & PRI
     """
     def __init__(self):
         """
@@ -70,7 +80,7 @@ class CalcNDVI(utility_base):
             utility is ready to be run
         """
         super(CalcNDVI, self).__init__(" CalcNDVI " ,
-                    ("--infile", "--outfile", "--up1col", "--up2col", "--down1col", "--down2col", "--title", "--lat", "--long") ,
+                    ("--infile", "--outfile", "--up1col", "--up2col", "--down1col", "--down2col", "--title", "--lat", "--long", "--type") ,
                     ( ),
                     HELP)
 
@@ -91,13 +101,22 @@ class CalcNDVI(utility_base):
         down1col = int(self.commands["--down1col"])
         down2col = int(self.commands["--down2col"])
         title = str(self.commands["--title"])
+        srstype = str(self.commands["--type"])
         latitude = float(self.commands["--lat"])
         longitude = float(self.commands["--long"])
-        columns = [data.getColumn(0),
+        if srstype == "NDVI" :
+            columns = [data.getColumn(0),
                    np.array(data.getColumn(up1col)).astype(float),
                    np.array(data.getColumn(up2col)).astype(float),
                    np.array(data.getColumn(down1col)).astype(float),
                    np.array(data.getColumn(down2col)).astype(float)]
+        elif srstype == "PRI" :
+            columns = [data.getColumn(0),
+                   np.array(data.getColumn(up2col)).astype(float),
+                   np.array(data.getColumn(up1col)).astype(float),
+                   np.array(data.getColumn(down2col)).astype(float),
+                   np.array(data.getColumn(down1col)).astype(float)]
+
         # test out put
         out_file = CsvFile(self.commands["--outfile"], opti = True)
         last_date = datetime(1000,1,1)
@@ -125,10 +144,13 @@ class CalcNDVI(utility_base):
                                       float(columns[2][idx]),
                                       float(columns[3][idx]),
                                       float(columns[4][idx]),)
+
             isdark = self.calc_SunAngle(latitude,longitude,datetime.strptime(compVal,'"%Y-%m-%d %H:%M:%S"'))
             if isdark == 6999 :
                 spec_vals.append(6999.0)
             else:
+                if abs(raw_index)> 1.0 :
+                    raw_index = 6999.0
                 spec_vals.append(raw_index)
 
             spec_dates.append(datetime.strptime(compVal,'"%Y-%m-%d %H:%M:%S"'))
