@@ -96,6 +96,8 @@ class AlbedoFix(utility_base):
                 continue
             # this point is where the magic happens.
             raw_index = float(columns[1][idx])
+            if raw_index < 0 : raw_index = 6999.0
+            if raw_index >1 : raw_index = 6999.0
             isdark = self.calc_SunAngle(latitude,longitude,datetime.strptime(compVal,'"%Y-%m-%d %H:%M:%S"'))
             if isdark == 6999 :
                 alb_vals.append(6999.0)

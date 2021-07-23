@@ -141,8 +141,8 @@ class ParamFile(object):
         """
         try:
             p_file = open(self.file_name, "r") 
-        except IOError:
-            raise IOError, "1: Param File not found"
+        except ( IOError ):
+            raise IOError
         p_file.readline()
         idx = 1
         for rows in p_file.read().strip().replace('"',""). \
@@ -156,8 +156,8 @@ class ParamFile(object):
                                      args[9], args[10], args[11], 
                                      args[12], args[13], args[14], 
                                      args[15]))
-            except IndexError:
-                raise IOError, "2: Param File read failure at line " + str(idx)
+            except ( IndexError ):
+                raise IOError
                  
         p_file.close()
            

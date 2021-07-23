@@ -44,8 +44,10 @@ modified: 2014/08/08
         this version of the plotting module supports graphing intervals
 
 """
+from __future__ import absolute_import
 import numpy
 from matplotlib import use
+from six.moves import range
 use('Agg') 
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
@@ -191,9 +193,9 @@ class PlotClass:
             try:
                 self.plot_files[files] = csvf.CsvFile(files, True)
                 temp_key = files
-            except IOError:
+            except ( IOError ):
                 exc_str = "' cannot be plotted as it does not exist."
-                raise IOError, "The file  '" + files + exc_str 
+                raise IOError
         self.interval = csvd.make_interval("min","max")
         self.y_label = self.plot_files[temp_key].get_header()[-2][1]
         self.x_label = ""
@@ -296,7 +298,7 @@ class PlotClass:
             if length == 0:
                 length = len(items)
             if length != len(items):
-                raise RuntimeError, "data sets not same length"
+                raise RuntimeError
                 
         avg = values[0] - values[0]
         num = 0

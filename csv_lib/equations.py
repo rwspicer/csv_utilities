@@ -15,8 +15,11 @@ Part of DataPro Version 3
     version 2014.9.29.1:
         fixed minor errors
 """
+from __future__ import absolute_import
+from __future__ import print_function
 from math import log
-
+import math
+from six.moves import range
 
 class   equation(object):
     """
@@ -141,7 +144,7 @@ class poly(equation):
     (ie. 4x^2 + 1 is (1 , 0, 4), or 5x^3 is (0, 0, 0, 5)
     """
 
-    def __init__ (self, var, coefs, bad_val = 6999):
+    def __init__ (self, var, coefs, bad_value = 6999):
         """
         Class initializer
 
@@ -152,7 +155,7 @@ class poly(equation):
                         bad data item
         """
         self.coefs = coefs
-        super(poly, self).__init__(var, bad_val)
+        super(poly, self).__init__(var, bad_value)
 
     def calc(self):
         """
@@ -166,6 +169,40 @@ class poly(equation):
         for idx in range(len(self.coefs)):
             temp += float(self.coefs[idx]) * self.variable ** idx
         self.result = temp
+
+class stage(equation):
+    """
+        This class represents a polynomial function with a variable number of
+    terms. The coefficient for each term should be passed in a tuple containing
+    the coefficients value at the power term it will be used at.
+    (ie. 4x^2 + 1 is (1 , 0, 4), or 5x^3 is (0, 0, 0, 5)
+    """
+
+    def __init__ (self, variable, coefs, bad_value = 6999):
+        """
+        Class initializer
+
+        Arguments:
+            variable:       (convertible to float)  the domain value
+            coefs:          (tuple of numbers) the cofficents for the stage to discharge parameterization
+            bad_val:        (convertible to int) the value to indicate a
+                        bad data item
+        """
+        self.coefs = coefs
+        super(stage, self).__init__(variable, bad_value)
+
+    def calc(self):
+        """
+        Calculates the discharge function value
+        """
+
+        if abs(self.variable) >= 6999:
+            self.result = self.bad_value
+            return
+
+        temp = float(self.coefs[0]) + float(self.coefs[1]) *  log(self.variable) + float(self.coefs[2]) *  log(self.variable) *  log(self.variable)
+        self.result = temp
+
 
 class sm(equation):
     """
@@ -304,9 +341,9 @@ class albedo(equation):
                         bad data item
         """
         self.lat = float(lat)
-        self.long = float(long)
-        
-        
+        self.long = float(int)
+
+
         super(albedo, self).__init__(var, bad_val)
 
 
@@ -413,7 +450,7 @@ class sw(equation):
             bad_val:        (convertible to int) the value to indicate a
                         bad data item
         """
-        if float(mult) == 0 : 
+        if float(mult) == 0 :
             self.mult = 1.0
         else:
             self.mult = float(mult)
@@ -461,5 +498,37 @@ class battery(equation):
             return
         self.result = self.variable
 
+class wind(equation):
+    """
+    The function is for wind to qa rime ice.
+    """
 
+    def __init__ (self, var, bad_val = 6999):
+        """
+        Class initializer
+
+        Arguments:
+            var:            (convertible to float)  the domain value
+            posical:        (convertible to float) the multiplier for positive
+                        values
+            negical:        (convertible to float) the multiplier for negative
+                        values
+            bad_val:        (convertible to int) the value to indicate a
+                        bad data item
+        """
+        super(wind, self).__init__(var, bad_val)
+
+
+    def calc(self):
+        """
+        wind qc (slightly different from wtraight up num type)
+        """
+        if abs(self.variable) >= 6999:
+            self.result = self.bad_value
+            return
+
+        if self.variable == 0. :
+            self.result = self.bad_value
+        else:
+            self.result = self.variable
 

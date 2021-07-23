@@ -10,6 +10,7 @@ updated: 2015/09/02
 
 #~ import urllib2
 #~ from datetime import datetime
+from __future__ import absolute_import
 import requests
 
 class FileDownloader (object):
@@ -24,7 +25,7 @@ class FileDownloader (object):
         
         self.response = requests.get(self.url)
         if self.response.reason != 'OK':
-            raise StandardError, "Unable to download: " + self.response.reason
+            raise Exception
         #~ time = (end - start).seconds * 1000000 + (end - start).microseconds
         #~ time = (end - start).total_seconds()
         #~ time /= 1000000.0

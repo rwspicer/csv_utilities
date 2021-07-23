@@ -28,3 +28,4 @@ XTEST.py
 *.DS_Store
 OCS/pakbus.py
 *.save
+*.bak

@@ -18,6 +18,20 @@ import math as Math
 
 HELP = """
     calculates NDVI & PRI from a .dat file
+    up1col corresponds to the first value returned by an SDI-12 measurement request for the up facing NDVI/PRI sensor
+    up2col corresponds to the second value returned by an SDI-12 measurement request for the up facinv NDVI/PRI sensor
+    down1col corresponds to the first value returned by an SDI-12 measurement request for the NDVI/PRI sensor pointed at the vegetation of interest
+    down2col corresponds to the second value returned by an SDI-12 measurement request for the NDVI/PRI sensor pointed at the vegetation of interest
+
+    pNIR = VegNIR / Incident NIR
+    pRED =  VegRED / Incident RED
+    p531 = Veg531nm / Incident 531nm
+    p570 = Veg570nm / Incident 570nm
+
+    NDVI = ( pNIR - pRED) / (pNIR + pRED)
+    NDVI = (down2col / up2col - down1col ) / up1col ) / (down2col / up2col + down1col )
+    PRI = ( p531 - p570 ) / (p531 + p570)
+    PRI = (down1col / up1col - down2col / up2col ) / (down1col / up1col + down2col / up2col )
 
     example usage:
     >> python spectral_calc.py --infile=<.dat file> --outfile=<.csv file>
@@ -31,16 +45,16 @@ HELP = """
         the output .csv file
 
     --up1col
-        0 based index to the column for NDVI Red top side in .dat
+        0 based index to the column for NDVI Red top side or PRI 570nm top side in CSI.dat
 
     --up2col
-        0 based index to the column for NDVI NIR top side in .dat
+        0 based index to the column for NDVI NIR top side or PRI 531nm top side in CSI.dat
 
     --down1col
-        0 based index to the column for NDVI Red Bottom Side in .dat
+        0 based index to the column for NDVI Red Bottom side or PRI 570nm bottom side in CSI.dat
 
     --down2col
-        0 based index to the column for NDVI NIR Bottom Side in .dat
+        0 based index to the column for NDVI NIR Bottom side or PRI 531nm bottom side in CSI.dat
     --title
         Column Header name for data output file
     --lat
@@ -48,12 +62,13 @@ HELP = """
     --long
         longitude (east is positive) value in decimal degrees.
 
+
 """
 
 
 class CalcNDVI(utility_base):
     """
-        a utility to calcualte the thermal conductivity
+        a utility to calculate NDVI & PRI
     """
     def __init__(self):
         """
@@ -65,7 +80,7 @@ class CalcNDVI(utility_base):
             utility is ready to be run
         """
         super(CalcNDVI, self).__init__(" CalcNDVI " ,
-                    ("--infile", "--outfile", "--up1col", "--up2col", "--down1col", "--down2col", "--title", "--lat", "--long") ,
+                    ("--infile", "--outfile", "--up1col", "--up2col", "--down1col", "--down2col", "--title", "--lat", "--long", "--type") ,
                     ( ),
                     HELP)
 
@@ -86,13 +101,22 @@ class CalcNDVI(utility_base):
         down1col = int(self.commands["--down1col"])
         down2col = int(self.commands["--down2col"])
         title = str(self.commands["--title"])
+        srstype = str(self.commands["--type"])
         latitude = float(self.commands["--lat"])
         longitude = float(self.commands["--long"])
-        columns = [data.getColumn(0),
+        if srstype == "NDVI" :
+            columns = [data.getColumn(0),
                    np.array(data.getColumn(up1col)).astype(float),
                    np.array(data.getColumn(up2col)).astype(float),
                    np.array(data.getColumn(down1col)).astype(float),
                    np.array(data.getColumn(down2col)).astype(float)]
+        elif srstype == "PRI" :
+            columns = [data.getColumn(0),
+                   np.array(data.getColumn(up2col)).astype(float),
+                   np.array(data.getColumn(up1col)).astype(float),
+                   np.array(data.getColumn(down2col)).astype(float),
+                   np.array(data.getColumn(down1col)).astype(float)]
+
         # test out put
         out_file = CsvFile(self.commands["--outfile"], opti = True)
         last_date = datetime(1000,1,1)
@@ -120,10 +144,13 @@ class CalcNDVI(utility_base):
                                       float(columns[2][idx]),
                                       float(columns[3][idx]),
                                       float(columns[4][idx]),)
+
             isdark = self.calc_SunAngle(latitude,longitude,datetime.strptime(compVal,'"%Y-%m-%d %H:%M:%S"'))
             if isdark == 6999 :
                 spec_vals.append(6999.0)
             else:
+                if abs(raw_index)> 1.0 :
+                    raw_index = 6999.0
                 spec_vals.append(raw_index)
 
             spec_dates.append(datetime.strptime(compVal,'"%Y-%m-%d %H:%M:%S"'))
@@ -144,9 +171,15 @@ class CalcNDVI(utility_base):
             topNIR: a float of the upper sensor's near infrared signal value
             botomRED: a float of the veg specific lower sensor's red signal value
             bottomNIR: a float of the veg specific lower sensor's near infrared signal value
-
-
         Returns the NDVI value
+
+        Arguments for PRI:
+            topRed = top570nm
+            topNIR = top531nm
+            bottomRED = bottom570nm
+            bottomNIR = bottom570nm
+
+        Returns the PRI value
         """
         try:
             if (topNIR <>0 and topRED) <> 0 :

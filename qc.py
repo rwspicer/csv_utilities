@@ -16,6 +16,11 @@ modified: 2014/04/14
     version 2013.4.14.1:
         added documetation
 
+
+2021-01-13:  Need to swap out xlrd for openpyxl.  xlsx support removed from xlrd.
+If you want to use anyway before I get that fixed:
+pip3 install xlrd==1.2.0
+
 """
 from csv_lib.csv_utilities import print_center, exit_on_failure, exit_on_success
 import csv_lib.csv_file as csvf
@@ -43,7 +48,7 @@ def fetch_excel_data(file_name):
         for r_index in range(n_rows):
             try:
                 temp = sheet.cell(r_index,c_index)
-                
+
                 if c_index == 0:
                     temp.value = datetime.datetime(*xlrd.xldate_as_tuple(temp.value,
                                                                 wb.datemode))
@@ -118,7 +123,9 @@ def main():
 
     try:
         commands = csva.ArgClass(REQ_FLAGS, OPT_FLAGS, HELP_STR)
-    except RuntimeError, (error_message):
+    except (RuntimeError) :
+        exit_on_failure(error_message[0])
+    except (error_message):
         exit_on_failure(error_message[0])
 
     if commands.is_missing_flags():
@@ -162,7 +169,7 @@ def main():
     in_file[1] = fixed_data[1]
 
     in_file.save()
-
+    print("2021-01-13:  Need to swap out xlrd for openpyxl.  xlsx support removed from xlrd.\n\n\n\n\n")
     exit_on_success()
 
 
