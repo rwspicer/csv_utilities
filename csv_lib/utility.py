@@ -39,14 +39,16 @@ modified: 2014/09/03
     line arguments and errors.
 
 """
-import csv_args as csva
+from __future__ import absolute_import
+from __future__ import print_function
+import csv_lib.csv_args as csva
 import sys
 import datetime as dt
-from csv_file import CsvFile #for saving timing
+from csv_lib.csv_file import CsvFile #for saving timing
 
 class error_instance(object):
     """
-        this class is the represntation of a singal error
+        this class is the represntation of a single error
     """
     def __init__(self, error, msg, other = ""):
         """
@@ -69,7 +71,7 @@ class error_instance(object):
             a string
         """
         tab = "        "
-        tmp_msg = self.error + ": " +  self.msg
+        tmp_msg = str(self.error ) + ": " +  self.msg
         if len(tmp_msg) > 80:
             tmp_msg = self.error +":\n"
             temp = tab+self.msg
@@ -106,9 +108,9 @@ class error_log(object):
         """
         if self.error_state == True:
             for item in self.errors:
-                print item
+                print ( item )
         else:
-            print "no errors"
+            print ( "no errors" )
 
     def get_error_state(self):
         """
@@ -171,7 +173,8 @@ class utility_base(object):
         """
         try:
             self.commands = csva.ArgClass(r_flags, o_flags, self.help_str, False)
-        except RuntimeError, (error_message):
+        #except (RuntimeError, error_message):
+        except Exception as error_message :
             if str(error_message) == "the help string was requested":
                 self.help_bool = True
             elif str(error_message)[:2] == " <":
@@ -179,7 +182,7 @@ class utility_base(object):
                         "The utility does not support a given flag.",
         "FLAG: " + str(error_message)[2:str(error_message).find(">")])
             else:
-                self.errors.set_error_state("unknown", "unknown")
+                self.errors.set_error_state( error=error_message , msg="unknown")
             return
 
         if self.commands.is_missing_flags():
@@ -202,20 +205,20 @@ class utility_base(object):
         try:
             size = struct.unpack('HHHH', fcntl.ioctl(0, termios.TIOCGWINSZ,
                                             struct.pack('HHHH', 0, 0, 0, 0)))[1]
-        except IOError:
+        except ( IOError ):
             size = 80
 
         space = (size - str_len) / 2
         #~ print size, str_len, space
         if (str_len % 2 == 1) and (size % 2 == 0):
-            print self.generate_rep(space + 1, fill) + msg + \
-                                                self.generate_rep(space, fill)
+            print((self.generate_rep(space + 1, fill) + msg + \
+                                                self.generate_rep(space, fill) ))
         elif (str_len % 2 == 0) and (size % 2 == 1):
-            print self.generate_rep(space + 1, fill) + msg + \
-                                                self.generate_rep(space , fill)
+            print(( self.generate_rep(space + 1, fill) + msg + \
+                                                self.generate_rep(space , fill) ))
         else:
-            print self.generate_rep(space, fill) + msg + \
-                                                self.generate_rep(space , fill)
+            print(( self.generate_rep(space, fill) + msg + \
+                                                self.generate_rep(space , fill) ))
 
     def generate_rep(self, length, fill = ' '):
         """
@@ -250,7 +253,7 @@ class utility_base(object):
         """
         self.print_center(self.title, '-')
         if self.help_bool:
-            print self.help_str
+            print(( self.help_str ))
             self.print_center(" Help has been displayed, exiting ",'-')
             sys.exit(0)
         self.evaluate_errors()

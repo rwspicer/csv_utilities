@@ -74,6 +74,7 @@ class CalcK(utility_base):
         timeC = int(self.commands["--timecol"])
         tempC = int(self.commands["--tempcol"])
         powerC = self.commands["--powercol"]
+        print('   T Col = ', tempC, '    Power Col = ', powerC)
         columns = [data.getColumn(0),
                    np.array(data.getColumn(timeC)).astype(float),
                    np.array(data.getColumn(tempC)).astype(float)]
@@ -93,7 +94,9 @@ class CalcK(utility_base):
                                   ("","w/mk\n"),
                                   ("","Smp\n")])
         else:
+            # last date of the output file
             last_date = out_file[0][-1]
+
 
         # process k
         k_vals = []
@@ -110,14 +113,22 @@ class CalcK(utility_base):
             except:
                 pass
             if datetime.strptime(compVal,'"%Y-%m-%d %H:%M:%S"') <= last_date:
+                # fast forward through the data file till end.
                 continue
+
+            temp_k = 0.
             if powerC == "":
-                k_vals.append(self.calc_K(columns[1][begin:end],
-                                          columns[2][begin:end]))
+                temp_k = self.calc_K( columns[1][begin:end], columns[2][begin:end] )
             else:
-                k_vals.append(self.calc_K(columns[1][begin:end],
+                temp_k = self.calc_K(columns[1][begin:end],
                                           columns[2][begin:end],
-                                          columns[3][begin:end]))
+                                          columns[3][begin:end])
+            # super simple checking... should add this to a qc log at some point...
+            if temp_k < 0. :
+                temp_k = 6999.
+            elif temp_k > 11. :
+                temp_k = 6999.
+            k_vals.append(temp_k)
             k_dates.append(datetime.strptime(compVal,'"%Y-%m-%d %H:%M:%S"'))
 
         # save

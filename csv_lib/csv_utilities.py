@@ -90,7 +90,7 @@ import os
 import sys
 import numpy
 import re
-import csv_date as csvd
+import csv_lib.csv_date as csvd
 
 
 def read_args(valid_flags, string):
@@ -127,7 +127,7 @@ def read_args(valid_flags, string):
                 
                 elif ('--help' == item):
                     found = True
-                    print string
+                    print (string )
                     exit_on_failure(" help requested exiting ")
                     
             if not found:
@@ -157,7 +157,7 @@ def get_command_value(cmds, key, func):
     """
     try:
         value = cmds[key]
-    except KeyError:
+    except ( KeyError ):
         value = ""
     return func(value)
        
@@ -257,7 +257,7 @@ def get_last_date_in_file(f_name):
     try:
         dates = load_file(f_name, 4)[0]
     except (BaseException):
-        print "unable to get last date from file", f_name, '\n'
+        print ("unable to get last date from file", f_name, '\n' )
         #sys.exit(1)   
     return dates[-1]  
     
@@ -275,7 +275,7 @@ def get_header(f_name, h_len):
     h_list = []
     try:
         f_stream = open(f_name, 'r')
-    except IOError:
+    except (IOError) :
         print_center("ERROR: Reading Header", '*')
         exit_on_failure()
     
@@ -443,7 +443,7 @@ def write_to_csv(f_name, dates, vals, header):
             last_date = get_last_date_in_file(f_name)
             f_stream = open(f_name, 'a')
     except (BaseException):
-        print "error in opening file", f_name, ' for writing\n'
+        print ( "error in opening file", f_name, ' for writing\n' )
         #sys.exit(1)   
            
     if (dates[-1] == last_date):
@@ -464,7 +464,7 @@ def write_to_csv(f_name, dates, vals, header):
             index += 1
 
     except (BaseException):
-        print "error in wrting file", f_name, '\n'
+        print ( "error in wrting file", f_name, '\n' )
         sys.exit(1)
         
     f_stream.close()
@@ -501,9 +501,9 @@ def print_center(string, fill=' ', size=80):
     str_len = len(string)
     space = (size - str_len) / 2
     if (str_len % 2 == 0):
-        print write_rep(space, fill) + string + write_rep(space, fill)
+        print ( write_rep(space, fill) + string + write_rep(space, fill) )
     else:    
-        print write_rep(space + 1 , fill) + string + write_rep(space, fill)
+        print (write_rep(space + 1 , fill) + string + write_rep(space, fill) )
         
 
 def exit_on_failure(msg = " the utility was not successfull "):

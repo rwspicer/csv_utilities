@@ -39,6 +39,8 @@ modified 2015/05/07
         added documentation
 
 """
+from __future__ import absolute_import
+from __future__ import print_function
 import sys
 
 
@@ -82,7 +84,7 @@ class ArgClass:
         """
         val = self.get_command_value(key)
         if self.legacy == True and val == "":
-            raise KeyError, key + " not found"
+            raise KeyError
         return val
 
 
@@ -96,7 +98,7 @@ class ArgClass:
         exceptions:
             RuntimeError:   if called  
         """
-        raise RuntimeError, "setting flag vlaues not allowed"
+        raise RuntimeError
 
 
     def __delitem__(self, key):
@@ -109,7 +111,7 @@ class ArgClass:
         exceptions:
             RuntimeError:   if called  
         """
-        raise RuntimeError, "deleting flag vlaues not allowed"
+        raise RuntimeError
 
 
     def __len__(self):
@@ -141,8 +143,8 @@ class ArgClass:
                 if ('--help' == item):
                     found = True
                     if self.legacy == True:
-                        print self.m_help
-                    raise RuntimeError, ("the help string was requested")
+                        print(( self.m_help ))
+                    raise RuntimeError
                 
                 for flags in self.m_flags:
                     if (item == flags): 
@@ -153,7 +155,7 @@ class ArgClass:
                     
                         
                 if not found:
-                    raise RuntimeError, (" <" + item + "> is not a valid flag ")
+                    raise RuntimeError
                     # ^^ raise an exception if any bad flag is found instead ^^
                     # self.m_errors =True
                     # self.m_bad_flags.append(item)
@@ -176,7 +178,7 @@ class ArgClass:
             func = self.return_func
         try:
             value = self.m_commands[key]
-        except KeyError:
+        except ( KeyError ):
             value = ""
         return func(value)     
  
@@ -195,7 +197,7 @@ class ArgClass:
         returns
              a list of the flags that were used
         """
-        return self.m_commands.keys()
+        return list(self.m_commands.keys())
 
 
     def check_flags(self, req_flags):
@@ -209,7 +211,7 @@ class ArgClass:
         for item in req_flags:
             try:
                 self.m_commands[item]
-            except KeyError:
+            except ( KeyError ):
                 self.m_flags_not_found.append(item)
     
     def is_missing_flags(self):
@@ -265,7 +267,7 @@ class ArgClass:
             value: must have a __str__ defined
         """
         if str(value) == "":
-            raise ValueError, "flag not found"
+            raise ValueError
         else:
             return str(value)
         

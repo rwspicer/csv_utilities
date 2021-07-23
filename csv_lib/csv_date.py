@@ -51,10 +51,11 @@ modified: 2014/12/04
     version 2014.2.6.1
         initial version functions unchanged from csv_plot.py
 """
+from __future__ import absolute_import
 import datetime
 #import re
 #from csv_lib.csv_utilities import print_center, exit_on_failure
-import csv_utilities as csvu
+from . import csv_utilities as csvu
 
 def string_to_datetime(string):
     """
@@ -70,13 +71,13 @@ def string_to_datetime(string):
     strptime = datetime.datetime.strptime
     try:
         temp = strptime(string, "%Y-%m-%d %H:%M:%S.%f")
-    except ValueError:
+    except ( ValueError ):
         try:
             temp = strptime(string, "%Y-%m-%d %H:%M:%S")
-        except ValueError:
+        except ( ValueError ):
             try:
                 temp = strptime(string, "%Y-%m-%d")
-            except ValueError:
+            except ( ValueError ):
                     temp = strptime(string, "%Y-%m-%d %H:%M")
    
    
@@ -118,7 +119,7 @@ def get_last_date(f_name):
     """
     try:
         f_stream = open(f_name, 'r')
-    except IOError:
+    except ( IOError ):
         string = "ERROR: could not read file " + f_name
         csvu.print_center(string,'*')
         csvu.exit_on_failure()
@@ -146,16 +147,16 @@ def make_interval(start, end):
     """
     try:
         start = string_to_datetime(start)
-    except ValueError:
+    except ( ValueError ):
         start = datetime.datetime.min
-    except TypeError:
+    except ( TypeError ):
         start = start
 
     try:
         end = string_to_datetime(end)
-    except ValueError:
+    except ( ValueError ):
         end = datetime.datetime.max
-    except TypeError:
+    except ( TypeError ):
         end = end
     
     interval = (start, end)

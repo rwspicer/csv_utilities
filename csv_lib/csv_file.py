@@ -12,28 +12,28 @@ modified 2014/12/01
 
     version 2014.11.6.1:
         updated output format of dates
-    
+
     version 2014.10.24.1:
-        changed over the apped_new function to append. removed old append 
-    function. fixed error where header folowed by a blank line would cause 
+        changed over the apped_new function to append. removed old append
+    function. fixed error where header folowed by a blank line would cause
     crashes
 
     version 2014.10.23.1:
         added append_new function -- should replace appened after testing
-    
+
     version 2014.10.22.2:
-        fixed issues in the append and optimized load functions where a header 
-    with no data caused issues 
+        fixed issues in the append and optimized load functions where a header
+    with no data caused issues
 
     version 2014.10.22.1:
         read/writen data can now be in string or float format
 
     version 2014.10.15.1
-        added an optimized load mode that will olny load the last line of the 
+        added an optimized load mode that will olny load the last line of the
     csv file in to the object.
 
     version 2014.9.12.1
-        added new functionailty to load data    
+        added new functionailty to load data
 
     version 2014.7.30.1
         improved the documentation
@@ -128,7 +128,7 @@ class CsvFile:
         elif not must_exist:
             self.create(f_name)
         else:
-            raise IOError, "file, " + f_name + " was not found"
+            raise ( IOError, "file, " + f_name + " was not found" )
 
 
     def open_csv(self, f_name):
@@ -141,44 +141,45 @@ class CsvFile:
         execptions:
             IOError: if file not found
         """
-        
+#        try:
         if os.path.isfile(f_name):
             self.m_name = f_name
             self.m_numcols,  self.m_headlen, self.m_header = \
                                                         load_info(self.m_name)
-                
+
             if self.m_opti == True:
                 self.load_csv_file_opti()
-            else:    
-                self.load_csv_file()            
-        
+            else:
+                self.load_csv_file()
+
             #self.m_datacols = csvu.load_file_new(self.m_name, self.m_headlen,
             #                                                 self.m_numcols)[:]
             self.m_exists = True
         else:
-            raise IOError, "file, " + f_name + " was not found"
-
+            raise ( IOError, "file, " + f_name + " was not found" )
+     #   except:
+     #       print "Problem with file name: " , f_name
 
     def load_csv_file(self):
         """
             loads a csv file replaces the csv_utitlies version
         """
-        f_stream = open(self.m_name, "r")   
+        f_stream = open(self.m_name, "r")
         f_text = f_stream.read()
         f_stream.close()
         rows = f_text.replace("\r","").split("\n")
 
-        
+
 
         for idx in range(self.m_numcols):
             self.m_datacols.append([])
 
-        
-        
+
+
         if len(rows) == self.m_headlen:
             return
 
-       
+
         for item in rows[self.m_headlen:]:
             if item == "":
                 continue
@@ -190,31 +191,33 @@ class CsvFile:
                 else:
                     try:
                         self.m_datacols[col].append(float(cells[col]))
-                    except ValueError:
+                    except ( ValueError ):
                         self.m_datacols[col].append(str(cells[col]))
         #store last date in the file
         try:
             self.m_last_init_date = self.m_datacols[0][-1]
-        except IndexError:
+        except ( IndexError ):
             pass
-            
+
     def load_csv_file_opti(self):
         """
         a faster load file
         """
         for idx in range(self.m_numcols):
             self.m_datacols.append([])
-            
+
         f_stream = open(self.m_name, "rb")
         f_stream.seek(-2,2)
-        while f_stream.read(1) != "\n":
+        while f_stream.read(1).decode("utf-8") != "\n":
             f_stream.seek(-2,1)
         line = f_stream.readline()
         if line.strip() == "":
             return
-        if line[:line.find(',')] == self.m_header[-1][0]:
-            return    
-        cells = line.split(",")
+        str_line = line.decode("utf-8")
+        if str_line.find( ',' ) == self.m_header[-1][0]  :
+            return
+        #print(len(line), len(str_line), str_line)
+        cells = str_line.split(",")
         for col in range(len(cells)):
             if col == 0:
                 self.m_datacols[col].append(csvd.string_to_datetime(cells[col]))
@@ -224,9 +227,9 @@ class CsvFile:
         #store last date in the file
         try:
             self.m_last_init_date = self.m_datacols[0][-1]
-        except IndexError:
+        except ( IndexError ):
             pass
-        
+
     def create(self, f_name, header = "title,\ncol 1,col 2\n"):
         """
             creates the representation of a csv file with out any major
@@ -241,7 +244,7 @@ class CsvFile:
         self.m_name = f_name
         try:
             self.string_to_header(header)
-        except TypeError:
+        except ( TypeError ):
             self.m_header = header
         self.m_headlen = len(self.m_header)
 
@@ -367,7 +370,7 @@ class CsvFile:
             h_str:      (string) the string header
         """
         if not isinstance(h_str, str):
-            raise TypeError, "in string_to_header, h_str must be a string "
+            raise ( TypeError, "in string_to_header, h_str must be a string " )
         header = []
         while True:
             line = ""
@@ -375,7 +378,7 @@ class CsvFile:
                 try:
                     line += h_str[0]
                     h_str = h_str[1:]
-                except IndexError:
+                except ( IndexError ) :
                     self.m_header = header
                     return
             segs = line.split(',')
@@ -399,25 +402,25 @@ class CsvFile:
                 for col in range(1,self.m_numcols):
                     try:
                         temp_str += ',' + ("%.2f" % self[col][index])
-                    except TypeError:
+                    except ( TypeError ):
                         temp_str += ',' + str(self[col][index])
                 temp_str += '\n'
                 data_str = temp_str + data_str
-                index -= 1 
-                
+                index -= 1
+
         elif which == "all":
             for index, date in enumerate(self.m_datacols[0]):
                 data_str += '"' + str(date) + '"'
                 for values in self.m_datacols[1:]:
                     try:
                         data_str += ',' + ("%.2f" % values[index])
-                    except TypeError:
+                    except ( TypeError ):
                         data_str += ',' + str(values[index])
-                    except IndexError:
+                    except ( IndexError ):
                         break
                 data_str += '\n'
         else:
-            raise RuntimeError, "argument <" + str(which) + "> is not supported"  
+            raise ( RuntimeError, "argument <" + str(which) + "> is not supported" )
         return data_str
 
 
@@ -425,8 +428,8 @@ class CsvFile:
         """
             prints the contents of the file to the terminal
         """
-        print self.header_to_string()
-        print self.data_to_string()
+        print ( self.header_to_string() )
+        print ( self.data_to_string() )
 
 
     def get_dates(self):
@@ -447,7 +450,7 @@ class CsvFile:
             new_date_col:       ((datetime.datetime)list) the new dates
         """
         self[0] = new_date_col
-        
+
     def set_data(self, col, new_col):
         """
             sets the dates column
@@ -492,7 +495,7 @@ class CsvFile:
             name = self.m_name
         else:
             self.m_name = name
-        
+
         f_stream = open (name, 'w')
 
         f_stream.write(self.header_to_string())
@@ -505,7 +508,7 @@ class CsvFile:
     #~ def append(self, name = ""):
         #~ """
             #~ will append data to the end of a file
-#~ 
+#~
         #~ arguments:
             #~ name:       <*.csv> (string) filename to use if internal name is
                     #~ different
@@ -514,14 +517,14 @@ class CsvFile:
             #~ name = self.m_name
         #~ else:
             #~ self.m_name = name
-#~ 
+#~
         #~ if not os.path.exists(name):
             #~ self.save(name)
             #~ return True
-#~ 
+#~
         #~ temp = CsvFile(name, True)
         #~ last_date = temp[0][-1]
-        #~ 
+        #~
         #~ if self[0][-1] <= last_date:
             #~ return False
         #~ index = len(temp[0])
@@ -540,7 +543,7 @@ class CsvFile:
             #~ index += 1
             #~ w_str += "\n"
         #~ f_stream.write(w_str)
-#~ 
+#~
         #~ f_stream.close()
         #~ self.m_exists = True
         #~ return True
@@ -553,7 +556,7 @@ class CsvFile:
         arguments:
             name:       <*.csv> (string) filename to use if internal name is
                     different
-                    
+
         returns:
             true if data is appeneded
         """
@@ -566,11 +569,11 @@ class CsvFile:
             self.m_last_init_date == datetime.datetime(1,1,1):
             self.save(name)
             return True
-        
+
         if self[0][-1] == self.m_last_init_date:
             return False
 
-        f_stream = open (name, 'a')        
+        f_stream = open (name, 'a')
         f_stream.write(self.data_to_string("new"))
         f_stream.close()
         self.m_exists = True

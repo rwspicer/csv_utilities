@@ -121,8 +121,10 @@ def main():
     print_center(UTILITY_TITLE, '-')
     try:
         commands = csva.ArgClass(FLAGS, (), HELP_STRING)
-    except RuntimeError, (error_message):
-        exit_on_failure(error_message[0])
+    except :
+        print("error on read in")
+        sys.exit()
+        #exit_on_failure(error_message[0])
 
     try:
         my_file = csvf.CsvFile(commands["--infile"], True)

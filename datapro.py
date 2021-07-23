@@ -9,26 +9,26 @@ created: 2014/08/21
 modified: 2015/03/18
 
         Datapro is a program to proceess the data from a logger site into files
-    for each measurement from the site. 
+    for each measurement from the site.
 
 based on datapro v 0.2 by Bob Busey
 
     version 2014.03.26.1:
         this is full working version datapro 3.1
-   
+
     version 2015.03.18.1:
-        the date processing for array type data has been updated this includes 
+        the date processing for array type data has been updated this includes
     a few othe updates that were not reported.
 
     version 2014.12.04.2:
         for array data files, lines that do not start witn integers(an array id)
     are ignored but logged to the error file
-    
+
     version 2014.12.04.1:
         updated the errors message for the paramfiles
-    
+
     version 2014.12.02.1:
-        updated the how errors are reported for the data files 
+        updated the how errors are reported for the data files
 
     version 2014.12.01.1:
         updated errors and fixed bug with bad lines in data file
@@ -39,8 +39,8 @@ based on datapro v 0.2 by Bob Busey
 
     version 2014.11.25.1:
         added support for new param file errors. added a temporay fix
-    for last date error on files with simalr names. 
-    
+    for last date error on files with simalr names.
+
     version 2014.11.24.1:
         added command line option "--working_root" to change the output working
     root. changed the key file report to set report, and its in its own function
@@ -50,22 +50,22 @@ based on datapro v 0.2 by Bob Busey
         updated load_data_file to work with the new csv_args __getitem__ method,
     the try except block has been removed, which is what the change was designed
     to avoid anyway.
-    
+
     version 2014.10.31.2:
-        updated error messege where last date coud not be read to be more 
-    helpful and fixed a bug where if the first file failed to load the last 
+        updated error messege where last date coud not be read to be more
+    helpful and fixed a bug where if the first file failed to load the last
     date the program would crash
 
     version 2014.10.31.1:
         fixed error in processing parital data files
-        
+
     version 2014.10.30.1:
         changed some function names
-    
+
     version 2014.10.22.1:
         cleaned up code a bit removing old commented out functions and features
     and added timing features
-    
+
     version 2014.10.20.1:
         add the help
 
@@ -80,6 +80,8 @@ based on datapro v 0.2 by Bob Busey
     continued.
 
 """
+from __future__ import absolute_import
+from __future__ import print_function
 import csv_lib.utility as util
 from csv_lib.key_file import KeyFile
 from csv_lib.param_file import ParamFile
@@ -90,6 +92,7 @@ import csv_lib.csv_file as csvf
 import csv_lib.equations as eq
 import datetime
 import os
+from six.moves import range
 
 HELP_STRING = """
 Datapro 3.1
@@ -110,7 +113,7 @@ help updated: 2014/10/20
 
         --alt_data_file:    <<path_to_file>.dat> (optional)
                 the path to an alternate data file no given in key file
-                
+
         --working_root:     <path> (optional)
                 overwrites the working directory for the outputs
 
@@ -153,13 +156,14 @@ class datapro_v3(util.utility_base):
         # -------------------------
         self.evaluate_errors()
         self.check_directories()
+        self.print_report()
         self.process_dates()
         self.evaluate_errors()
         self.initlize_params()
         # --- errors ---
         if self.error_files == True:
-            print "Error files updated with noncritical errors. See " + \
-            self.key_file["error_log_dir"] + " for more information." 
+            print( ("Error files updated with noncritical errors. See " + \
+            self.key_file["error_log_dir"] + " for more information."  ) )
 
 
     def load_files(self):
@@ -177,7 +181,7 @@ class datapro_v3(util.utility_base):
         self.load_param_file()
         self.load_data_file()
         self.load_therm_files()
-        self.print_report()
+        #self.print_report()
 
 
     def load_key_file(self):
@@ -189,29 +193,29 @@ class datapro_v3(util.utility_base):
         except IOError:
             self.errors.set_error_state("I/O Error", "Key File not found")
             return
-    
+
     def check_working_root(self):
         if "" != self.commands["--working_root"]:
-            print self.commands["--working_root"] + "<-"
+            print(( self.commands["--working_root"] + "<-" ))
             self.key_file.set_working_root(self.commands["--working_root"])
-    
-    
+
+
     def print_report(self):
         self.print_center(" Setup Report ", "=")
-        print("Station Name:    " + self.key_file["station_name"])
-        print("logger type:     " + self.key_file["logger_type"])
+        print(("Station Name:    " + self.key_file["station_name"]))
+        print(("logger type:     " + self.key_file["logger_type"]))
         # the value for the next items modifed for output if it is too long
-        ddd = lambda s:(lambda:"", lambda:"...")[len(s)>53]() 
-        
-        print("param file:      " + \
-                           self.key_file["array_based_params_key_file"])
-        print("input file:      " + self.key_file["input_data_file"]) 
-        print("output dir:      " + self.key_file["output_dir"]) 
-        print("qc log dir:      " + self.key_file["qc_log_dir"])
-        print("error log dir:   " + self.key_file["error_log_dir"]) 
+        ddd = lambda s:(lambda:"", lambda:"...")[len(s)>53]()
+
+        print(("param file:      " + \
+                           self.key_file["array_based_params_key_file"]))
+        print(("input file:      " + self.get_data_file_path() ))
+        print(("output dir:      " + self.key_file["output_dir"]))
+        print(("qc log dir:      " + self.key_file["qc_log_dir"]))
+        print(("error log dir:   " + self.key_file["error_log_dir"]))
         self.print_center("==", "=")
-        print ""
-        print ""
+        print ( "\n\n")
+
 
 
     def load_param_file(self):# (config file)
@@ -221,7 +225,7 @@ class datapro_v3(util.utility_base):
         try:
             self.param_file = \
                         ParamFile( self.key_file["array_based_params_key_file"])
-        except IOError, msg:
+        except (IOError, msg ):
             msg = str(msg)
             if msg[0] == "1":
                 self.errors.set_error_state("I/O Error",
@@ -229,18 +233,18 @@ class datapro_v3(util.utility_base):
             elif msg[0] == "2":
                 self.errors.set_error_state("I/O Error",
                                 "Param (config) File read error at line" + \
-                                msg[msg.rfind(" "):], 
+                                msg[msg.rfind(" "):],
                                 "perhaps the line has the wrong # of fields")
             else:
-                self.errors.set_error_state("I/O Error", 
+                self.errors.set_error_state("I/O Error",
                         "Param (config) File unknown error", msg)
-        
 
-    
+
+
     def get_data_file_path(self):
         """
         this function gets the data file being used
-        
+
         returns:
             (string) path to data file being used
         """
@@ -248,13 +252,13 @@ class datapro_v3(util.utility_base):
         if f_name == "":
             f_name = self.key_file["input_data_file"].replace("file:","")
         return f_name
-    
+
     def load_data_file(self):
         """
         loads the data file
         """
         f_name = self.get_data_file_path()
-        
+
         try:
             self.data_file = DatFile(f_name)
         except IOError:
@@ -346,16 +350,16 @@ class datapro_v3(util.utility_base):
             return
         file_errors = ""
         #~ year_count = 0
-        
+
         # set up stuff if the year does not exist
         d_last = -1
         year = 0
         if year_col == -1:
             year = datetime.datetime.now().year
-        
+
         for idx in range(len(self.data_file[:]),0,-1):
             item = self.data_file[idx-1]
-            try: 
+            try:
                 int(item[0])
             except ValueError:
                 # log errors if the line has the wrong number of elements
@@ -374,9 +378,9 @@ class datapro_v3(util.utility_base):
                                       " wrong number of elements for array ID\n"
                     self.error_files = True
                     continue
-                
-                # check to see if year col is there 
-                if not year_col == -1: 
+
+                # check to see if year col is there
+                if not year_col == -1:
                     year = item[year_col]
                 else:
                     d_num = int(item[day_col])
@@ -386,18 +390,18 @@ class datapro_v3(util.utility_base):
                ## print year, item[day_col], item[hour_col]
                 self.date_col.insert(0,csvd.julian_to_datetime(year,
                                         item[day_col], item[hour_col]))
-                
-        
+
+
         #write an bad lines to the error file
         if self.error_files == True:
             dat_name = self.get_data_file_path()
             dat_name = dat_name[dat_name.rfind("/")+1:dat_name.rfind(".")]
-            
+
             error_file = open(self.key_file["error_log_dir"] + \
                                      "dat_file_errors_"+ dat_name +".csv", 'w')
             error_file.write(file_errors)
             error_file.close()
-                    
+
 
     def process_dates_table(self):
         """
@@ -417,7 +421,7 @@ class datapro_v3(util.utility_base):
                 else:
                     self.date_col.append(curdate)
             except:
-                pass    
+                pass
 
 
     def generate_output_header(self, idx):
@@ -440,23 +444,24 @@ class datapro_v3(util.utility_base):
 
 
     def initlize_params(self):
-        """
+        """  File "/var/site/lib/csv_utilities/datapro.py", line 726, in process_data_point_therm
+
             this function loops over the paramaters that need to be written to
         output files and sets up the file and data processing
         """
         rows = self.param_file.params
         if self.logger_type == "ARRAY" and\
            not self.key_file["array_id"] in self.data_file.array_ids:
-            print "Array ID " + self.key_file["array_id"] + \
-                     " has no records in data file. No data to process."
-            return 
+            print(( "Array ID " + self.key_file["array_id"] + \
+                     " has no records in data file. No data to process."  ))
+            return
         for index in range(len(rows)):
             row = rows[index]
             if row["Data_Type"] == "ignore" or row["Data_Type"] == "datey" or \
                row["Data_Type"] == "dated" or row["Data_Type"] == "dateh" or \
                row["Data_Type"] == "tmstmpcol":
                    continue
-            
+
             out_name = row["d_element"] + ".csv"
             out_file = csvf.CsvFile(self.key_file["output_dir"] + out_name
                                                                 , opti = True)
@@ -469,7 +474,7 @@ class datapro_v3(util.utility_base):
                     datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + \
                     ",file: " + self.key_file["output_dir"] + out_name + \
                     ", cannot read last date" + \
-                    " (perhaps there is an extra new line)\n" 
+                    " (perhaps there is an extra new line)\n"
                     error_file = open(self.key_file["error_log_dir"] + \
                                     "I0_read_erros.csv", 'a')
                     error_file.write(file_errors)
@@ -523,25 +528,28 @@ class datapro_v3(util.utility_base):
         array_input_pos = int(self.param_file.params[index]["Input_Array_Pos"])
 
 
-        ## I'm just looking at this ws_index deal... kind of surprised it hasn't 
+        ## I'm just looking at this ws_index deal... kind of surprised it hasn't
         ## created problems but maybe we've just been lucky.
         ## something to be more choosy about at some point.
         ws_index = int(float(self.param_file.params[index]["Coef_3"]))
-        
+
         for item in reversed(self.data_file[:]):
             if not final_date == datetime.datetime(1000,1,1) \
                                 and self.date_col[ddx] <= final_date:
                 break
-                
-            # ddx -= 1 # for array based data files this will decrement to often 
+
+            # ddx -= 1 # for array based data files this will decrement to often
                        # if left here  mof inside next if statment
-                       
-              # array id for tables should be -9999 but is somtimes < 0     
+
+              # array id for tables should be -9999 but is somtimes < 0
             if int(self.key_file["array_id"]) < 0 or \
                                            self.key_file["array_id"] == item[0]:
-                ddx -= 1 
-                if ws_index != 0:
-                    windspeed = item[ws_index]                    
+                ddx -= 1
+                if ws_index != 0 :
+                    if ws_index < int(self.key_file["arrays"]) :
+                        windspeed = item[ws_index]
+                    else:
+                        windspeed = 0
                 else:
                     windspeed = 0
                 try:
@@ -593,11 +601,15 @@ class datapro_v3(util.utility_base):
             return eq.poly(data_point, param.coefs,
                            self.key_file["bad_data_val"]).result
 
-        elif d_type == "mrctherm":            
+        elif d_type == "stage":
+            return eq.stage(data_point, param.coefs,
+                           self.key_file["bad_data_val"]).result
+
+        elif d_type == "mrctherm":
             ## in this case windspeed is the mrcexcitation from coef_3 in the input data.
             return eq.mrctherm(data_point, windspeed, param["Coef_1"],
                            self.key_file["bad_data_val"]).result
-                   
+
         elif d_type == "sm":
             return eq.sm(data_point, param.coefs,
                            self.key_file["bad_data_val"]).result
@@ -605,6 +617,10 @@ class datapro_v3(util.utility_base):
         elif d_type == "flux":
             return eq.flux(data_point, param["Coef_1"], param["Coef_2"],
                            self.key_file["bad_data_val"]).result
+
+        elif d_type == "wind":
+            # wind type just applies a special QA to check for rime ice.
+            return eq.wind(data_point, self.key_file["bad_data_val"]).result
 
         elif d_type == "netrad":
             if param["Coef_3"] != 0:
@@ -708,8 +724,6 @@ class datapro_v3(util.utility_base):
             data_point = float(data_point)
         except ValueError:
             return float(self.key_file["bad_data_val"])
-
-
         param = self.param_file.params[index]
         d_type = param["Data_Type"]
 
@@ -721,7 +735,6 @@ class datapro_v3(util.utility_base):
             therm_file = self.therm3
         else:
             return float(self.key_file["bad_data_val"])
-
         therm_idx = therm_file.bin_search(data_point)
         therm_vals = therm_file[therm_idx]
 
@@ -736,7 +749,7 @@ class datapro_v3(util.utility_base):
         """
         idx = -1 * len(data)
 
-        
+
         out_file.add_dates(self.date_col[idx:])
         out_file.add_data(1,data)
 

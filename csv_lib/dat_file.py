@@ -111,8 +111,8 @@ class DatFile(object):
         """
         try:
             self.data[0][num]
-        except IndexError:
-            raise IndexError, "Column does not exist"
+        except ( IndexError ):
+            raise IndexError
         col = []
         for row in self.data:
             col.append(row[num])
