@@ -85,9 +85,14 @@ class LW_Convert(utility_base):
         while idx < len(columns[0]):
             compVal = columns[0][idx]
             # I'm not sure what this does...
-            if datetime.strptime(compVal,'"%Y-%m-%d %H:%M:%S"') <= last_date:
-                idx = idx + 1
-                continue
+            try:
+                if datetime.strptime(compVal,'"%Y-%m-%d %H:%M:%S"') <= last_date:
+                    idx = idx + 1
+                    continue
+            except:
+                if datetime.strptime(compVal,'%Y-%m-%d %H:%M:%S') <= last_date:
+                    idx = idx + 1
+                    continue
             # this point is where the magic happens.
             raw_val = float(columns[1][idx])
             if raw_val == 6999.0 :
@@ -95,7 +100,11 @@ class LW_Convert(utility_base):
             else:
                 temperature = (raw_val / 5.67e-8) ** 0.25 - 273.15
                 temperature_vals.append(temperature)
-            temperature_dates.append(datetime.strptime(compVal,'"%Y-%m-%d %H:%M:%S"'))
+            if len(compVal) == 21 :
+                temperature_dates.append(datetime.strptime(compVal,'"%Y-%m-%d %H:%M:%S"'))
+            else:
+                temperature_dates.append(datetime.strptime(compVal,'%Y-%m-%d %H:%M:%S'))
+
             idx= idx+1
         # save
         out_file.add_dates(temperature_dates)

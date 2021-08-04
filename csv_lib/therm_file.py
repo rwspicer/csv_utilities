@@ -134,7 +134,3 @@ class ThermFile(object):
 
         return "not found"
 
-
-
-
-

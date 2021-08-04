@@ -91,20 +91,31 @@ class AlbedoFix(utility_base):
         while idx < len(columns[0]):
             compVal = columns[0][idx]
             # I'm not sure what this does...
-            if datetime.strptime(compVal,'"%Y-%m-%d %H:%M:%S"') <= last_date:
-                idx = idx + 1
-                continue
+            try:
+                if datetime.strptime(compVal,'"%Y-%m-%d %H:%M:%S"') <= last_date:
+                    idx = idx + 1
+                    continue
+            except:
+                if datetime.strptime(compVal,'%Y-%m-%d %H:%M:%S') <= last_date:
+                    idx = idx + 1
+                    continue
+
             # this point is where the magic happens.
             raw_index = float(columns[1][idx])
             if raw_index < 0 : raw_index = 6999.0
             if raw_index >1 : raw_index = 6999.0
-            isdark = self.calc_SunAngle(latitude,longitude,datetime.strptime(compVal,'"%Y-%m-%d %H:%M:%S"'))
+            try:
+                isdark = self.calc_SunAngle(latitude,longitude,datetime.strptime(compVal,'"%Y-%m-%d %H:%M:%S"'))
+            except:
+                isdark = self.calc_SunAngle(latitude,longitude,datetime.strptime(compVal,'%Y-%m-%d %H:%M:%S'))
             if isdark == 6999 :
                 alb_vals.append(6999.0)
             else:
                 alb_vals.append(raw_index)
-
-            alb_dates.append(datetime.strptime(compVal,'"%Y-%m-%d %H:%M:%S"'))
+            if len(compVal) == 21 :
+                alb_dates.append(datetime.strptime(compVal,'"%Y-%m-%d %H:%M:%S"'))
+            else:
+                alb_dates.append(datetime.strptime(compVal,'%Y-%m-%d %H:%M:%S'))
             idx= idx+1
         # save
         out_file.add_dates(alb_dates)
@@ -144,7 +155,7 @@ class AlbedoFix(utility_base):
         solarTimeFix = eqTime - 4.0 * longitude
         trueSolarTime = hh * 60.0 + mm + solarTimeFix
         while (trueSolarTime > 1440.0) :
-			trueSolarTime -= 1440.0
+            trueSolarTime -= 1440.0
         hourAngle = trueSolarTime / 4.0 - 180.0
         if (hourAngle < -180.0) :
 	        hourAngle += 360.0
@@ -178,7 +189,7 @@ class AlbedoFix(utility_base):
 	        else :
 		        azimuth = 0.0
         if (azimuth < 0.0) :
-				azimuth += 360.0
+            azimuth += 360.0
         exoatmElevation = 90.0 - zenith
         if (exoatmElevation > 85.0) :
 	        refractionCorrection = 0.0
@@ -213,52 +224,52 @@ class AlbedoFix(utility_base):
         M = 357.52911 + t * (35999.05029 - 0.0001537 * t)
         return M
     def calcEccentricityEarthOrbit(self,t) :
-		e = 0.016708634 - t * (0.000042037 + 0.0000001267 * t)
-		return e
+        e = 0.016708634 - t * (0.000042037 + 0.0000001267 * t)
+        return e
     def calcTimeJulianCent (self,jd) :
         T = (jd - 2451545.0)/36525.0
         return T
     def calcSunRadVector(self,t) :
-		v = self.calcSunTrueAnomaly(t)
-		e = self.calcEccentricityEarthOrbit(t)
-		R = (1.000001018 * (1 - e * e)) / (1 + e * Math.cos(self.degToRad(v)))
-		return R
+        v = self.calcSunTrueAnomaly(t)
+        e = self.calcEccentricityEarthOrbit(t)
+        R = (1.000001018 * (1 - e * e)) / (1 + e * Math.cos(self.degToRad(v)))
+        return R
     def calcSunEqOfCenter(self,t) :
-		m = self.calcGeomMeanAnomalySun(t)
-		mrad = self.degToRad(m)
-		sinm = Math.sin(mrad)
-		sin2m = Math.sin(mrad+mrad)
-		sin3m = Math.sin(mrad+mrad+mrad)
-		C = sinm * (1.914602 - t * (0.004817 + 0.000014 * t)) + sin2m * (0.019993 - 0.000101 * t) + sin3m * 0.000289
-		return C
+        m = self.calcGeomMeanAnomalySun(t)
+        mrad = self.degToRad(m)
+        sinm = Math.sin(mrad)
+        sin2m = Math.sin(mrad+mrad)
+        sin3m = Math.sin(mrad+mrad+mrad)
+        C = sinm * (1.914602 - t * (0.004817 + 0.000014 * t)) + sin2m * (0.019993 - 0.000101 * t) + sin3m * 0.000289
+        return C
     def calcGeomMeanLongSun(self,t) :
-		L0 = 280.46646 + t * (36000.76983 + 0.0003032 * t)
-		while(L0 > 360.0) :
-			L0 -= 360.0
-		while(L0 < 0.0) :
-			L0 += 360.0
-		return L0
+        L0 = 280.46646 + t * (36000.76983 + 0.0003032 * t)
+        while(L0 > 360.0) :
+	        L0 -= 360.0
+        while(L0 < 0.0) :
+	        L0 += 360.0
+        return L0
     def calcSunApparentLong(self,t) :
-		o = self.calcSunTrueLong(t)
-		omega = 125.04 - 1934.136 * t
-		LLlambda = o - 0.00569 - 0.00478 * Math.sin(self.degToRad(omega))
-		return LLlambda
+        o = self.calcSunTrueLong(t)
+        omega = 125.04 - 1934.136 * t
+        LLlambda = o - 0.00569 - 0.00478 * Math.sin(self.degToRad(omega))
+        return LLlambda
     def calcMeanObliquityOfEcliptic(self,t) :
-		seconds = 21.448 - t*(46.8150 + t*(0.00059 - t*(0.001813)))
-		e0 = 23.0 + (26.0 + (seconds/60.0))/60.0
-		return e0
+        seconds = 21.448 - t*(46.8150 + t*(0.00059 - t*(0.001813)))
+        e0 = 23.0 + (26.0 + (seconds/60.0))/60.0
+        return e0
     def calcObliquityCorrection(self,t) :
-		e0 = self.calcMeanObliquityOfEcliptic(t)
-		omega = 125.04 - 1934.136 * t
-		e = e0 + 0.00256 * Math.cos(self.degToRad(omega))
-		return e
+        e0 = self.calcMeanObliquityOfEcliptic(t)
+        omega = 125.04 - 1934.136 * t
+        e = e0 + 0.00256 * Math.cos(self.degToRad(omega))
+        return e
     def calcSunRtAscension(self,t) :
-		e = self.calcObliquityCorrection(t)
-		LLlambda = self.calcSunApparentLong(t)
-		tananum = (Math.cos(self.degToRad(e)) * Math.sin(self.degToRad(LLlambda)))
-		tanadenom = (Math.cos(self.degToRad(LLlambda)))
-		alpha = self.radToDeg(Math.atan2(tananum, tanadenom))
-		return alpha
+        e = self.calcObliquityCorrection(t)
+        LLlambda = self.calcSunApparentLong(t)
+        tananum = (Math.cos(self.degToRad(e)) * Math.sin(self.degToRad(LLlambda)))
+        tanadenom = (Math.cos(self.degToRad(LLlambda)))
+        alpha = self.radToDeg(Math.atan2(tananum, tanadenom))
+        return alpha
     def calcSunDeclination(self,t) :
         e = self.calcObliquityCorrection(t)
         LLlambda = self.calcSunApparentLong(t)
@@ -293,7 +304,7 @@ class AlbedoFix(utility_base):
 	        L0 += 360.0
         return L0
     def degToRad(self,angleDeg) :
-		return Math.pi * angleDeg / 180.0
+        return Math.pi * angleDeg / 180.0
 
     def radToDeg(self,angleRad) :
         return 180.0 * angleRad / Math.pi

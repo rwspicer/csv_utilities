@@ -506,12 +506,16 @@ class datapro_v3(util.utility_base):
         arguments:
             param:      (param libary) info on the param to process
         """
+
         col = self.process_param_data(param["index"], param["date"])
-        if len(col) == 0:
-            return  # no data processed no need to do QC or save
-        col = self.process_param_qc(col, param["index"])
-        self.process_param_save(param["file"], col)
-        #~ print get_rid_of_this_bad_line_of_code
+
+        try:
+            if len(col) == 0:
+                return  # no data processed no need to do QC or save
+            col = self.process_param_qc(col, param["index"])
+            self.process_param_save(param["file"], col)
+        except:
+            return
 
 
     def process_param_data(self, index, final_date):
@@ -720,9 +724,13 @@ class datapro_v3(util.utility_base):
             data_point:     (float|string) the data to process
             index:          (int) index to the param array
         """
+
         try:
             data_point = float(data_point)
         except ValueError:
+            return float(self.key_file["bad_data_val"])
+        # for broken high resistance thermistors
+        if abs(data_point) > 200. :
             return float(self.key_file["bad_data_val"])
         param = self.param_file.params[index]
         d_type = param["Data_Type"]
