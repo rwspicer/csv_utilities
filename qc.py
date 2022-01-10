@@ -28,6 +28,7 @@ import csv_lib.csv_args as csva
 import xlrd
 import datetime
 import math
+import sys
 
 def fetch_excel_data(file_name):
     """
@@ -97,11 +98,15 @@ def qc_func(in_data, xl_data, log_file):
             if items == xitm :
                 # check to see if the data has been set to bad
                 # or if it has been replaced by something else legit.
-                if is_bv(xl_data[1][xidx]) or (abs(in_data[1][index] - xl_data[1][xidx]) < 0.01 ) or (is_bv(xl_data[1][xidx]) == False ):
-                    f_stream.write(str(items) + ",Manual QC, Orignal:" + \
-                                    str(in_data[1][index]) + " Replacment: " + \
-                                    str(xl_data[1][xidx]) + "\n")
-                    in_data[1][index] = xl_data[1][xidx]
+                try:
+                    if is_bv(xl_data[1][xidx]) or (abs(in_data[1][index] - xl_data[1][xidx]) < 0.01 ) or (is_bv(xl_data[1][xidx]) == False ):
+                        f_stream.write(str(items) + ",Manual QC, Original:" + \
+                                        str(in_data[1][index]) + " Replacement: " + \
+                                        str(xl_data[1][xidx]) + "\n")
+                        in_data[1][index] = xl_data[1][xidx]
+                except:
+                    print(len(xl_data[1]), xidx, len(in_data[1]), index)
+                    sys.exit()
     return in_data[:]
 
 
@@ -161,8 +166,8 @@ def main():
     for items in commands["--input"].split('/')[:-2]:
         path_str += items + '/'
     log_file = path_str + 'qc/' + name + "_qaqc_log.csv"
-
     fixed_data = qc_func(in_data, xl_data, log_file)
+
 
 
     in_file[0] = fixed_data[0]
