@@ -1,4 +1,4 @@
-#!/usr/bin/python -tt
+#!/usr/bin/python3
 """
 datapro 3.1
 
@@ -77,8 +77,14 @@ based on datapro v 0.2 by Bob Busey
 
     version 2014.10.8.1:  (testing version 1)
         all functionaliy is written and should work, full run bug testing to be
-    continued.
-
+        continued.
+    version 2021.01.12 :
+        Realized I hadn't updated the comments in a long time. This update adds
+        option to pass param_file csv on command line.  Previous updates since
+        2014 include a bit more error information passed to standard interface
+        a bit update throughout csv_utilities to become python3 compatible
+        and peridodically more sensor options in the data_types category have
+        been added
 """
 from __future__ import absolute_import
 from __future__ import print_function
@@ -96,7 +102,7 @@ from six.moves import range
 
 HELP_STRING = """
 Datapro 3.1
-help updated: 2014/10/20
+help updated: 2022/01/12
 
         Datapro 3 is a replacemnt for Datapro v2 by Bob Busey. Datapro will
     process data for a site specified by the key file into two column .csv files
@@ -117,6 +123,8 @@ help updated: 2014/10/20
         --working_root:     <path> (optional)
                 overwrites the working directory for the outputs
 
+        --param_file : <path> (optional)
+                overwrites the key file value for the location of the paramter file.
               """
 
 class datapro_v3(util.utility_base):
@@ -129,7 +137,7 @@ class datapro_v3(util.utility_base):
         """
         super(datapro_v3, self).__init__(" Datapro 3.0 " ,
                     ("--key_file",) ,
-                    ("--alt_data_file", "--working_root"),
+                    ("--alt_data_file", "--working_root", "--param_file"),
                     HELP_STRING)
         self.key_file = "not ready"
         self.param_file = "not ready"
@@ -188,11 +196,20 @@ class datapro_v3(util.utility_base):
         """
         loads the key file
         """
-        try:
-            self.key_file = KeyFile(self.commands["--key_file"])
-        except IOError:
-            self.errors.set_error_state("I/O Error", "Key File not found")
-            return
+        if self.key_file == "not ready" :
+            try:
+                self.key_file = KeyFile(self.commands["--key_file"])
+            except IOError:
+                self.errors.set_error_state("I/O Error", "Key File not found")
+                return
+        else:
+            try:
+                print ("\n\nData Pro running imported\n\n")
+                self.key_file = KeyFile(self.key_file)
+            except IOError:
+                self.errors.set_error_state("I/O Error", "Key File not found")
+                return
+
 
     def check_working_root(self):
         if "" != self.commands["--working_root"]:
@@ -222,22 +239,42 @@ class datapro_v3(util.utility_base):
         """
         loads the paramater (config) file
         """
-        try:
-            self.param_file = \
-                        ParamFile( self.key_file["array_based_params_key_file"])
-        except (IOError, msg ):
-            msg = str(msg)
-            if msg[0] == "1":
-                self.errors.set_error_state("I/O Error",
-                                "Param (config) File not found")
-            elif msg[0] == "2":
-                self.errors.set_error_state("I/O Error",
-                                "Param (config) File read error at line" + \
-                                msg[msg.rfind(" "):],
-                                "perhaps the line has the wrong # of fields")
-            else:
-                self.errors.set_error_state("I/O Error",
-                        "Param (config) File unknown error", msg)
+        if len(self.commands["--param_file"]) > 0 :  # use alternate param file from command line.
+
+            try:
+                self.param_file = \
+                            ParamFile( self.commands["--param_file"])
+            except (IOError, msg ):
+                msg = str(msg)
+                if msg[0] == "1":
+                    self.errors.set_error_state("I/O Error",
+                                    "Param (csv) File not found, --param_file command line")
+                elif msg[0] == "2":
+                    self.errors.set_error_state("I/O Error",
+                                    "Param (config) File read error at line" + \
+                                    msg[msg.rfind(" "):],
+                                    "perhaps the line has the wrong # of fields")
+                else:
+                    self.errors.set_error_state("I/O Error",
+                            "Param (config) File unknown error", msg)
+
+        else:  # read file listed in keyfile
+            try:
+                self.param_file = \
+                            ParamFile( self.key_file["array_based_params_key_file"])
+            except (IOError, msg ):
+                msg = str(msg)
+                if msg[0] == "1":
+                    self.errors.set_error_state("I/O Error",
+                                    "Param (config) File not found: from keyfile")
+                elif msg[0] == "2":
+                    self.errors.set_error_state("I/O Error",
+                                    "Param (config) File read error at line" + \
+                                    msg[msg.rfind(" "):],
+                                    "perhaps the line has the wrong # of fields")
+                else:
+                    self.errors.set_error_state("I/O Error",
+                            "Param (config) File unknown error", msg)
 
 
 
@@ -770,3 +807,4 @@ class datapro_v3(util.utility_base):
 if __name__ == "__main__":
     datapro = datapro_v3()
     datapro.run()
+
