@@ -9,24 +9,24 @@ modified: 2015/08/31
         this utility is designed to create links to upload data to weather
     underground. the format is specified here:
             http://wiki.wunderground.com/index.php/PWS_-_Upload_Protocol
-  
+
     v. 2015.8.31.4:
         fixed timezone issue(the data is in akst)
-    
+
     v. 2015.8.31.3:
         fixed timezone issue
-    
+
     v. 2015.8.31.2:
-        add mm to in conversion 
-   
+        add mm to in conversion
+
     v. 2015.8.31.1:
-        weather underground's upload protocol changed to allow '.' 
-    (decimal point) in values and the %252E double-URL-encoded string used 
-    before no longer works. The code has been changed to reflect this. 
-    
+        weather underground's upload protocol changed to allow '.'
+    (decimal point) in values and the %252E double-URL-encoded string used
+    before no longer works. The code has been changed to reflect this.
+
     version 2015.1.5.1:
-        added example usage        
-    
+        added example usage
+
     version 2014.8.8.1:
         updated documentation
 
@@ -46,16 +46,16 @@ from csv_lib.csv_utilities import print_center, exit_on_success, exit_on_failure
 import csv_lib.csv_args as csva
 import csv_lib.csv_file as csvf
 import httplib2
-from datetime import datetime 
+from datetime import datetime
 
 def from_si(value, unit):
     """
         this function is for unit conversions from SI
-    
+
     arguments:
         value:  (float)the input value
         unit:   (int) input units
-    returns 
+    returns
         the value in imperial units
     """
     if unit == "millibars":
@@ -106,7 +106,7 @@ class WUURL(object):
     def add_item(self, key, value):
         """
             adds an item to url
-        
+
         arguments:
             key:    (string)
             value:  (string)
@@ -147,14 +147,14 @@ class WUURL(object):
     def send(self, show=False):
         """
             send the url
-            
+
         arguments:
             show:    (bool) show the response
         """
         resp = httplib2.Http().request(str(self))
         if show:
-            print resp[0]
-            print resp[1]
+            print (resp[0] )
+            print (resp[1] )
 
 
 UTILITY_TITLE = " weather underground data formatting utility "
@@ -169,15 +169,15 @@ HELP_STRING = """
     example usage:
         python wunder_formatter.py --ID=[ID as registered by wunderground.com]
         --password=[PASSWORD registered with this ID, case sensative]
-        --ref_file=[a text file with a comma seperated list of measurments, 
-                    their units, and csv file locations assoiated with the 
+        --ref_file=[a text file with a comma seperated list of measurments,
+                    their units, and csv file locations assoiated with the
                     measurments]
 
     flags:
         --ID=[ID as registered by wunderground.com]
         --password=[PASSWORD registered with this ID, case sensative]
-        --ref_file=[a text file with a comma seperated list of measurments, 
-                    their units, and csv file locations assoiated with the 
+        --ref_file=[a text file with a comma seperated list of measurments,
+                    their units, and csv file locations assoiated with the
                     measurments]
               """
 
@@ -188,7 +188,7 @@ def main():
     print_center(UTILITY_TITLE, '-')
     try:
         commands = csva.ArgClass(REQ_FLAGS, OPT_FLAGS, HELP_STRING)
-    except RuntimeError, error_message:
+    except (RuntimeError, error_message ):
         exit_on_failure(error_message[0])
 
     if commands.is_missing_flags():
@@ -244,11 +244,4 @@ def main():
 #---run utility----
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
-
 

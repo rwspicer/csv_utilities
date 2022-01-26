@@ -5,8 +5,8 @@ Rawser Spicer
 created: 2014/03/05
 modified: 2014/03/10
 
-        this utility allows for the conversion between the UTC-0 and UTC-9(AKST) 
-    time zones  
+        this utility allows for the conversion between the UTC-0 and UTC-9(AKST)
+    time zones
 
     version 2015.1.5.1:
         added example usage
@@ -29,7 +29,7 @@ HELP_STRING = """
     This utility allows for the conversion between the UTC-0 and UTC-9(AKST)
     time zones in czv files where items in the first column can be read as a
     datetime object
-    
+
     example usage
         python tz_shift.py --in_file=file --out_file=file --timezone=toAK
 
@@ -39,14 +39,14 @@ HELP_STRING = """
               """
 FLAGS = ("--in_file", "--out_file", "--timezone")
 
-    
+
 def interp_tz(value=""):
     """
     gets the time zone to switch to
-    
+
     arguments:
         value:    (string) the value from the command line
-    
+
     retunrs:
         the time zone multiplier
     """
@@ -61,11 +61,11 @@ def interp_tz(value=""):
 def main():
     """ main function """
     print_center(UTILITY_TITLE, "-")
-    
+
     try:
         commands = csva.ArgClass(FLAGS, (), HELP_STRING)
-    except RuntimeError, (ErrorMessage):
-         exit_on_failure(ErrorMessage[0])    
+    except (RuntimeError, (ErrorMessage) ):
+         exit_on_failure(ErrorMessage[0])
 
     if commands.is_missing_flags():
         for items in commands.get_missing_flags():
@@ -73,20 +73,20 @@ def main():
         exit_on_failure()
 
     to_utc = commands.get_command_value("--timezone", interp_tz)
-    
+
     try:
         my_file = csvf.CsvFile(commands["--in_file"])
     except IOError:
         print_center("ERROR: input file was not found", '*')
-        exit_on_failure()    
-        
+        exit_on_failure()
+
     header = my_file.get_header()
     dates = my_file.get_dates()
     delta = timedelta(hours = 9*(to_utc))
 
     if to_utc == 1:
         header[2][0] = "UTC-0"
-    elif to_utc == -1:  
+    elif to_utc == -1:
         header[2][0] = "UTC-9(AKST)"
     else:
         print_center("toAK or toUTC not specified")

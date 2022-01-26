@@ -1,9 +1,9 @@
 """
-Tram Transformation Utility 
+Tram Transformation Utility
 rawser spicer
 created: 2015/07/09
 modified: 2015/07/09
-    
+
      a utility to transform a tram .dat file into .csv files.
 """
 # Imports ______________________________________________________________________
@@ -20,10 +20,10 @@ class TramTransform (object):
     def __init__ (self, fName):
         """
         set up class
-        
+
         Preconditions:
             file 'fname' should exist'
-        Postconditions: 
+        Postconditions:
             the other functions may be run
         """
         self.inData = DatFile(fName,'tram')
@@ -32,11 +32,11 @@ class TramTransform (object):
     def transform (self):
         """
         transform the data
-        
+
         Preconditions:
             inData should have data
         Postcondidions:
-            outData is a library of sets of rows for each variable in the 
+            outData is a library of sets of rows for each variable in the
         inData
         """
         dateCol = self.inData.getColumn(0)
@@ -50,7 +50,7 @@ class TramTransform (object):
             except IndexError:
                 break
         for key in self.inData.col_names[3:]:
-            print key
+            print ( key )
             #~ print colLib[key][:10]
             rows = []
             start = 0
@@ -81,7 +81,7 @@ class TramTransform (object):
     def save (self, outDir):
         """
         Save the output files.
-        
+
         Pre:
             self.transform sould have been called.
             outDir needs to exist
@@ -121,17 +121,17 @@ class TramTransform (object):
 # Utility Help String __________________________________________________________
 HELP = """
     This Utility is for splinting out a a tram .dat file into csv files for
-each variable in the file 
-    
+each variable in the file
+
     example usage:
     >> python tramTransform.py --inFile=<.datFile> --outDir=<directory>
-    
+
     Flags:
         --inFile
             The tram .dat file
         --outDir
             a directory to save outputs to
-""" 
+"""
 
 
 # Utility ______________________________________________________________________
@@ -156,8 +156,8 @@ class TramTransUtil(util.utility_base):
 
     def main (self):
         """
-        main body of utiliy. 
-        
+        main body of utiliy.
+
         Preconditions:
             utility setup
         Postconditions:

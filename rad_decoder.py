@@ -8,12 +8,12 @@ modified 2014/08/08
         added example usage
 
     version 2014.8.8.2
-    
+
     version 2014.2.13.1:
         added support for the CsvFile Class
-        
+
     version 2014.3.12.1:
-        cleanded up a bit 
+        cleanded up a bit
 
     this utility extracts the dated from a cdf file
 
@@ -32,11 +32,11 @@ import sys
 def get_list_vars(my_vars):
     """
         makes a list of varibles that are data lists
-        
-    
+
+
     argumrnts:
         my_vars:    (list)the set of variables from a cdf file
-        
+
     returns:
         list of vars in the files
     """
@@ -54,10 +54,10 @@ def get_list_vars(my_vars):
 def get_times(my_vars):
     """
         get the times from the cdf file( gets every hour)
-    
+
     arguments:
         my_vars:    (list) the variables in the cdf file
-        
+
     returns:
         times of vars
     """
@@ -66,36 +66,36 @@ def get_times(my_vars):
         times=my_vars['time']
     except KeyError:
         times = my_vars['time_offset']
-    
+
     ts = []
     for time in times:
         temp = datetime.utcfromtimestamp(base_time+time)
-        if (temp.minute == 0) :   
+        if (temp.minute == 0) :
             ts.append(temp)
     return ts
 
 
 def avg_vars(my_vars,lists):
     """
-        avereges all of the varibles in a list of data 
-    
+        avereges all of the varibles in a list of data
+
     arguments:
         my_vars:    (list)the list of data
-    
+
     returns:
         a list of the average values
     """
     avg_lists = {}
     for var in lists:
         temp = my_vars[var][:]
-        avg = 0   
-        rad1avg = [] 
+        avg = 0
+        rad1avg = []
         for index, item in enumerate(temp):
             if index % 60 == 0 and index != 0:
-                rad1avg.append(avg/60)    
+                rad1avg.append(avg/60)
                 avg = 0
             avg+=item
-    
+
         rad1avg.append(avg/60)
         avg_lists[var] = rad1avg
 
@@ -107,18 +107,18 @@ UTILITY_TITLE = "radition extractor utility"
 
 FLAGS = ("--in_directory", "--out_directory", "--sitename")
 HELP_STR = """
-        This utility can be use to extract the data from a directory of 
-    .cdf files. it will cread a csv file for ecah data array in the 
+        This utility can be use to extract the data from a directory of
+    .cdf files. it will cread a csv file for ecah data array in the
     provided cdf files.
-    
+
       example usage:
-            python rad_decoder.py --in_directory=<a path> 
+            python rad_decoder.py --in_directory=<a path>
             --out_directory=<a path> --sitename=barrow
-    
+
     flags:
         --in_directory:     the directory containg the input
         --out_directory:    the directory to save the out put
-        --sitename:         the name of the site asscosiated with the data          
+        --sitename:         the name of the site asscosiated with the data
            """
 
 
@@ -127,8 +127,8 @@ def main():
     print_center(UTILITY_TITLE, '-')
     try:
         commands = csva.ArgClass(FLAGS, (), HELP_STR)
-    except RuntimeError, (error_message):
-        exit_on_failure(error_message[0]) 
+    except (RuntimeError, (error_message) ):
+        exit_on_failure(error_message[0])
 
     path = commands["--in_directory"]
     onlyfiles = [f for f in listdir(path) if isfile(join(path,f)) ]
@@ -140,37 +140,36 @@ def main():
     for f_name in onlyfiles:
 
         my_file = netcdf.netcdf_file(path+f_name,'r')
-    
+
         my_vars = my_file.variables
-        
+
         times =  get_times(my_vars)
-        
+
         lists = get_list_vars(my_vars)
-       
+
         avgs = avg_vars(my_vars,lists)
-        
-        
+
+
         for index, items in enumerate(avgs):
-            
-            
-            
+
+
+
             f_name = commands["--out_directory"] + items + ".csv"
             out_file = csvf.CsvFile(f_name)
             header = commands["--sitename"] + ',\nTIMESTAMP,' + items \
                                                 + '\nUTC+0,UNITS\n,avg\n'
-            
+
             out_file.string_to_header(header)
             out_file.add_dates(times)
             out_file.add_data(1,avgs[items])
-         
+
             out_file.append()
-            
-           
+
+
         my_file.close()
 
     exit_on_success()
 
 if __name__ == "__main__":
     main()
-
 

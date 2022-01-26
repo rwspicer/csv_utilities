@@ -104,7 +104,7 @@ def main():
 
     try:
         commands = csva.ArgClass(FLAGS, (), HELP_STR)
-    except RuntimeError, error_message:
+    except ( RuntimeError, error_message ):
         exit_on_failure(error_message[0])
 
     if commands.is_missing_flags():
@@ -243,9 +243,4 @@ class rh_util(util.utility_base):
 if __name__ == "__main__":
     rhu = rh_util()
     rhu.run()
-
-
-
-
-
 

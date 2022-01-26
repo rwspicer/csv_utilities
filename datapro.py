@@ -82,7 +82,7 @@ based on datapro v 0.2 by Bob Busey
         Realized I hadn't updated the comments in a long time. This update adds
         option to pass param_file csv on command line.  Previous updates since
         2014 include a bit more error information passed to standard interface
-        a bit update throughout csv_utilities to become python3 compatible
+        a big update throughout csv_utilities to become python3 compatible
         and peridodically more sensor options in the data_types category have
         been added
 """

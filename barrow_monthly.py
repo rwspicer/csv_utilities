@@ -4,25 +4,25 @@ rawser spicer
 created: 2014/10/27
 modified: 2014/10/30
 
-        this utility gets the data from the barrow 4 ENE site on 
+        this utility gets the data from the barrow 4 ENE site on
     www.ncdc.noaa.gov. the data is saved in montly files and a full total
     time period file.
-    
+
     version 2014.10.30.1:
         fixed minor bug in formatting of output
-    
+
     version 2014.10.29.2:
         removed a rogue return statement used in testing.
 
     version 2014.10.29.1:
-        fixed flag features, Flags cannot be called before __init__ has been 
-    fully executed, so a function to process flags was added and is called in 
+        fixed flag features, Flags cannot be called before __init__ has been
+    fully executed, so a function to process flags was added and is called in
     main
 
     version 2014.10.28.1:
         first version, flag features not working
- 
-    
+
+
 """
 from httplib2 import Http
 from datetime import date
@@ -37,7 +37,7 @@ import csv_lib.utility as util
 
 class NCDCCsv(object):
     """
-        this class can be used to get the data from one of the sites on 
+        this class can be used to get the data from one of the sites on
     www.ncdc.noaa.gov. This data will be in csv file format for a give month and
     year.
     """
@@ -47,15 +47,15 @@ class NCDCCsv(object):
         """
         if len(str(month)) == 1:
             month = "0" + str(month)
-        
+
         self.url = "http://www.ncdc.noaa.gov/crn/newmonthsummary?"+\
                     "station_id=1007&yyyymm=" + str(year) + str(month)+\
                     "&format=csv"
         self.response = ""
-  
+
         self.save_name = s_dir + "barrow_4_ENE_" + str(year) + str(month) + \
                         ".csv"
-        
+
     def get_csv(self):
         """
             gets the .csv from the noaa website
@@ -66,7 +66,7 @@ class NCDCCsv(object):
                 self.response = self.response.replace("*&nbsp","")
                 self.response = self.response.replace(";","")
                 break
-                          
+
     def save(self):
         """
             saves the data to a file
@@ -74,14 +74,14 @@ class NCDCCsv(object):
         outfile = open(self.save_name, "w")
         outfile.write(self.response)
         outfile.close()
-        
+
 HELP_STRING = """
-        this utility can get the .csv data for the barrow site 
-    from the noaa web site form feb 2008 to now. 
-    
+        this utility can get the .csv data for the barrow site
+    from the noaa web site form feb 2008 to now.
+
     example usage:
         python barrow_monthly.py --out_path=<path>
-    
+
     flag info
         --out_path:         <<path_to_file output>> a path to where outputs
                             will be written
@@ -93,17 +93,17 @@ HELP_STRING = """
 
 class Barrow_Fetcher(util.utility_base):
     """
-    this utility can get the .csv data for the barrow site 
+    this utility can get the .csv data for the barrow site
     from the noaa web site form feb 2008 to now.
     """
     def __init__(self):
         """
         set up the utility
-        
+
         arugments:
             year:   (int) the start year
             mon:    (int) the start month
-            
+
         post-conditions:
             the utility is ready to run
         """
@@ -111,79 +111,79 @@ class Barrow_Fetcher(util.utility_base):
                 ("--out_path",), ("--start_year","--start_month"), HELP_STRING)
         self.f_year = 2008
         self.f_mon = 2
-        
-        
+
+
     def process_commands(self):
         self.s_dir = self.commands["--out_path"]
         if len(self.commands) == 2:
-            self.errors.set_error_state("Optional Flag Error", 
+            self.errors.set_error_state("Optional Flag Error",
                     "--start_year and --start_month must both be set" + \
                     " if one is set")
-        
+
         if len(self.commands) == 3:
             cmd_year = int(self.commands["--start_year"])
             cmd_mon =  int(self.commands["--start_month"])
-            
+
             if cmd_year >= self.f_year:
                 self.f_year = cmd_year
             if cmd_mon >= self.f_mon:
                 self.f_mon = cmd_mon
-        
-        
+
+
         if not os.path.exists(self.s_dir):
             os.makedirs(self.S_dir)
-        self.m_dict = {} 
-        
-        
+        self.m_dict = {}
+
+
     def main(self):
         """
         main body
-            
+
         pre-conditions:
             f_year needs to be set to a valid date for the site (>2008)
             f_mon nees to be a vaild month for the site (>2)
-            
+
         """
         self.process_commands()
         self.evaluate_errors()
         todays_year = date.today().year
         todays_mon = date.today().month
-        
+
         p_year = self.f_year
         p_mon = self.f_mon
-        
-        print "Messege: getting data from www.ncdc.noaa.gov" + \
-              " and it may take some time"
+
+        print ("Messege: getting data from www.ncdc.noaa.gov" + \
+              " and it may take some time" )
         while True:
             if p_year == todays_year and p_mon == todays_mon:
                 break
             while threading.activeCount() > 10:
                 pass
-            
+
             t= threading.Thread(target=self.p_func, args=(p_year,p_mon))
             t.start()
-            
-            
+
+
             p_mon += 1
-            
+
             if p_mon > 12:
                 p_year += 1
                 p_mon = 1
-        
-        
+
+
         while threading.activeCount() > 1:
             pass
-        print "Messege: all data recived, compiling final output"
+        print ("Messege: all data recived, compiling final output")
         self.write_all(todays_year,todays_mon)
-        
+
     def write_all(self, todays_year, todays_mon):
         """
         writes all of the data to one .csv file
-        
+
         arugments:
             todays_year:    (int)
             todats_month:   (int)
-        
+
         pre-conditions:
             m_dict must be filled with data and not have any thing being added
             to it by a thread
@@ -207,14 +207,14 @@ class Barrow_Fetcher(util.utility_base):
                 rpl = "-" + str(num).zfill(2) + "," # replace
                 write_data = write_data.replace(tbr, rpl)
             f_stream.write(write_data)
-            
+
         f_stream.close()
-    
-        
+
+
     def p_func(self, year, month):
         """
         this function processes a month
-        
+
         arguments:
             year:   (int)
             mon:    (int)
@@ -224,19 +224,9 @@ class Barrow_Fetcher(util.utility_base):
         obj.save()
         text = obj.response[obj.response.find("\n")+1:]
         self.m_dict[str(year)+str(month)] = text[text.find("\n")+1:]
-        
-        
+
+
 if __name__ == "__main__":
     the_utility = Barrow_Fetcher()
     the_utility.run()
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
 

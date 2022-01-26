@@ -43,7 +43,7 @@ class SpeedCheck(util.utility_base):
     def __init__(self):
         """
         Sets up utility
-        
+
         Preconditions:
             none        Postconditions:
             utility is ready to be run
@@ -64,10 +64,10 @@ class SpeedCheck(util.utility_base):
         """
         download = FileDownloader(self.commands["--url"])
         download.download()
-        print download.size
-        print download.seconds
-        print str(download.rate) + " Mbps"
-        print str(download.Bps) + " Bps"
+        print (download.size)
+        print (download.seconds )
+        print (str(download.rate) + " Mbps" )
+        print (str(download.Bps) + " Bps" )
         #~ print str(download.rate * 8 ) + " bits/s"
         #~ print str(download.rate * 8 * .0000001) + " Mbits/s"
 

@@ -5,19 +5,19 @@ created: 2014/02/13
 modified: 2014/07/31
 
     gets the ip adderess from a saved ifconfig output
-    
+
     version 2014.7.31.1:
         updated documentation
 
     version 2014.5.30.1:
-        fixed typo in date portion of file header 
+        fixed typo in date portion of file header
 
     version 2014.3.12.1:
         now uses ArgClass
 
     version 2014.2.13.1:
         adds documentation and support for interface
-        
+
     version 2015.1.6.1:
         added outputs for inactive interfaces and example usage
 
@@ -32,10 +32,10 @@ def get_dev(value):
     """
         for fetching the interface from command line. will set to eth0 if no
     value is given
-    
+
     arguments
         value:      (string) the value from command line
-    """   
+    """
     if (value == ""):
         return "eth0"
     else:
@@ -45,14 +45,14 @@ UTILITY_TITLE = " ip adderess locator "
 HELP = """
         this utility can be used to get an ip adderess from the saved output of
     an ifconfig run
-    
+
     example usage:
-        python get_ip.py --infile=<saved output from ifconfig> 
-                         --outfile=<output file> 
-    
+        python get_ip.py --infile=<saved output from ifconfig>
+                         --outfile=<output file>
+
         --infile:       the input text from ifconfig
         --outfile:      where to write the ip adderss to
-        --interface:    the interface for the ip adderess (eth0 by default) 
+        --interface:    the interface for the ip adderess (eth0 by default)
          """
 REQ_FLAGS = ("--infile", "--outfile")
 OPT_FLAGS = ("--interface",)
@@ -67,14 +67,14 @@ def get_ip():
     print_center(UTILITY_TITLE, "-")
     try:
         inputs = csva.ArgClass(REQ_FLAGS, OPT_FLAGS, HELP)
-    except RuntimeError, error_message:
+    except (RuntimeError, error_message):
         exit_on_failure(error_message[0])
 
     if inputs.is_missing_flags():
         for items in inputs.get_missing_flags():
             print_center(" ERROR: flag <" + items + "> is required ", "*")
-        exit_on_failure()    
-    
+        exit_on_failure()
+
     f_stream = open(inputs['--infile'], 'r')
 
     while (True):
@@ -85,7 +85,7 @@ def get_ip():
                 break
         except IndexError:
             continue
-    
+
     while (True):
         line = f_stream.readline()
         line = line.split()
@@ -96,15 +96,15 @@ def get_ip():
             f_stream = open(inputs['--outfile'], 'w')
             f_stream.write("interface not active")
             break
-    
+
         if (seg[0] == 'addr'):
             f_stream.close()
             f_stream = open(inputs['--outfile'], 'w')
             f_stream.write(seg[1])
             break
-            
+
     f_stream.close()
-    exit_on_success()    
+    exit_on_success()
 
 if __name__ == "__main__":
     get_ip()

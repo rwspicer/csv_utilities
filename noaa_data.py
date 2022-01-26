@@ -4,10 +4,10 @@ rawser spicer
 created: 2014/07/25
 modified: 2014/07/31
 
-        this utility will allow preciptation data to be pulled from a page on 
-    the noaa web site. This utility uses beautiful soup 4 for html parsing 
-    http://www.crummy.com/software/BeautifulSoup/. apt-get install python-bs4 
-    will install beautiful soup. The file contains a class for the data and 
+        this utility will allow preciptation data to be pulled from a page on
+    the noaa web site. This utility uses beautiful soup 4 for html parsing
+    http://www.crummy.com/software/BeautifulSoup/. apt-get install python-bs4
+    will install beautiful soup. The file contains a class for the data and
     an utility to use the class from the command line
 
     version 2014.8.4.1:
@@ -15,26 +15,26 @@ modified: 2014/07/31
 
     version 2014.7.31.1:
         more documentation updates
-    
+
     version 2014.07.29.4:
         updated documentation
 
     version 2014.07.29.3:
         fixed error caused when data is unavaible
-    
+
     version 2014.07.29.2:
         fixed bug that has the data in the reverse order
-    
+
     version 2014.07.29.1:
         the utility now works for saving data
 
     version 2014.07.28.1
-        the bsic class has been compleated. Work will now begin on making a 
+        the bsic class has been compleated. Work will now begin on making a
     useful appilcation
-    
+
     version 2014.01.05.1:
         added exmaple usage
-    
+
 """
 from httplib2 import Http
 from bs4 import BeautifulSoup as bes
@@ -54,9 +54,9 @@ mon_to_num = {"JAN":"1", "FEB":"2", "MAR":"3", "APR":"4", "MAY":"5",
 
 class NCDCData(object):
     """
-        this class can be used to get the data from one of the sites on 
+        this class can be used to get the data from one of the sites on
     www.ncdc.noaa.gov. Hourly percipatation and temperature are avaible for
-    a given date. 
+    a given date.
     """
     def __init__(self):
         """
@@ -70,21 +70,21 @@ class NCDCData(object):
         self.save_name = "default.csv"
         self.ID="1007"
         self.units = ["UTC+0", "deg C", "mm"]
-        
+
     def get_html(self):
         """
             gets the html from the noaa website
         """
         self.html = bes(Http().request(self.url)[1])
 
-        
+
     def process_html(self):
         """
-            processes the html into a more useable format 
+            processes the html into a more useable format
         """
         for item in self.html.find(id="hourly").thead.find_all('th'):
             self.col_names.append(item.text.strip().replace("Calculated",""))
-            
+
         raw_data = self.html.find(id="hourly").tbody
         for row in raw_data.find_all('tr'):
             row_list = []
@@ -95,15 +95,15 @@ class NCDCData(object):
                                     .replace("  ", "").strip())
             self.parsed_table.append(row_list)
 
-                                           
+
     def construct_url(self, date = "now", ID = "1007"):
         """
             makes the url to get the given dates url
-        
+
         arguments:
             date:       <now|yesterday>(string) or (datetime.datetime)
             ID:         (int) the site id from the ncdc website
-        
+
         exceptions:
             TypeError:  if the date type is not correct
         """
@@ -116,27 +116,27 @@ class NCDCData(object):
             t_delta = datetime.timedelta(days=1)
             date = datetime.datetime.today() - t_delta
             date = date.replace(hour=0)
-            date = date.strftime("%Y%m%d%H")            
+            date = date.strftime("%Y%m%d%H")
         elif type(date) is datetime.datetime:
             date = date.strftime("%Y%m%d%H")
         else:
             msg = 'Argument date must be "now", "yesterday", or a' + \
-            ' datetime.datetime object' 
-            raise TypeError, msg
-            
-        
+            ' datetime.datetime object'
+            raise (TypeError, msg )
+
+
         self.url = "https://www.ncdc.noaa.gov/crn/station.htm?stationId="+ \
         ID + "&date=" + date + "&timeZoneID=US%2fAlaska&hours=24"
-        
-        
+
+
     def create_table(self):
         """
             creates the table from the parsed html
         """
         date = []
         temp = []
-        precip = [] 
-        
+        precip = []
+
         for items in self.parsed_table:
             my_str = items[0]
             idx = my_str.find(',')+1
@@ -169,18 +169,18 @@ class NCDCData(object):
                 precip.append(float(my_str))
             except:
                 precip.append(float('nan'))
-        
+
         date.reverse()
         temp.reverse()
         precip.reverse()
-        
+
         self.ncdc_table = [date, temp, precip]
-            
+
 
     def set_filename(self, name):
         """
             allows the filename to be changed
-        
+
         arguments:
             name:   (string) a filename
         """
@@ -190,15 +190,15 @@ class NCDCData(object):
     def save_table(self, col = 2):
         """
             saves the table
-        
+
         arguments:
-            col:    <1|2>(int) the column to save to the data section of the 
+            col:    <1|2>(int) the column to save to the data section of the
                 output file
         """
         try:
             output = csvf.CsvFile(self.save_name)
         except IOError:
-            raise IOError, "NCDCData, error opening output file"
+            raise (IOError, "NCDCData, error opening output file" )
         if not output.exists():
             h_str = "NCDC Site-" + self.ID + ',\n' + \
                                 "TIMESTAMP," + self.col_names[col] + '\n' + \
@@ -207,11 +207,11 @@ class NCDCData(object):
             output.string_to_header(str(h_str))
             output[0] = self.ncdc_table[0]
             output[1] = self.ncdc_table[col]
-            
+
         else:
             output.add_dates(self.ncdc_table[0])
             output.add_data(1, self.ncdc_table[col])
-            
+
         output.save()
 
 
@@ -221,25 +221,25 @@ OPT_FLAGS = ()
 REQ_FLAGS = ("--time", "--filename", "--id", "--value")
 
 HELP_STRING = """
-        This Utility gets the teperature or precipitation data from a NOAA 
+        This Utility gets the teperature or precipitation data from a NOAA
     website.
-    
+
     example usage:
-        python noaa_data.py --time=yesterday --filenmae=<output>.csv 
+        python noaa_data.py --time=yesterday --filenmae=<output>.csv
                             --id=1007 --value=temp
-    
+
         --time = <"now"|"yesterday"|"yyyy/mm/dd">
-                    the time and day you want the utility to get, can be "now", 
+                    the time and day you want the utility to get, can be "now",
                 "yesterday", or a date in the YYYY-MM-DD formant
-        
+
         --filename = <*.csv>
                     the file the data will be saved to
-        
+
         --id = <*number*>
                     the id for the site (ie. 1007 for the AK Barrow 4 ENE site)
-        
+
         --value = <temp|precip>
-                    save the tempearure or precipatation 
+                    save the tempearure or precipatation
               """
 
 def main():
@@ -249,23 +249,23 @@ def main():
     print_center(UTILITY_TITLE, '-')
     try:
         commands = csva.ArgClass(REQ_FLAGS, OPT_FLAGS, HELP_STRING)
-    except RuntimeError, error_message:
+    except (RuntimeError, error_message ):
         exit_on_failure(error_message[0])
 
     if commands.is_missing_flags():
         for items in commands.get_missing_flags():
             print_center(" ERROR: flag <" + items + "> is required ", "*")
         exit_on_failure()
-    
+
     time = commands["--time"]
     if not (time == "now" or time == "yesterday"):
         time = time.split('-')
         time = datetime.datetime(int(time[0]),int(time[1]),int(time[2]))
-    
+
     if commands['--value'] == 'temp':
         col = 1
     else:
-        col = 2 
+        col = 2
 
     my_data = NCDCData()
     my_data.construct_url(time, commands['--id'])
@@ -283,6 +283,4 @@ def main():
 #---run utility----
 if __name__ == "__main__":
     main()
-
-
 
