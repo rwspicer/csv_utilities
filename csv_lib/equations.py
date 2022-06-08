@@ -521,7 +521,7 @@ class wind(equation):
 
     def calc(self):
         """
-        wind qc (slightly different from wtraight up num type)
+        wind qc (slightly different from straight up num type)
         """
         if abs(self.variable) >= 6999:
             self.result = self.bad_value
@@ -531,4 +531,3 @@ class wind(equation):
             self.result = self.bad_value
         else:
             self.result = self.variable
-

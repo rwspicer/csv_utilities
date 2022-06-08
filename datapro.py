@@ -713,17 +713,17 @@ class datapro_v3(util.utility_base):
                 continue
 
             if not qc_high == 0.0 and data[index] > qc_high:
-
+                data[index] = bad_val
                 error_log.append(str(date) + "qc_high_violation,limit =" \
                                   + str(qc_high) + ',RawDataValue ' + \
                                     str(data[index]))
-                data[index] = bad_val
-            if not qc_low == 0.0 and data[index] < qc_low:
 
-                error_log.append(str(date) + "qc_high_violation,limit =" \
+            if not qc_low == 0.0 and data[index] < qc_low:
+                data[index] = bad_val
+                error_log.append(str(date) + "qc_low_violation,limit =" \
                                   + str(qc_low) + ',RawDataValue ' + \
                                     str(data[index]))
-                data[index] = bad_val
+
 
 
             if qc_step != 0:
@@ -807,4 +807,3 @@ class datapro_v3(util.utility_base):
 if __name__ == "__main__":
     datapro = datapro_v3()
     datapro.run()
-
