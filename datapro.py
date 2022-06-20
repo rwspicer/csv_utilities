@@ -688,6 +688,8 @@ class datapro_v3(util.utility_base):
             return eq.rh(data_point, self.key_file["bad_data_val"]).result
         elif d_type == "swrad" :
             return eq.sw(data_point, bad_val=self.key_file["bad_data_val"], mult=param["Coef_2"]  ).result
+        elif d_type == "bad":
+            return float(self.key_file["bad_data_val"])
         else:
             return float(self.key_file["bad_data_val"])
 

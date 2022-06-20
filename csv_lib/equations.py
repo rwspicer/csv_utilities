@@ -426,13 +426,13 @@ class rh(equation):
 
     def calc(self):
         """
-        Calculates the polynomial function value
+        Checks Relative Humidity for over-ranging.
         """
-        if abs(self.variable) >= 108:
+        if abs(self.variable) >= 108.:
             self.result = self.bad_value
             return
-        elif self.variable > 100 and self.variable < 108 :
-            self.result = 100
+        elif self.variable > 100. and self.variable < 108. :
+            self.result = 100.
             return
         self.result = self.variable
 
@@ -531,3 +531,28 @@ class wind(equation):
             self.result = self.bad_value
         else:
             self.result = self.variable
+
+
+class bad(equation):
+    """
+    The function is for bad data: data that was valid at one point but the sensor is broken and not fixed
+    """
+
+    def __init__ (self, var, bad_val = 6999):
+        """
+        Class initializer
+
+        Arguments:
+            var:            (convertible to float)  the domain value
+            bad_val:        (convertible to int) the value to indicate a
+                        bad data item
+        """
+        super(bad, self).__init__(var, bad_val)
+
+
+    def calc(self):
+        """
+        convert data regardless of value to bad_val
+        """
+
+        self.result = self.bad_val
